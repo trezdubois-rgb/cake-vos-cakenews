@@ -1,0 +1,27 @@
+{
+  "name": "MIMO Flux",
+  "short_name": "MIMO",
+  "description": "Actualités virales avec navigation immersive",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["news", "social", "entertainment"],
+  "shortcuts": [
+    {
+      "name": "Mon Flux",
+      "short_name": "Mon Flux",
+      "description": "Accéder à mon flux personnalisé",
+      "url": "/mon-flux",
+      "icons": [{ "src": "/favicon.ico", "sizes": "192x192" }]
+    }
+  ]
+}
