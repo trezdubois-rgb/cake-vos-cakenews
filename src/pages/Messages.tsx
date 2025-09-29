@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, MessageSquare, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +47,11 @@ const mockMessages: Message[] = [
 
 const Messages = () => {
   const [messages, setMessages] = useState(mockMessages);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
 
   const markAsRead = (id: string) => {
     setMessages(messages.map(msg => 
@@ -157,7 +162,23 @@ const Messages = () => {
           </TabsList>
           
           <TabsContent value="all" className="mt-4">
-            {messages.length === 0 ? (
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map(i => (
+                  <Card key={i} className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="skeleton w-4 h-4 rounded" />
+                        <div className="skeleton h-4 w-2/3 rounded" />
+                      </div>
+                      <div className="skeleton w-8 h-8 rounded" />
+                    </div>
+                    <div className="skeleton h-3 w-1/3 rounded mb-2" />
+                    <div className="skeleton h-3 w-full rounded" />
+                  </Card>
+                ))}
+              </div>
+            ) : messages.length === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare size={48} className="mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">Aucun message</h3>
@@ -173,15 +194,37 @@ const Messages = () => {
           </TabsContent>
           
           <TabsContent value="notifications" className="mt-4">
-            {notifications.map(message => (
-              <MessageCard key={message.id} message={message} />
-            ))}
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map(i => (
+                  <Card key={i} className="p-4">
+                    <div className="skeleton h-4 w-2/3 rounded mb-2" />
+                    <div className="skeleton h-3 w-full rounded" />
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              notifications.map(message => (
+                <MessageCard key={message.id} message={message} />
+              ))
+            )}
           </TabsContent>
           
           <TabsContent value="admin" className="mt-4">
-            {adminMessages.map(message => (
-              <MessageCard key={message.id} message={message} />
-            ))}
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map(i => (
+                  <Card key={i} className="p-4">
+                    <div className="skeleton h-4 w-2/3 rounded mb-2" />
+                    <div className="skeleton h-3 w-full rounded" />
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              adminMessages.map(message => (
+                <MessageCard key={message.id} message={message} />
+              ))
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Settings, Heart, Bookmark, Clock, Download, Trash2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +26,11 @@ const mockPreferences: UserPreference[] = [
 const Profil = () => {
   const [preferences, setPreferences] = useState(mockPreferences);
   const [newPreference, setNewPreference] = useState({ type: 'tag', value: '' });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 400);
+  }, []);
 
   const addPreference = () => {
     if (newPreference.value.trim()) {
@@ -96,57 +101,73 @@ const Profil = () => {
                 </p>
               </CardHeader>
               <CardContent>
-                {/* Add new preference */}
-                <div className="flex gap-2 mb-4">
-                  <select
-                    value={newPreference.type}
-                    onChange={(e) => setNewPreference({ ...newPreference, type: e.target.value })}
-                    className="px-3 py-2 border border-border rounded-md text-sm"
-                  >
-                    <option value="tag">Sujet</option>
-                    <option value="author">Auteur</option>
-                    <option value="category">Catégorie</option>
-                    <option value="format">Format</option>
-                  </select>
-                  <Input
-                    placeholder="Ajouter une préférence..."
-                    value={newPreference.value}
-                    onChange={(e) => setNewPreference({ ...newPreference, value: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && addPreference()}
-                  />
-                  <Button onClick={addPreference} size="sm">
-                    <Plus size={16} />
-                  </Button>
-                </div>
-
-                {/* Preferences list */}
-                <div className="space-y-2">
-                  {preferences.map(preference => (
-                    <div key={preference.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Badge variant={getPreferenceTypeColor(preference.type) as any} className="text-xs">
-                          {getPreferenceTypeLabel(preference.type)}
-                        </Badge>
-                        <span className="font-medium">{preference.value}</span>
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="skeleton w-16 h-6 rounded-full" />
+                          <div className="skeleton h-5 w-32 rounded" />
+                        </div>
+                        <div className="skeleton w-8 h-8 rounded" />
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removePreference(preference.id)}
-                        className="text-muted-foreground hover:text-destructive"
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {/* Add new preference */}
+                    <div className="flex gap-2 mb-4">
+                      <select
+                        value={newPreference.type}
+                        onChange={(e) => setNewPreference({ ...newPreference, type: e.target.value })}
+                        className="px-3 py-2 border border-border rounded-md text-sm"
                       >
-                        <X size={16} />
+                        <option value="tag">Sujet</option>
+                        <option value="author">Auteur</option>
+                        <option value="category">Catégorie</option>
+                        <option value="format">Format</option>
+                      </select>
+                      <Input
+                        placeholder="Ajouter une préférence..."
+                        value={newPreference.value}
+                        onChange={(e) => setNewPreference({ ...newPreference, value: e.target.value })}
+                        onKeyPress={(e) => e.key === 'Enter' && addPreference()}
+                      />
+                      <Button onClick={addPreference} size="sm">
+                        <Plus size={16} />
                       </Button>
                     </div>
-                  ))}
-                </div>
 
-                {preferences.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Settings size={48} className="mx-auto mb-4 opacity-50" />
-                    <p>Aucune préférence configurée.</p>
-                    <p className="text-sm">Ajoutez vos sujets favoris pour personnaliser votre flux.</p>
-                  </div>
+                    {/* Preferences list */}
+                    <div className="space-y-2">
+                      {preferences.map(preference => (
+                        <div key={preference.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Badge variant={getPreferenceTypeColor(preference.type) as any} className="text-xs">
+                              {getPreferenceTypeLabel(preference.type)}
+                            </Badge>
+                            <span className="font-medium">{preference.value}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removePreference(preference.id)}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <X size={16} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {preferences.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Settings size={48} className="mx-auto mb-4 opacity-50" />
+                        <p>Aucune préférence configurée.</p>
+                        <p className="text-sm">Ajoutez vos sujets favoris pour personnaliser votre flux.</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -161,11 +182,25 @@ const Profil = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <Heart size={48} className="mx-auto mb-4 opacity-50" />
-                  <p>Aucun article en favori.</p>
-                  <p className="text-sm">Vos articles favoris apparaîtront ici.</p>
-                </div>
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="flex gap-3">
+                        <div className="skeleton w-20 h-20 rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <div className="skeleton h-5 w-3/4 rounded" />
+                          <div className="skeleton h-4 w-1/2 rounded" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Heart size={48} className="mx-auto mb-4 opacity-50" />
+                    <p>Aucun article en favori.</p>
+                    <p className="text-sm">Vos articles favoris apparaîtront ici.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -179,11 +214,28 @@ const Profil = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <Clock size={48} className="mx-auto mb-4 opacity-50" />
-                  <p>Historique vide.</p>
-                  <p className="text-sm">Votre historique de lecture sera conservé ici.</p>
-                </div>
+                {isLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="space-y-2">
+                        <div className="skeleton h-3 w-1/4 rounded" />
+                        <div className="flex gap-3">
+                          <div className="skeleton w-16 h-16 rounded-lg" />
+                          <div className="flex-1 space-y-2">
+                            <div className="skeleton h-4 w-2/3 rounded" />
+                            <div className="skeleton h-3 w-1/3 rounded" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Clock size={48} className="mx-auto mb-4 opacity-50" />
+                    <p>Historique vide.</p>
+                    <p className="text-sm">Votre historique de lecture sera conservé ici.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

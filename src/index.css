@@ -161,19 +161,9 @@
     touch-action: pan-y;
   }
 
-  /* Item containers */
+  /* Item containers - NO animations as per requirements */
   .feed-item {
     @apply absolute inset-0 flex flex-col;
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .feed-item.active {
-    transform: translateX(0);
-  }
-
-  .feed-item.prev {
-    transform: translateX(-100%);
   }
 
   /* Hero image with gradient overlay */
@@ -187,10 +177,10 @@
     filter: brightness(0.9);
   }
 
-  /* Social action buttons */
+  /* Social action buttons - NO animations */
   .social-button {
-    @apply inline-flex items-center justify-center rounded-full p-2 transition-all;
-    @apply bg-black/10 hover:bg-black/20 active:scale-95;
+    @apply inline-flex items-center justify-center rounded-full p-2;
+    @apply bg-black/10 hover:bg-black/20;
     backdrop-filter: blur(8px);
   }
 
@@ -220,9 +210,9 @@
     bottom: max(calc(env(safe-area-inset-bottom) + 80px), 96px);
   }
 
-  /* Skeleton loading */
+  /* Skeleton loading - NO animation as per requirements */
   .skeleton {
-    @apply animate-pulse bg-muted rounded;
+    @apply bg-muted rounded;
   }
 
   /* Glass morphism effect */

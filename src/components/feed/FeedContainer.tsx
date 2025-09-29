@@ -54,9 +54,10 @@ export const FeedContainer = ({ items = mockFeedItems, personalFilter = false }:
   if (!currentItem) {
     return (
       <div className="feed-container flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Chargement du flux...</p>
+        <div className="text-center space-y-4">
+          <div className="skeleton w-12 h-12 rounded-full mx-auto"></div>
+          <div className="skeleton h-4 w-48 rounded mx-auto"></div>
+          <p className="text-muted-foreground text-sm">Chargement du flux...</p>
         </div>
       </div>
     );
@@ -74,8 +75,8 @@ export const FeedContainer = ({ items = mockFeedItems, personalFilter = false }:
           {preloadedItems.slice(0, 5).map((_, idx) => (
             <div
               key={idx}
-              className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'bg-white' : 'bg-white/30'
+              className={`h-1 flex-1 rounded-full ${
+                idx === currentIndex ? 'bg-primary' : 'bg-muted/30'
               }`}
             />
           ))}
