@@ -14,16 +14,306 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ads: {
+        Row: {
+          active: boolean | null
+          click_count: number | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          image_url: string
+          impression_count: number | null
+          link_url: string | null
+          placement: string
+          title: string
+        }
+        Insert: {
+          active?: boolean | null
+          click_count?: number | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          image_url: string
+          impression_count?: number | null
+          link_url?: string | null
+          placement: string
+          title: string
+        }
+        Update: {
+          active?: boolean | null
+          click_count?: number | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          image_url?: string
+          impression_count?: number | null
+          link_url?: string | null
+          placement?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      article_media: {
+        Row: {
+          article_id: string
+          caption: string | null
+          created_at: string
+          id: string
+          media_type: string
+          media_url: string
+          position: number
+        }
+        Insert: {
+          article_id: string
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_type: string
+          media_url: string
+          position?: number
+        }
+        Update: {
+          article_id?: string
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_media_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          author_id: string
+          category: string
+          content_html: string
+          created_at: string
+          hero_image_url: string | null
+          hero_video_url: string | null
+          id: string
+          like_count: number | null
+          published: boolean | null
+          published_at: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id: string
+          category: string
+          content_html: string
+          created_at?: string
+          hero_image_url?: string | null
+          hero_video_url?: string | null
+          id?: string
+          like_count?: number | null
+          published?: boolean | null
+          published_at?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content_html?: string
+          created_at?: string
+          hero_image_url?: string | null
+          hero_video_url?: string | null
+          id?: string
+          like_count?: number | null
+          published?: boolean | null
+          published_at?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          article_id: string
+          content: string
+          created_at: string
+          id: string
+          like_count: number | null
+          parent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          content: string
+          created_at?: string
+          id?: string
+          like_count?: number | null
+          parent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          like_count?: number | null
+          parent_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_interactions: {
+        Row: {
+          article_id: string
+          favorited: boolean | null
+          id: string
+          last_seen_at: string | null
+          liked: boolean | null
+          time_spent_sec: number | null
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          favorited?: boolean | null
+          id?: string
+          last_seen_at?: string | null
+          liked?: boolean | null
+          time_spent_sec?: number | null
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          favorited?: boolean | null
+          id?: string
+          last_seen_at?: string | null
+          liked?: boolean | null
+          time_spent_sec?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interactions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +440,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
