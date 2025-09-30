@@ -10,6 +10,11 @@ import MonFlux from "./pages/MonFlux";
 import Messages from "./pages/Messages";
 import Profil from "./pages/Profil";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
+import ArticlesList from "./pages/admin/ArticlesList";
+import ArticleEditor from "./pages/admin/ArticleEditor";
+import AdsManager from "./pages/admin/AdsManager";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +31,12 @@ const App = () => (
             <Route path="/mon-flux" element={<MonFlux />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profil" element={<Profil />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/articles" element={<ArticlesList />} />
+            <Route path="/admin/articles/new" element={<ArticleEditor />} />
+            <Route path="/admin/articles/edit/:id" element={<ArticleEditor />} />
+            <Route path="/admin/ads" element={<AdsManager />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
