@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { Header } from "@/components/layout/Header";
 import Accueil from "./pages/Accueil";
 import MonFlux from "./pages/MonFlux";
 import Messages from "./pages/Messages";
@@ -19,6 +20,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="relative min-h-screen bg-background">
+          <Header />
           <Routes>
             <Route path="/" element={<Accueil />} />
             <Route path="/mon-flux" element={<MonFlux />} />
