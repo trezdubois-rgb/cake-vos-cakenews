@@ -24,7 +24,7 @@ interface Article {
   profiles: {
     display_name: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 }
 
 export default function Article() {
@@ -57,7 +57,7 @@ export default function Article() {
         .single();
 
       if (error) throw error;
-      setArticle(data);
+      setArticle(data as any);
 
       // Increment view count
       await supabase
@@ -89,7 +89,7 @@ export default function Article() {
       if (error) throw error;
 
       const formattedComments: Comment[] = await Promise.all(
-        (data || []).map(async (comment) => {
+        (data || []).map(async (comment: any) => {
           const { data: replies } = await supabase
             .from("comments")
             .select(`
@@ -113,7 +113,7 @@ export default function Article() {
             likes: comment.like_count || 0,
             isLiked: false,
             createdAt: comment.created_at,
-            replies: (replies || []).map(reply => ({
+            replies: ((replies as any) || []).map((reply: any) => ({
               id: reply.id,
               author: {
                 id: reply.user_id,
@@ -184,7 +184,7 @@ export default function Article() {
           .delete()
           .eq("id", existingLike.id);
 
-        await supabase.rpc("decrement_comment_likes", { comment_id: commentId });
+        await (supabase.rpc as any)("decrement_comment_likes", { comment_id: commentId });
       } else {
         await supabase
           .from("comment_likes")
@@ -193,7 +193,7 @@ export default function Article() {
             user_id: user.id,
           });
 
-        await supabase.rpc("increment_comment_likes", { comment_id: commentId });
+        await (supabase.rpc as any)("increment_comment_likes", { comment_id: commentId });
       }
 
       fetchComments();
