@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Play, Pause } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import { ArticleActions } from "@/components/article/ArticleActions";
 import { CommentSection, Comment } from "@/components/article/CommentSection";
 import { toast } from "sonner";
@@ -113,7 +113,7 @@ export default function Article() {
             likes: comment.like_count || 0,
             isLiked: false,
             createdAt: comment.created_at,
-            replies: ((replies as any) || []).map((reply: any) => ({
+            replies: (replies || []).map((reply: any) => ({
               id: reply.id,
               author: {
                 id: reply.user_id,
@@ -184,7 +184,7 @@ export default function Article() {
           .delete()
           .eq("id", existingLike.id);
 
-        await (supabase.rpc as any)("decrement_comment_likes", { comment_id: commentId });
+        await supabase.rpc("decrement_comment_likes", { comment_id: commentId });
       } else {
         await supabase
           .from("comment_likes")
@@ -193,7 +193,7 @@ export default function Article() {
             user_id: user.id,
           });
 
-        await (supabase.rpc as any)("increment_comment_likes", { comment_id: commentId });
+        await supabase.rpc("increment_comment_likes", { comment_id: commentId });
       }
 
       fetchComments();
