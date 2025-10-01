@@ -12,6 +12,7 @@ import Profil from "./pages/Profil";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import Article from "./pages/Article";
 import ArticlesList from "./pages/admin/ArticlesList";
 import ArticleEditor from "./pages/admin/ArticleEditor";
 import AdsManager from "./pages/admin/AdsManager";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/profil" element={<Profil />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/article/:id" element={<Article />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/articles" element={<ArticlesList />} />
             <Route path="/admin/articles/new" element={<ArticleEditor />} />
