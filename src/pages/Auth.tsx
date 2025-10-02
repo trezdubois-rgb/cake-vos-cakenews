@@ -55,9 +55,14 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md p-8">
-        <h1 className="text-3xl font-bold text-center mb-8" style={{ fontFamily: 'Pacifico, cursive' }}>
-          Cake Admin
-        </h1>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Pacifico, cursive' }}>
+            Cake Admin
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Espace administrateur
+          </p>
+        </div>
         
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
