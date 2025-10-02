@@ -36,7 +36,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold" style={{ fontFamily: 'Pacifico, cursive' }}>

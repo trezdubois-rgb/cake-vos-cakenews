@@ -5,12 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { compressImageFor1080 } from "@/lib/imageCompression";
 
 export default function ArticleEditor() {
   const { id } = useParams();
@@ -74,13 +76,18 @@ export default function ArticleEditor() {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      toast.info("Compression de l'image en cours...");
+      
+      // Compress image
+      const compressedFile = await compressImageFor1080(file);
+      
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('article-media')
-        .upload(filePath, file);
+        .upload(filePath, compressedFile);
 
       if (uploadError) throw uploadError;
 
@@ -89,7 +96,7 @@ export default function ArticleEditor() {
         .getPublicUrl(filePath);
 
       setFormData({ ...formData, hero_image_url: data.publicUrl });
-      toast.success("Image uploadée");
+      toast.success("Image compressée et uploadée avec succès");
     } catch (error: any) {
       toast.error("Erreur lors de l'upload");
     } finally {
@@ -169,7 +176,7 @@ export default function ArticleEditor() {
   if (!user || !isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Link to="/admin/articles">
@@ -231,13 +238,10 @@ export default function ArticleEditor() {
           </div>
 
           <div>
-            <Label htmlFor="content">Contenu HTML *</Label>
-            <Textarea
-              id="content"
-              value={formData.content_html}
-              onChange={(e) => setFormData({ ...formData, content_html: e.target.value })}
-              placeholder="<p>Votre contenu...</p>"
-              className="min-h-[300px] font-mono text-sm"
+            <Label htmlFor="content">Contenu de l'article *</Label>
+            <RichTextEditor
+              content={formData.content_html}
+              onChange={(html) => setFormData({ ...formData, content_html: html })}
             />
           </div>
 
@@ -255,13 +259,14 @@ export default function ArticleEditor() {
             </div>
             <div className="flex flex-wrap gap-2">
               {formData.tags.map(tag => (
-                <span
+                <Badge
                   key={tag}
-                  className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm cursor-pointer"
+                  variant="default"
+                  className="cursor-pointer hover:bg-primary/80"
                   onClick={() => handleRemoveTag(tag)}
                 >
-                  {tag} ✕
-                </span>
+                  {tag} <X className="ml-1 h-3 w-3" />
+                </Badge>
               ))}
             </div>
           </div>

@@ -2,8 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 import { Header } from "@/components/layout/Header";
 import Accueil from "./pages/Accueil";
 import MonFlux from "./pages/MonFlux";
@@ -16,8 +17,39 @@ import Article from "./pages/Article";
 import ArticlesList from "./pages/admin/ArticlesList";
 import ArticleEditor from "./pages/admin/ArticleEditor";
 import AdsManager from "./pages/admin/AdsManager";
+import DesignManager from "./pages/admin/DesignManager";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="relative min-h-screen bg-background pb-16 md:pb-0">
+      <Header />
+      <Routes>
+        <Route path="/" element={<Accueil />} />
+        <Route path="/mon-flux" element={<MonFlux />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/profil" element={<Profil />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/article/:id" element={<Article />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/articles" element={<ArticlesList />} />
+        <Route path="/admin/articles/new" element={<ArticleEditor />} />
+        <Route path="/admin/articles/edit/:id" element={<ArticleEditor />} />
+        <Route path="/admin/ads" element={<AdsManager />} />
+        <Route path="/admin/design" element={<DesignManager />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {isAdminRoute ? <AdminBottomNav /> : <BottomNav />}
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -25,25 +57,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="relative min-h-screen bg-background">
-          <Header />
-          <Routes>
-            <Route path="/" element={<Accueil />} />
-            <Route path="/mon-flux" element={<MonFlux />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/profil" element={<Profil />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/article/:id" element={<Article />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/articles" element={<ArticlesList />} />
-            <Route path="/admin/articles/new" element={<ArticleEditor />} />
-            <Route path="/admin/articles/edit/:id" element={<ArticleEditor />} />
-            <Route path="/admin/ads" element={<AdsManager />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <BottomNav />
-        </div>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
