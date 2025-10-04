@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import { toast } from "sonner";
@@ -23,13 +25,19 @@ export default function ArticleEditor() {
 
   const [formData, setFormData] = useState({
     title: "",
-    category: "",
+    category_id: "",
     content_html: "",
     tags: [] as string[],
-    published: false,
+    status: "draft",
+    excerpt: "",
+    featured: false,
     hero_image_url: "",
     hero_video_url: "",
+    seo_title: "",
+    seo_description: "",
   });
+
+  const [categories, setCategories] = useState<any[]>([]);
 
   const [tagInput, setTagInput] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -41,12 +49,29 @@ export default function ArticleEditor() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (id && user && isAdmin) {
-      fetchArticle();
-    } else {
-      setLoading(false);
+    if (user && isAdmin) {
+      fetchCategories();
+      if (id) {
+        fetchArticle();
+      } else {
+        setLoading(false);
+      }
     }
   }, [id, user, isAdmin]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error: any) {
+      console.error("Error loading categories:", error);
+    }
+  };
 
   const fetchArticle = async () => {
     try {
@@ -121,18 +146,20 @@ export default function ArticleEditor() {
     });
   };
 
-  const handleSave = async () => {
-    if (!formData.title || !formData.category || !formData.content_html) {
-      toast.error("Veuillez remplir tous les champs obligatoires");
+  const handleSave = async (publish = false) => {
+    if (!formData.title || !formData.content_html) {
+      toast.error("Titre et contenu sont obligatoires");
       return;
     }
 
     setSaving(true);
     try {
+      const status = publish ? "published" : formData.status;
       const articleData = {
         ...formData,
+        status,
         author_id: user?.id,
-        published_at: formData.published ? new Date().toISOString() : null,
+        published_at: publish ? new Date().toISOString() : null,
       };
 
       if (id) {
@@ -201,12 +228,31 @@ export default function ArticleEditor() {
           </div>
 
           <div>
-            <Label htmlFor="category">Catégorie *</Label>
+            <Label htmlFor="category">Catégorie</Label>
+            <Select
+              value={formData.category_id}
+              onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.icon} {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="excerpt">Extrait</Label>
             <Input
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              placeholder="Tech, Sport, Culture..."
+              id="excerpt"
+              value={formData.excerpt}
+              onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+              placeholder="Court résumé de l'article..."
             />
           </div>
 
@@ -271,18 +317,50 @@ export default function ArticleEditor() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={formData.published}
-              onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
-            />
-            <Label>Publier immédiatement</Label>
-          </div>
+          <Tabs defaultValue="seo">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="seo">SEO</TabsTrigger>
+              <TabsTrigger value="options">Options</TabsTrigger>
+            </TabsList>
+            <TabsContent value="seo" className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="seo_title">Titre SEO</Label>
+                <Input
+                  id="seo_title"
+                  value={formData.seo_title}
+                  onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+                  placeholder="Titre optimisé pour les moteurs de recherche"
+                />
+              </div>
+              <div>
+                <Label htmlFor="seo_description">Description SEO</Label>
+                <Input
+                  id="seo_description"
+                  value={formData.seo_description}
+                  onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+                  placeholder="Description optimisée (150-160 caractères)"
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="options" className="space-y-4 mt-4">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.featured}
+                  onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                />
+                <Label>Article mis en avant</Label>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="flex gap-2">
-            <Button onClick={handleSave} disabled={saving} className="flex-1">
+            <Button onClick={() => handleSave(false)} disabled={saving} variant="outline" className="flex-1">
               <Save className="mr-2 h-4 w-4" />
-              {saving ? "Sauvegarde..." : "Sauvegarder"}
+              Enregistrer brouillon
+            </Button>
+            <Button onClick={() => handleSave(true)} disabled={saving} className="flex-1">
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? "Publication..." : "Publier"}
             </Button>
           </div>
         </Card>

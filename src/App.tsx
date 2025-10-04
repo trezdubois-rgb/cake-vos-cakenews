@@ -19,6 +19,8 @@ import ArticleEditor from "./pages/admin/ArticleEditor";
 import AdsManager from "./pages/admin/AdsManager";
 import DesignManager from "./pages/admin/DesignManager";
 import AdminSettings from "./pages/admin/AdminSettings";
+import MediaLibrary from "./pages/admin/MediaLibrary";
+import CategoriesManager from "./pages/admin/CategoriesManager";
 
 const queryClient = new QueryClient();
 
@@ -41,8 +43,10 @@ const AppContent = () => {
         <Route path="/admin/articles/new" element={<ArticleEditor />} />
         <Route path="/admin/articles/edit/:id" element={<ArticleEditor />} />
         <Route path="/admin/ads" element={<AdsManager />} />
-        <Route path="/admin/design" element={<DesignManager />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/design" element={<DesignManager />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/media" element={<MediaLibrary />} />
+          <Route path="/admin/categories" element={<CategoriesManager />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
