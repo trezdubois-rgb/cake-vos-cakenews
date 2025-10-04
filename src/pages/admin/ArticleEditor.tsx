@@ -157,6 +157,7 @@ export default function ArticleEditor() {
       const status = publish ? "published" : formData.status;
       const articleData = {
         ...formData,
+        category: formData.category_id || "",
         status,
         author_id: user?.id,
         published_at: publish ? new Date().toISOString() : null,
