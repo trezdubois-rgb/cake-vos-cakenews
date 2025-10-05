@@ -1,11 +1,11 @@
-import { Home, FileText, Image, Palette, Settings } from "lucide-react";
+import { Home, FileText, Image, Palette, Settings, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { id: "dashboard", label: "Accueil", icon: Home, path: "/admin" },
   { id: "articles", label: "Articles", icon: FileText, path: "/admin/articles" },
-  { id: "ads", label: "Pubs", icon: Image, path: "/admin/ads" },
+  { id: "users", label: "Utilisateurs", icon: Users, path: "/admin/users" },
   { id: "design", label: "Design", icon: Palette, path: "/admin/design" },
   { id: "settings", label: "Réglages", icon: Settings, path: "/admin/settings" },
 ];

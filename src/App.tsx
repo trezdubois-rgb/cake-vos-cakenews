@@ -21,6 +21,7 @@ import DesignManager from "./pages/admin/DesignManager";
 import AdminSettings from "./pages/admin/AdminSettings";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import CategoriesManager from "./pages/admin/CategoriesManager";
+import UsersManager from "./pages/admin/UsersManager";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const AppContent = () => {
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/media" element={<MediaLibrary />} />
           <Route path="/admin/categories" element={<CategoriesManager />} />
+          <Route path="/admin/users" element={<UsersManager />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

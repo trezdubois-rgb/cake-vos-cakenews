@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Users, BarChart3, LogOut, Image, FolderTree, Video } from "lucide-react";
+import { FileText, Users, BarChart3, LogOut, Image, FolderTree, Video, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Admin() {
@@ -90,7 +90,9 @@ export default function Admin() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
@@ -181,6 +183,16 @@ export default function Admin() {
                 <h2 className="text-xl font-semibold">Design</h2>
               </div>
               <p className="text-muted-foreground">Palettes et styles</p>
+            </Card>
+          </Link>
+
+          <Link to="/admin/users">
+            <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <div className="flex items-center gap-3 mb-2">
+                <Shield className="h-6 w-6" />
+                <h2 className="text-xl font-semibold">Utilisateurs</h2>
+              </div>
+              <p className="text-muted-foreground">Gérer les rôles</p>
             </Card>
           </Link>
         </div>

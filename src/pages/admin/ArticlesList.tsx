@@ -83,7 +83,29 @@ export default function ArticlesList() {
     );
   }
 
-  if (!user || !isAdmin) return null;
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-6 border-orange-500">
+            <p className="text-center text-muted-foreground">
+              ⚠️ Vous n'avez pas les droits administrateur.
+            </p>
+            <div className="mt-4 text-center">
+              <Button onClick={() => navigate("/admin")}>
+                Retour au tableau de bord
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
