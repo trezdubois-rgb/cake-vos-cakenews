@@ -35,6 +35,7 @@ export default function ArticleEditor() {
     hero_video_url: "",
     seo_title: "",
     seo_description: "",
+    published: false,
   });
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -154,12 +155,20 @@ export default function ArticleEditor() {
 
     setSaving(true);
     try {
-      const status = publish ? "published" : formData.status;
       const articleData = {
-        ...formData,
-        category: formData.category_id || "",
-        status,
+        title: formData.title,
+        category_id: formData.category_id || null,
+        content_html: formData.content_html,
+        tags: formData.tags,
+        status: publish ? "published" : "draft",
+        excerpt: formData.excerpt || null,
+        featured: formData.featured,
+        hero_image_url: formData.hero_image_url || null,
+        hero_video_url: formData.hero_video_url || null,
+        seo_title: formData.seo_title || null,
+        seo_description: formData.seo_description || null,
         author_id: user?.id,
+        published: publish,
         published_at: publish ? new Date().toISOString() : null,
       };
 
@@ -182,7 +191,8 @@ export default function ArticleEditor() {
 
       navigate("/admin/articles");
     } catch (error: any) {
-      toast.error("Erreur lors de la sauvegarde");
+      console.error("Erreur de sauvegarde:", error);
+      toast.error(`Erreur lors de la sauvegarde: ${error.message}`);
     } finally {
       setSaving(false);
     }

@@ -231,4 +231,37 @@
     content: '';
     @apply absolute inset-0 bg-seen/10 rounded pointer-events-none;
   }
+
+  /* Prose styling for rich text editor */
+  .prose {
+    @apply text-foreground;
+  }
+
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply text-foreground;
+  }
+
+  .prose a {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  .prose strong {
+    @apply text-foreground font-semibold;
+  }
+
+  .prose code {
+    @apply bg-muted text-foreground px-1 py-0.5 rounded text-sm;
+  }
+
+  .prose pre {
+    @apply bg-muted text-foreground;
+  }
+
+  .prose blockquote {
+    @apply border-l-primary text-muted-foreground;
+  }
+
+  .prose img {
+    @apply rounded-lg;
+  }
 }
