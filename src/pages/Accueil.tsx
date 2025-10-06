@@ -23,11 +23,18 @@ const Accueil = () => {
           )
         `)
         .eq("published", true)
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false })
+        .limit(4);
 
       if (error) throw error;
 
-      const formattedItems = (data || []).map((article: any) => ({
+      if (!data || data.length === 0) {
+        setFeedItems([]);
+        setLoading(false);
+        return;
+      }
+
+      const formattedItems = data.map((article: any) => ({
         id: article.id,
         type: "article" as const,
         slug: article.id,
@@ -66,6 +73,17 @@ const Accueil = () => {
         <div className="space-y-4">
           <Skeleton className="h-96 w-full" />
           <Skeleton className="h-96 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (feedItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Aucun article disponible</h2>
+          <p className="text-muted-foreground">Les articles publiés apparaîtront ici.</p>
         </div>
       </div>
     );

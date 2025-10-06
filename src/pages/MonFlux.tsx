@@ -27,11 +27,18 @@ const MonFlux = () => {
           )
         `)
         .eq("published", true)
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false })
+        .limit(4);
 
       if (error) throw error;
 
-      const formattedItems = (data || []).map((article: any) => ({
+      if (!data || data.length === 0) {
+        setPersonalizedItems([]);
+        setLoading(false);
+        return;
+      }
+
+      const formattedItems = data.map((article: any) => ({
         id: article.id,
         type: "article" as const,
         slug: article.id,
