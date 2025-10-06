@@ -6,6 +6,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
+import Youtube from '@tiptap/extension-youtube';
 import { Button } from '@/components/ui/button';
 import {
   Bold,
@@ -23,7 +24,8 @@ import {
   Highlighter,
   Undo,
   Redo,
-  Code
+  Code,
+  Video
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -36,8 +38,11 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     extensions: [
       StarterKit,
       Image.configure({
-        inline: true,
+        inline: false,
         allowBase64: true,
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full h-auto',
+        },
       }),
       Link.configure({
         openOnClick: false,
@@ -52,6 +57,13 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       Color,
       Highlight.configure({
         multicolor: true,
+      }),
+      Youtube.configure({
+        width: 640,
+        height: 360,
+        HTMLAttributes: {
+          class: 'rounded-lg my-4',
+        },
       }),
     ],
     content,
@@ -90,6 +102,37 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
+  const addYoutubeVideo = () => {
+    const url = window.prompt('URL de la vidéo YouTube:');
+    if (url) {
+      editor.chain().focus().setYoutubeVideo({ src: url }).run();
+    }
+  };
+
+  const addCustomVideo = () => {
+    const url = window.prompt('URL de la vidéo (TikTok, Vimeo, Facebook, etc.):');
+    if (url) {
+      let embedUrl = url;
+      let height = 400;
+      
+      // Convertir les URLs en URLs embed
+      if (url.includes('tiktok.com')) {
+        const videoId = url.match(/\/video\/(\d+)/)?.[1];
+        if (videoId) embedUrl = `https://www.tiktok.com/embed/v2/${videoId}`;
+        height = 600;
+      } else if (url.includes('vimeo.com')) {
+        const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+        if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}`;
+      } else if (url.includes('facebook.com')) {
+        embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&width=640`;
+      }
+      
+      // Insérer un iframe personnalisé via HTML
+      const iframeHtml = `<div class="video-wrapper my-4"><iframe src="${embedUrl}" width="100%" height="${height}" frameborder="0" allowfullscreen class="rounded-lg"></iframe></div>`;
+      editor.chain().focus().insertContent(iframeHtml).run();
+    }
   };
 
   return (
@@ -210,6 +253,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="sm"
           onClick={addImage}
+          title="Ajouter une image"
         >
           <ImageIcon className="h-4 w-4" />
         </Button>
@@ -217,8 +261,27 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           type="button"
           variant="ghost"
           size="sm"
+          onClick={addYoutubeVideo}
+          title="Ajouter une vidéo YouTube"
+        >
+          <Video className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={addCustomVideo}
+          title="Ajouter une vidéo (TikTok, Vimeo, Facebook, etc.)"
+        >
+          <Video className="h-4 w-4 opacity-70" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           className={editor.isActive('highlight') ? 'bg-muted' : ''}
+          title="Surligner"
         >
           <Highlighter className="h-4 w-4" />
         </Button>

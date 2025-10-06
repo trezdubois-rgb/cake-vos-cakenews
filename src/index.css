@@ -254,14 +254,30 @@
   }
 
   .prose pre {
-    @apply bg-muted text-foreground;
+    @apply bg-muted text-foreground p-4 rounded-lg overflow-x-auto;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0;
   }
 
   .prose blockquote {
-    @apply border-l-primary text-muted-foreground;
+    @apply border-l-4 border-primary pl-4 py-2 my-4 italic text-muted-foreground bg-muted/30 rounded-r;
   }
 
   .prose img {
-    @apply rounded-lg;
+    @apply rounded-lg my-4;
+  }
+
+  .prose .video-wrapper {
+    @apply my-4;
+  }
+
+  .prose .video-wrapper iframe {
+    @apply w-full rounded-lg;
+  }
+
+  .ProseMirror-selectednode {
+    @apply outline outline-2 outline-primary;
   }
 }

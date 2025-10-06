@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Heart, Share2, Eye, Play, Pause, MessageCircle } from "lucide-react";
+import { Heart, Share2, Eye, Play, Pause, MessageCircle, ExternalLink } from "lucide-react";
 import { FeedItem as FeedItemType, getUserInteraction } from "@/data/mockData";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CommentSection } from "@/components/article/CommentSection";
 import { HideMenu } from "@/components/article/HideMenu";
+import { Link } from "react-router-dom";
 
 interface FeedItemProps {
   item: FeedItemType;
@@ -305,6 +306,16 @@ export const FeedItem = ({ item, isActive }: FeedItemProps) => {
                   #{tag}
                 </Badge>
               ))}
+            </div>
+
+            {/* Read full article button */}
+            <div className="mt-6 flex justify-center">
+              <Link to={`/article/${item.id}`}>
+                <Button variant="default" size="lg" className="gap-2">
+                  <ExternalLink size={18} />
+                  Lire l'article complet
+                </Button>
+              </Link>
             </div>
 
             {/* Comments Section */}
