@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
 import { ArticleActions } from "@/components/article/ArticleActions";
 import { CommentSection, Comment } from "@/components/article/CommentSection";
+import { BlockRenderer } from "@/components/article/BlockRenderer";
+import { Block } from "@/components/editor/BlockEditor";
 import { toast } from "sonner";
 
 interface Article {
@@ -14,6 +16,7 @@ interface Article {
   title: string;
   category: string;
   content_html: string;
+  content_blocks?: Block[];
   tags: string[];
   hero_image_url: string | null;
   hero_video_url: string | null;
@@ -296,10 +299,16 @@ export default function Article() {
         )}
 
         {/* Article Content */}
-        <div 
-          className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-headings:font-bold prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary prose-a:font-semibold prose-strong:text-foreground prose-strong:font-bold mb-8"
-          dangerouslySetInnerHTML={{ __html: article.content_html }}
-        />
+        {article.content_blocks && article.content_blocks.length > 0 ? (
+          <div className="mb-8">
+            <BlockRenderer blocks={article.content_blocks} />
+          </div>
+        ) : (
+          <div 
+            className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-headings:font-bold prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary prose-a:font-semibold prose-strong:text-foreground prose-strong:font-bold mb-8"
+            dangerouslySetInnerHTML={{ __html: article.content_html }}
+          />
+        )}
 
         {/* Tags */}
         {article.tags && article.tags.length > 0 && (

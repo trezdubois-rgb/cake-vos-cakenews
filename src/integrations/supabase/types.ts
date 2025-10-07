@@ -152,6 +152,7 @@ export type Database = {
           author_id: string
           category: string | null
           category_id: string | null
+          content_blocks: Json | null
           content_html: string
           created_at: string
           excerpt: string | null
@@ -162,6 +163,7 @@ export type Database = {
           like_count: number | null
           published: boolean | null
           published_at: string | null
+          scheduled_publish_at: string | null
           seo_description: string | null
           seo_title: string | null
           status: string | null
@@ -174,6 +176,7 @@ export type Database = {
           author_id: string
           category?: string | null
           category_id?: string | null
+          content_blocks?: Json | null
           content_html: string
           created_at?: string
           excerpt?: string | null
@@ -184,6 +187,7 @@ export type Database = {
           like_count?: number | null
           published?: boolean | null
           published_at?: string | null
+          scheduled_publish_at?: string | null
           seo_description?: string | null
           seo_title?: string | null
           status?: string | null
@@ -196,6 +200,7 @@ export type Database = {
           author_id?: string
           category?: string | null
           category_id?: string | null
+          content_blocks?: Json | null
           content_html?: string
           created_at?: string
           excerpt?: string | null
@@ -206,6 +211,7 @@ export type Database = {
           like_count?: number | null
           published?: boolean | null
           published_at?: string | null
+          scheduled_publish_at?: string | null
           seo_description?: string | null
           seo_title?: string | null
           status?: string | null
@@ -215,6 +221,13 @@ export type Database = {
           view_count?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "articles_category_id_fkey"
             columns: ["category_id"]

@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import { toast } from "sonner";
-import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { BlockEditor, Block } from "@/components/editor/BlockEditor";
 import { compressImageFor1080 } from "@/lib/imageCompression";
 
 export default function ArticleEditor() {
@@ -27,6 +27,7 @@ export default function ArticleEditor() {
     title: "",
     category_id: "",
     content_html: "",
+    content_blocks: [] as Block[],
     tags: [] as string[],
     status: "draft",
     excerpt: "",
@@ -36,6 +37,7 @@ export default function ArticleEditor() {
     seo_title: "",
     seo_description: "",
     published: false,
+    scheduled_publish_at: "",
   });
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -83,7 +85,17 @@ export default function ArticleEditor() {
         .single();
 
       if (error) throw error;
-      setFormData(data);
+      
+      // Initialize blocks if empty
+      const blocks = data.content_blocks && Array.isArray(data.content_blocks) && data.content_blocks.length > 0
+        ? (data.content_blocks as unknown as Block[])
+        : [{ id: 'initial', type: 'paragraph' as const, content: '' }];
+
+      setFormData({
+        ...data,
+        content_blocks: blocks,
+        scheduled_publish_at: data.scheduled_publish_at ? new Date(data.scheduled_publish_at).toISOString().slice(0, 16) : "",
+      });
     } catch (error: any) {
       toast.error("Erreur lors du chargement de l'article");
     } finally {
@@ -147,20 +159,48 @@ export default function ArticleEditor() {
     });
   };
 
-  const handleSave = async (publish = false) => {
-    if (!formData.title || !formData.content_html) {
+  const handleSave = async (publish = false, schedule = false) => {
+    if (!formData.title || formData.content_blocks.length === 0) {
       toast.error("Titre et contenu sont obligatoires");
+      return;
+    }
+
+    if (schedule && !formData.scheduled_publish_at) {
+      toast.error("Veuillez sélectionner une date de publication");
       return;
     }
 
     setSaving(true);
     try {
+      // Generate HTML from blocks for backward compatibility
+      const contentHtml = formData.content_blocks.map(block => {
+        switch (block.type) {
+          case 'paragraph':
+            return `<p>${block.content}</p>`;
+          case 'heading':
+            return `<h${block.attributes?.level || 2}>${block.content}</h${block.attributes?.level || 2}>`;
+          case 'image':
+            return `<figure><img src="${block.content}" alt="${block.attributes?.caption || ''}" />${block.attributes?.caption ? `<figcaption>${block.attributes.caption}</figcaption>` : ''}</figure>`;
+          case 'quote':
+            return `<blockquote><p>${block.content}</p>${block.attributes?.author ? `<footer>— ${block.attributes.author}</footer>` : ''}</blockquote>`;
+          case 'code':
+            return `<pre><code>${block.content}</code></pre>`;
+          case 'list':
+            const tag = block.content?.ordered ? 'ol' : 'ul';
+            const items = (block.content?.items || []).map((item: string) => `<li>${item}</li>`).join('');
+            return `<${tag}>${items}</${tag}>`;
+          default:
+            return '';
+        }
+      }).join('');
+
       const articleData = {
         title: formData.title,
         category_id: formData.category_id || null,
-        content_html: formData.content_html,
+        content_html: contentHtml,
+        content_blocks: formData.content_blocks as any,
         tags: formData.tags,
-        status: publish ? "published" : "draft",
+        status: schedule ? "scheduled" : (publish ? "published" : "draft"),
         excerpt: formData.excerpt || null,
         featured: formData.featured,
         hero_image_url: formData.hero_image_url || null,
@@ -168,8 +208,9 @@ export default function ArticleEditor() {
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         author_id: user?.id,
-        published: publish,
-        published_at: publish ? new Date().toISOString() : null,
+        published: publish && !schedule,
+        published_at: publish && !schedule ? new Date().toISOString() : null,
+        scheduled_publish_at: schedule ? new Date(formData.scheduled_publish_at).toISOString() : null,
       };
 
       if (id) {
@@ -179,14 +220,14 @@ export default function ArticleEditor() {
           .eq("id", id);
 
         if (error) throw error;
-        toast.success("Article mis à jour");
+        toast.success(schedule ? "Article planifié" : "Article mis à jour");
       } else {
         const { error } = await supabase
           .from("articles")
           .insert([articleData]);
 
         if (error) throw error;
-        toast.success("Article créé");
+        toast.success(schedule ? "Article planifié" : "Article créé");
       }
 
       navigate("/admin/articles");
@@ -317,10 +358,10 @@ export default function ArticleEditor() {
           </div>
 
           <div>
-            <Label htmlFor="content">Contenu de l'article *</Label>
-            <RichTextEditor
-              content={formData.content_html}
-              onChange={(html) => setFormData({ ...formData, content_html: html })}
+            <Label>Contenu de l'article *</Label>
+            <BlockEditor
+              blocks={formData.content_blocks.length > 0 ? formData.content_blocks : [{ id: 'initial', type: 'paragraph', content: '' }]}
+              onChange={(blocks) => setFormData({ ...formData, content_blocks: blocks })}
             />
           </div>
 
@@ -383,15 +424,34 @@ export default function ArticleEditor() {
                 />
                 <Label>Article mis en avant</Label>
               </div>
+              <div>
+                <Label htmlFor="scheduled_date">Date de publication programmée</Label>
+                <Input
+                  id="scheduled_date"
+                  type="datetime-local"
+                  value={formData.scheduled_publish_at}
+                  onChange={(e) => setFormData({ ...formData, scheduled_publish_at: e.target.value })}
+                  min={new Date().toISOString().slice(0, 16)}
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Laissez vide pour publier immédiatement
+                </p>
+              </div>
             </TabsContent>
           </Tabs>
 
           <div className="flex gap-2">
-            <Button onClick={() => handleSave(false)} disabled={saving} variant="outline" className="flex-1">
+            <Button onClick={() => handleSave(false, false)} disabled={saving} variant="outline" className="flex-1">
               <Save className="mr-2 h-4 w-4" />
-              Enregistrer brouillon
+              Brouillon
             </Button>
-            <Button onClick={() => handleSave(true)} disabled={saving} className="flex-1">
+            {formData.scheduled_publish_at && (
+              <Button onClick={() => handleSave(false, true)} disabled={saving} variant="secondary" className="flex-1">
+                <Save className="mr-2 h-4 w-4" />
+                Planifier
+              </Button>
+            )}
+            <Button onClick={() => handleSave(true, false)} disabled={saving} className="flex-1">
               <Save className="mr-2 h-4 w-4" />
               {saving ? "Publication..." : "Publier"}
             </Button>
