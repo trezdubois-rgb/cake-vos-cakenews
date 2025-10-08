@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SearchDialog } from "./SearchDialog";
+import { ThemeSwitcher } from "../ThemeSwitcher";
+import { NotificationBadge } from "../notifications/NotificationBadge";
+import { Button } from "@/components/ui/button";
 
 export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -59,8 +62,12 @@ export const Header = () => {
           <p className="text-xs text-muted-foreground">Vos Cakenews</p>
         </Link>
 
-        {/* Search Icon */}
-        <SearchDialog />
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <SearchDialog />
+          <NotificationBadge />
+          <ThemeSwitcher />
+        </div>
       </div>
     </header>
   );
