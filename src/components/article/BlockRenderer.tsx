@@ -1,4 +1,5 @@
 import { Block } from "../editor/BlockEditor";
+import { AudioPlayer } from "./AudioPlayer";
 
 interface BlockRendererProps {
   blocks: Block[];
@@ -141,6 +142,15 @@ export const BlockRenderer = ({ blocks }: BlockRendererProps) => {
           </ListTag>
         );
       }
+
+      case 'audio':
+        return (
+          <AudioPlayer
+            key={block.id}
+            url={block.content}
+            title={block.attributes?.title}
+          />
+        );
 
       default:
         return null;

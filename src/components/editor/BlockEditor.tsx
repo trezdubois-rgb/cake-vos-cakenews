@@ -8,12 +8,13 @@ import { VideoBlock } from "./blocks/VideoBlock";
 import { QuoteBlock } from "./blocks/QuoteBlock";
 import { CodeBlock } from "./blocks/CodeBlock";
 import { ListBlock } from "./blocks/ListBlock";
+import { AudioBlock } from "./blocks/AudioBlock";
 import { BlockTypeSelector } from "./BlockTypeSelector";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export interface Block {
   id: string;
-  type: 'paragraph' | 'heading' | 'image' | 'video' | 'quote' | 'code' | 'list';
+  type: 'paragraph' | 'heading' | 'image' | 'video' | 'audio' | 'quote' | 'code' | 'list';
   content: any;
   attributes?: Record<string, any>;
 }
@@ -77,6 +78,8 @@ export const BlockEditor = ({ blocks, onChange }: BlockEditorProps) => {
         return <ImageBlock {...commonProps} />;
       case 'video':
         return <VideoBlock {...commonProps} />;
+      case 'audio':
+        return <AudioBlock {...commonProps} />;
       case 'quote':
         return <QuoteBlock {...commonProps} />;
       case 'code':

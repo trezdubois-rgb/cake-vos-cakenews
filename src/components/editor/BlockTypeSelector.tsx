@@ -8,6 +8,7 @@ import {
   Quote, 
   Code, 
   List,
+  Music,
   X
 } from "lucide-react";
 import { Block } from "./BlockEditor";
@@ -23,6 +24,7 @@ export const BlockTypeSelector = ({ onSelect, onClose }: BlockTypeSelectorProps)
     { type: 'heading' as const, icon: Heading, label: 'Titre' },
     { type: 'image' as const, icon: Image, label: 'Image' },
     { type: 'video' as const, icon: Video, label: 'Vidéo' },
+    { type: 'audio' as const, icon: Music, label: 'Audio' },
     { type: 'quote' as const, icon: Quote, label: 'Citation' },
     { type: 'code' as const, icon: Code, label: 'Code' },
     { type: 'list' as const, icon: List, label: 'Liste' },

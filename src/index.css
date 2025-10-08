@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Merriweather:wght@300;400;700;900&family=Lora:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -130,22 +132,65 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    overscroll-behavior: none; /* Disable pull-to-refresh */
-    -webkit-touch-callout: none; /* Disable callout on iOS */
-    -webkit-user-select: none; /* Disable text selection */
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Merriweather', 'Lora', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.8;
+    overscroll-behavior: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
     user-select: none;
   }
 
-  /* Mobile-first typography */
-  h1 { @apply text-2xl font-bold leading-tight; }
-  h2 { @apply text-xl font-semibold leading-tight; }
-  h3 { @apply text-lg font-medium leading-tight; }
+  /* Mobile-first typography - Magazine style */
+  h1 { 
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight; 
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  h2 { 
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight; 
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  h3 { 
+    @apply text-2xl md:text-3xl lg:text-4xl font-medium leading-tight; 
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  
+  p {
+    @apply text-lg md:text-xl;
+    margin-bottom: 1.5rem;
+  }
 
   /* Smooth scrolling for articles */
   .article-content {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+  
+  .article-content h2 {
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .article-content h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .article-content p {
+    margin-bottom: 1.75rem;
+  }
+  
+  /* Safe area padding utilities */
+  .pb-safe-bottom {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  
+  .pb-safe-bottom-actions {
+    padding-bottom: calc(8rem + env(safe-area-inset-bottom));
   }
 }
 
