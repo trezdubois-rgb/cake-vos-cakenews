@@ -149,6 +149,7 @@ export type Database = {
       }
       articles: {
         Row: {
+          audio_url: string | null
           author_id: string
           category: string | null
           category_id: string | null
@@ -161,6 +162,7 @@ export type Database = {
           hero_video_url: string | null
           id: string
           like_count: number | null
+          media_type: string | null
           published: boolean | null
           published_at: string | null
           scheduled_publish_at: string | null
@@ -173,6 +175,7 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          audio_url?: string | null
           author_id: string
           category?: string | null
           category_id?: string | null
@@ -185,6 +188,7 @@ export type Database = {
           hero_video_url?: string | null
           id?: string
           like_count?: number | null
+          media_type?: string | null
           published?: boolean | null
           published_at?: string | null
           scheduled_publish_at?: string | null
@@ -197,6 +201,7 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          audio_url?: string | null
           author_id?: string
           category?: string | null
           category_id?: string | null
@@ -209,6 +214,7 @@ export type Database = {
           hero_video_url?: string | null
           id?: string
           like_count?: number | null
+          media_type?: string | null
           published?: boolean | null
           published_at?: string | null
           scheduled_publish_at?: string | null
@@ -415,6 +421,63 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link_url: string | null
+          message: string
+          read: boolean
+          related_article_id: string | null
+          related_comment_id: string | null
+          related_user_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link_url?: string | null
+          message: string
+          read?: boolean
+          related_article_id?: string | null
+          related_comment_id?: string | null
+          related_user_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link_url?: string | null
+          message?: string
+          read?: boolean
+          related_article_id?: string | null
+          related_comment_id?: string | null
+          related_user_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_related_article_id_fkey"
+            columns: ["related_article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_related_comment_id_fkey"
+            columns: ["related_comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -497,6 +560,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      view_tracking: {
+        Row: {
+          article_id: string
+          id: string
+          last_view_increment: string
+          user_id: string
+          view_date: string
+          viewed_at: string
+          views_generated: number
+        }
+        Insert: {
+          article_id: string
+          id?: string
+          last_view_increment?: string
+          user_id: string
+          view_date?: string
+          viewed_at?: string
+          views_generated?: number
+        }
+        Update: {
+          article_id?: string
+          id?: string
+          last_view_increment?: string
+          user_id?: string
+          view_date?: string
+          viewed_at?: string
+          views_generated?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "view_tracking_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
