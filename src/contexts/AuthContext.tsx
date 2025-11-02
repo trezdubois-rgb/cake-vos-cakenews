@@ -43,16 +43,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (user) {
-      const getUserRole = async () => {
-        const { data, error } = await supabase.rpc('get_user_role', { p_user_id: user.id });
-        if (error) {
-          console.error('Error fetching user role:', error);
+      const checkAdminRole = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'admin')
+            .maybeSingle();
+
+          if (error) throw error;
+          setIsAdmin(!!data);
+        } catch (error) {
+          console.error('Error checking admin role:', error);
           setIsAdmin(false);
-        } else {
-          setIsAdmin(data === 'admin');
         }
       };
-      getUserRole();
+      checkAdminRole();
     } else {
       setIsAdmin(false);
     }
