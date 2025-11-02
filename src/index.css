@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Chakra+Petch:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* MIMO Flux Design System - Mobile-first, TikTok-inspired */
+
+@layer base {
+  :root {
+    /* Core colors - Deep blue theme inspired by modern social apps */
+    --background: 0 0% 100%;
+    --foreground: 220 13% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+    /* Primary - Modern blue gradient */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 70%;
+    /* Secondary - Soft gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
+    /* Muted - Light grays */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8.9% 46.1%;
+    /* Accent - Vibrant interactions */
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    /* Social interaction colors */
+    --like: 0 84% 60%;
+    --like-foreground: 0 0% 100%;
+    --favorite: 45 93% 58%;
+    --favorite-foreground: 0 0% 100%;
+    --seen: 220 8.9% 46.1%;
+    /* Status colors */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    /* UI elements */
+    --border: 220 13% 91%;
+    /* ... existing code ... */
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 18px;
+    line-height: 1.8;
+    overscroll-behavior: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .logo-cakenews {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  /* Mobile-first typography - Magazine style optimized for Open Sans */
+  h1 {
+    @apply text-[30px] md:text-[40px] font-extrabold leading-[1.2];
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 800;
+    color: #ff005c;
+  }
+  h2 {
+    @apply text-[24px] md:text-[32px] font-bold leading-[1.25];
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 800;
+    color: #ff005c;
+  }
+  h3 {
+    @apply text-[20px] md:text-[26px] font-semibold leading-[1.4];
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    color: #ff005c;
+  }
+  h4 {
+    @apply text-[17px] md:text-[20px] font-semibold leading-normal;
+    color: #ff005c;
+  }
+  p {
+    @apply text-[15px] md:text-[16px] font-normal leading-[1.75];
+    margin-bottom: 1.5rem;
+    color: #171717;
+  }
+  blockquote, .quote {
+    @apply text-[18px] md:text-[20px] font-medium italic leading-[1.6];
+    color: #171717;
+  }
+  .caption, .author {
+    @apply text-[13px] md:text-[14px] font-normal leading-[1.4];
+    color: #6B7280;
+  }
+  .button, .ui-text {
+    @apply text-[14px] md:text-[15px] font-semibold leading-[1.3];
+    color: #171717;
+  }
+
+  /* Smooth scrolling for articles */
+  .article-content {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.125rem;
+    line-height: 1.75;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+  
+  /* Enhanced spacing for magazine-style reading */
+  .article-content h1,
+  .article-content h2,
+  .article-content h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .article-content p {
+    margin-bottom: 1.75rem;
+  }
+  
+  .article-content blockquote {
+    margin: 2rem 0;
+    padding-left: 1.5rem;
+    border-left: 3px solid #6B7280;
+  }
+  
+  .article-content ul,
+  .article-content ol {
+    margin-bottom: 1.75rem;
+    padding-left: 1.5rem;
+  }
+  
+  .article-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .article-content h2 {
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 800;
+  }
+
+  .article-content h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+  }
+
+  .article-content p {
+    margin-bottom: 1.75rem;
+  }
+
+  /* Safe area padding utilities */
+  .pb-safe-bottom {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  .pb-safe-bottom-actions {
+    padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+  }
+}
+
+@layer components {
+  /* ... existing code ... */
+}
+
+/* ... existing code ... */
