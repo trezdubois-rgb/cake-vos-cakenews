@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-import { Heart, MessageCircle, FileText } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { supabase } from '@/integrations/supabase/client';
-=======
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 interface Notification {
   id: string;
@@ -47,13 +35,7 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
   }, [open]);
 
   const fetchNotifications = async () => {
-<<<<<<< HEAD
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-=======
     const { data: { user } } = await supabase.auth.getUser();
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     if (!user) return;
 
     setLoading(true);
@@ -66,26 +48,14 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
 
     if (error) {
       console.error('Error fetching notifications:', error);
-<<<<<<< HEAD
-      toast.error('Erreur lors du chargement des notifications');
-    } else {
-      setNotifications(data ?? []);
-=======
       toast.error("Erreur lors du chargement des notifications");
     } else {
       setNotifications(data || []);
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     }
     setLoading(false);
   };
 
   const markAsRead = async (notificationId: string) => {
-<<<<<<< HEAD
-    await supabase.from('notifications').update({ read: true }).eq('id', notificationId);
-
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-=======
     await supabase
       .from('notifications')
       .update({ read: true })
@@ -93,19 +63,12 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
 
     setNotifications(prev =>
       prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     );
     onUpdate();
   };
 
   const markAllAsRead = async () => {
-<<<<<<< HEAD
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-=======
     const { data: { user } } = await supabase.auth.getUser();
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     if (!user) return;
 
     await supabase
@@ -114,15 +77,9 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
       .eq('user_id', user.id)
       .eq('read', false);
 
-<<<<<<< HEAD
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    onUpdate();
-    toast.success('Toutes les notifications ont été marquées comme lues');
-=======
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     onUpdate();
     toast.success("Toutes les notifications ont été marquées comme lues");
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   };
 
   const handleNotificationClick = (notification: Notification) => {
@@ -153,11 +110,7 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
         <SheetHeader className="px-6 py-4 border-b">
           <div className="flex items-center justify-between">
             <SheetTitle>Notifications</SheetTitle>
-<<<<<<< HEAD
-            {notifications.some((n) => !n.read) && (
-=======
             {notifications.some(n => !n.read) && (
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
               <Button variant="ghost" size="sm" onClick={markAllAsRead}>
                 Tout marquer comme lu
               </Button>
@@ -185,19 +138,11 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
                   }`}
                 >
                   <div className="flex gap-3">
-<<<<<<< HEAD
-                    <div className="flex-shrink-0 mt-1">{getIcon(notification.type)}</div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-medium mb-1 ${!notification.read ? 'text-foreground' : 'text-muted-foreground'}`}
-                      >
-=======
                     <div className="flex-shrink-0 mt-1">
                       {getIcon(notification.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium mb-1 ${!notification.read ? 'text-foreground' : 'text-muted-foreground'}`}>
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                         {notification.title}
                       </p>
                       <p className="text-xs text-muted-foreground line-clamp-2">
@@ -208,11 +153,7 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
-<<<<<<< HEAD
-                          minute: '2-digit',
-=======
                           minute: '2-digit'
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                         })}
                       </p>
                     </div>
@@ -228,8 +169,4 @@ export const NotificationsList = ({ open, onOpenChange, onUpdate }: Notification
       </SheetContent>
     </Sheet>
   );
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
