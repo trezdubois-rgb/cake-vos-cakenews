@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Bell, MessageSquare, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -7,6 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type BadgeVariant = 'destructive' | 'warning' | 'secondary';
+=======
+import { useState, useEffect } from "react";
+import { Bell, MessageSquare, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 interface Message {
   id: string;
@@ -20,6 +29,7 @@ interface Message {
 
 const mockMessages: Message[] = [
   {
+<<<<<<< HEAD
     id: '1',
     type: 'notification',
     title: 'Nouveau contenu disponible',
@@ -48,6 +58,34 @@ const mockMessages: Message[] = [
     read: true,
     priority: 'low',
   },
+=======
+    id: "1",
+    type: "notification",
+    title: "Nouveau contenu disponible",
+    content: "3 nouveaux articles dans vos sujets favoris : Technologie, IA",
+    timestamp: "2024-09-28T09:30:00Z",
+    read: false,
+    priority: "medium"
+  },
+  {
+    id: "2",
+    type: "admin",
+    title: "Bienvenue sur MIMO Flux !",
+    content: "Découvrez comment personnaliser votre flux pour une expérience optimale. Explorez les paramètres dans votre profil.",
+    timestamp: "2024-09-27T14:00:00Z",
+    read: true,
+    priority: "high"
+  },
+  {
+    id: "3",
+    type: "notification",
+    title: "Votre article favori a été mis à jour",
+    content: "L'article 'IA révolutionne le quotidien' a été enrichi avec de nouvelles informations.",
+    timestamp: "2024-09-27T10:15:00Z",
+    read: true,
+    priority: "low"
+  }
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 ];
 
 const Messages = () => {
@@ -59,6 +97,7 @@ const Messages = () => {
   }, []);
 
   const markAsRead = (id: string) => {
+<<<<<<< HEAD
     setMessages(messages.map((msg) => (msg.id === id ? { ...msg, read: true } : msg)));
   };
 
@@ -69,17 +108,37 @@ const Messages = () => {
   const unreadCount = messages.filter((msg) => !msg.read).length;
   const notifications = messages.filter((msg) => msg.type === 'notification');
   const adminMessages = messages.filter((msg) => msg.type === 'admin');
+=======
+    setMessages(messages.map(msg => 
+      msg.id === id ? { ...msg, read: true } : msg
+    ));
+  };
+
+  const deleteMessage = (id: string) => {
+    setMessages(messages.filter(msg => msg.id !== id));
+  };
+
+  const unreadCount = messages.filter(msg => !msg.read).length;
+  const notifications = messages.filter(msg => msg.type === 'notification');
+  const adminMessages = messages.filter(msg => msg.type === 'admin');
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+<<<<<<< HEAD
 
     if (diffInHours < 1) return "À l'instant";
+=======
+    
+    if (diffInHours < 1) return 'À l\'instant';
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     if (diffInHours < 24) return `Il y a ${diffInHours}h`;
     return date.toLocaleDateString('fr-FR');
   };
 
+<<<<<<< HEAD
   const getPriorityColor = (priority?: string): BadgeVariant => {
     switch (priority) {
       case 'high':
@@ -88,13 +147,24 @@ const Messages = () => {
         return 'warning';
       default:
         return 'secondary';
+=======
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case 'high': return 'destructive';
+      case 'medium': return 'warning';
+      default: return 'secondary';
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     }
   };
 
   const MessageCard = ({ message }: { message: Message }) => (
+<<<<<<< HEAD
     <Card
       className={`mb-3 transition-all ${!message.read ? 'border-primary/30 bg-primary/5' : ''}`}
     >
+=======
+    <Card className={`mb-3 transition-all ${!message.read ? 'border-primary/30 bg-primary/5' : ''}`}>
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -104,7 +174,13 @@ const Messages = () => {
               <Bell size={16} className="text-muted-foreground mt-0.5" />
             )}
             <CardTitle className="text-sm font-medium">{message.title}</CardTitle>
+<<<<<<< HEAD
             {!message.read && <div className="w-2 h-2 bg-primary rounded-full" />}
+=======
+            {!message.read && (
+              <div className="w-2 h-2 bg-primary rounded-full" />
+            )}
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
           </div>
           <Button
             variant="ghost"
@@ -120,7 +196,11 @@ const Messages = () => {
             {formatTimestamp(message.timestamp)}
           </span>
           {message.priority && (
+<<<<<<< HEAD
             <Badge variant={getPriorityColor(message.priority)} className="text-xs">
+=======
+            <Badge variant={getPriorityColor(message.priority) as any} className="text-xs">
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
               {message.priority}
             </Badge>
           )}
@@ -156,6 +236,7 @@ const Messages = () => {
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
+<<<<<<< HEAD
             <TabsTrigger value="all">Tous ({messages.length})</TabsTrigger>
             <TabsTrigger value="notifications">Notifications ({notifications.length})</TabsTrigger>
             <TabsTrigger value="admin">Messages ({adminMessages.length})</TabsTrigger>
@@ -165,6 +246,23 @@ const Messages = () => {
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
+=======
+            <TabsTrigger value="all">
+              Tous ({messages.length})
+            </TabsTrigger>
+            <TabsTrigger value="notifications">
+              Notifications ({notifications.length})
+            </TabsTrigger>
+            <TabsTrigger value="admin">
+              Messages ({adminMessages.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all" className="mt-4">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map(i => (
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                   <Card key={i} className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2 flex-1">
@@ -187,6 +285,7 @@ const Messages = () => {
                 </p>
               </div>
             ) : (
+<<<<<<< HEAD
               messages.map((message) => <MessageCard key={message.id} message={message} />)
             )}
           </TabsContent>
@@ -195,6 +294,18 @@ const Messages = () => {
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (
+=======
+              messages.map(message => (
+                <MessageCard key={message.id} message={message} />
+              ))
+            )}
+          </TabsContent>
+          
+          <TabsContent value="notifications" className="mt-4">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map(i => (
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                   <Card key={i} className="p-4">
                     <div className="skeleton h-4 w-2/3 rounded mb-2" />
                     <div className="skeleton h-3 w-full rounded" />
@@ -202,6 +313,7 @@ const Messages = () => {
                 ))}
               </div>
             ) : (
+<<<<<<< HEAD
               notifications.map((message) => <MessageCard key={message.id} message={message} />)
             )}
           </TabsContent>
@@ -210,6 +322,18 @@ const Messages = () => {
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (
+=======
+              notifications.map(message => (
+                <MessageCard key={message.id} message={message} />
+              ))
+            )}
+          </TabsContent>
+          
+          <TabsContent value="admin" className="mt-4">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map(i => (
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                   <Card key={i} className="p-4">
                     <div className="skeleton h-4 w-2/3 rounded mb-2" />
                     <div className="skeleton h-3 w-full rounded" />
@@ -217,7 +341,13 @@ const Messages = () => {
                 ))}
               </div>
             ) : (
+<<<<<<< HEAD
               adminMessages.map((message) => <MessageCard key={message.id} message={message} />)
+=======
+              adminMessages.map(message => (
+                <MessageCard key={message.id} message={message} />
+              ))
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
             )}
           </TabsContent>
         </Tabs>

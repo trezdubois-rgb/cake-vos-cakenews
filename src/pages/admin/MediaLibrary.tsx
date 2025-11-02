@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Upload, Video, File, Trash2, Search, X, Image as ImageIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,21 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { compressImageFor1080, compressImageForVertical } from '@/lib/imageCompression';
+=======
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Upload, Image as ImageIcon, Video, File, Trash2, Search, X } from "lucide-react";
+import { toast } from "sonner";
+import { compressImageFor1080, compressImageForVertical } from "@/lib/imageCompression";
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 interface Media {
   id: string;
@@ -36,17 +52,31 @@ export default function MediaLibrary() {
   const [uploading, setUploading] = useState(false);
   const [media, setMedia] = useState<Media[]>([]);
   const [filteredMedia, setFilteredMedia] = useState<Media[]>([]);
+<<<<<<< HEAD
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const navigate = useNavigate();
 
   // Hooks doivent être appelés avant toute condition de retour
+=======
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   useEffect(() => {
     if (user && isAdmin) {
       fetchMedia();
     }
   }, [user, isAdmin]);
 
+<<<<<<< HEAD
   const filterMedia = useCallback(() => {
     let filtered = media;
 
@@ -69,10 +99,16 @@ export default function MediaLibrary() {
   useEffect(() => {
     filterMedia();
   }, [media, searchQuery, selectedType, filterMedia]);
+=======
+  useEffect(() => {
+    filterMedia();
+  }, [media, searchQuery, selectedType]);
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
   const fetchMedia = async () => {
     try {
       const { data, error } = await supabase
+<<<<<<< HEAD
         .from('media_library')
         .select('*')
         .order('created_at', { ascending: false });
@@ -81,16 +117,47 @@ export default function MediaLibrary() {
       setMedia(data ?? []);
     } catch (error) {
       console.error("Erreur lors du chargement des médias", error);
+=======
+        .from("media_library")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setMedia(data || []);
+    } catch (error: any) {
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
       toast.error("Erreur lors du chargement des médias");
     } finally {
       setLoading(false);
     }
   };
 
+<<<<<<< HEAD
   const handleUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     format?: 'square' | 'vertical'
   ) => {
+=======
+  const filterMedia = () => {
+    let filtered = media;
+
+    if (selectedType !== "all") {
+      filtered = filtered.filter(m => m.file_type === selectedType);
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter(m => 
+        m.original_filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.alt_text?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.caption?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredMedia(filtered);
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, format?: 'square' | 'vertical') => {
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -98,8 +165,13 @@ export default function MediaLibrary() {
     const uploadedFiles: Media[] = [];
 
     try {
+<<<<<<< HEAD
       for (const file of files) {
         if (!file) continue;
+=======
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
         const isImage = file.type.startsWith('image/');
         const isVideo = file.type.startsWith('video/');
 
@@ -124,7 +196,13 @@ export default function MediaLibrary() {
 
         if (uploadError) throw uploadError;
 
+<<<<<<< HEAD
         const { data: urlData } = supabase.storage.from('article-media').getPublicUrl(filePath);
+=======
+        const { data: urlData } = supabase.storage
+          .from('article-media')
+          .getPublicUrl(filePath);
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
         // Create media entry
         const { data: mediaData, error: mediaError } = await supabase
@@ -146,12 +224,18 @@ export default function MediaLibrary() {
         uploadedFiles.push(mediaData);
       }
 
+<<<<<<< HEAD
       // Validation pour éviter l'injection d'objet
       const validFiles = uploadedFiles.filter((_, index) => index >= 0 && index < uploadedFiles.length);
       setMedia(prevMedia => [...validFiles.reverse(), ...prevMedia]);
       toast.success(`${uploadedFiles.length} fichier(s) uploadé(s)`);
     } catch (error) {
       console.error("Erreur lors de l'upload", error);
+=======
+      setMedia([...uploadedFiles, ...media]);
+      toast.success(`${uploadedFiles.length} fichier(s) uploadé(s)`);
+    } catch (error: any) {
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
       toast.error("Erreur lors de l'upload");
     } finally {
       setUploading(false);
@@ -159,21 +243,39 @@ export default function MediaLibrary() {
   };
 
   const handleDelete = async (id: string, url: string) => {
+<<<<<<< HEAD
     if (!confirm('Supprimer ce média ?')) return;
 
     try {
       const { error } = await supabase.from('media_library').delete().eq('id', id);
+=======
+    if (!confirm("Supprimer ce média ?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('media_library')
+        .delete()
+        .eq('id', id);
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
       if (error) throw error;
 
       // Delete from storage
       const path = url.split('/').slice(-2).join('/');
+<<<<<<< HEAD
       await supabase.storage.from("article-media").remove([path]);
 
       setMedia(media.filter((m) => m.id !== id));
       toast.success("Média supprimé");
     } catch (error) {
       console.error("Erreur lors de la suppression du média", error);
+=======
+      await supabase.storage.from('article-media').remove([path]);
+
+      setMedia(media.filter(m => m.id !== id));
+      toast.success("Média supprimé");
+    } catch (error: any) {
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
       toast.error("Erreur lors de la suppression");
     }
   };
@@ -184,25 +286,59 @@ export default function MediaLibrary() {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+<<<<<<< HEAD
   // Vérifications d'authentification après les hooks
   if (!authLoading && !isAdmin) {
     navigate('/auth');
     return null;
   }
 
+=======
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background p-8 pb-20">
         <Skeleton className="h-12 w-64 mb-8" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
+<<<<<<< HEAD
             <Skeleton key={`skeleton-media-${i}`} className="h-48" />
+=======
+            <Skeleton key={i} className="h-48" />
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
           ))}
         </div>
       </div>
     );
   }
 
+<<<<<<< HEAD
+=======
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-6 border-orange-500">
+            <p className="text-center text-muted-foreground">
+              ⚠️ Vous n'avez pas les droits administrateur.
+            </p>
+            <div className="mt-4 text-center">
+              <Button onClick={() => navigate("/admin")}>
+                Retour au tableau de bord
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto">
@@ -220,7 +356,11 @@ export default function MediaLibrary() {
               />
               <Button disabled={uploading}>
                 <Upload className="mr-2 h-4 w-4" />
+<<<<<<< HEAD
                 {uploading ? 'Upload...' : 'Upload'}
+=======
+                {uploading ? "Upload..." : "Upload"}
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
               </Button>
             </label>
           </div>
@@ -238,7 +378,11 @@ export default function MediaLibrary() {
               />
             </div>
             {searchQuery && (
+<<<<<<< HEAD
               <Button variant="ghost" size="icon" onClick={() => setSearchQuery('')}>
+=======
+              <Button variant="ghost" size="icon" onClick={() => setSearchQuery("")}>
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                 <X className="h-4 w-4" />
               </Button>
             )}
@@ -270,14 +414,25 @@ export default function MediaLibrary() {
                 {item.file_type === 'image' && (
                   <img
                     src={item.url}
+<<<<<<< HEAD
                     alt={item.alt_text ?? item.original_filename}
+=======
+                    alt={item.alt_text || item.original_filename}
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                     className="w-full h-full object-cover"
                   />
                 )}
                 {item.file_type === 'video' && (
+<<<<<<< HEAD
                   <video src={item.url} className="w-full h-full object-cover">
                     <track kind="captions" />
                   </video>
+=======
+                  <video
+                    src={item.url}
+                    className="w-full h-full object-cover"
+                  />
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
                 )}
                 {item.file_type === 'document' && (
                   <div className="flex items-center justify-center h-full">

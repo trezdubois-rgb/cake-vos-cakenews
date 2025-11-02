@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   Toast,
   ToastClose,
@@ -7,6 +8,10 @@ import {
   ToastViewport,
 } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
+=======
+import { useToast } from "@/hooks/use-toast";
+import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 export function Toaster() {
   const { toasts } = useToast();

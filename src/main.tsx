@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -19,3 +20,10 @@ if (rootElement) {
     </React.StrictMode>,
   );
 }
+=======
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(<App />);
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46

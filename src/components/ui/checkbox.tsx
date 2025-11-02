@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+=======
+import * as React from "react";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { Check } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
@@ -11,12 +19,21 @@ const Checkbox = React.forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
+<<<<<<< HEAD
       'peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
       className
     )}
     {...props}
   >
     <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
+=======
+      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+      className,
+    )}
+    {...props}
+  >
+    <CheckboxPrimitive.Indicator className={cn("flex items-center justify-center text-current")}>
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
       <Check className="h-4 w-4" />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>

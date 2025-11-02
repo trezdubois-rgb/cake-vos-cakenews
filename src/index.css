@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Chakra+Petch:wght@400;500;600;700&display=swap');
+=======
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Merriweather:wght@300;400;700;900&family=Lora:wght@400;500;600;700&display=swap');
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 @tailwind base;
 @tailwind components;
@@ -11,14 +15,25 @@
     /* Core colors - Deep blue theme inspired by modern social apps */
     --background: 0 0% 100%;
     --foreground: 220 13% 18%;
+<<<<<<< HEAD
     --card: 0 0% 100%;
     --card-foreground: 220 13% 18%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 18%;
+=======
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     /* Primary - Modern blue gradient */
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 217 91% 70%;
+<<<<<<< HEAD
     /* Secondary - Soft gray */
     --secondary: 220 14% 96%;
     --secondary-foreground: 220 13% 18%;
@@ -28,12 +43,33 @@
     /* Accent - Vibrant interactions */
     --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
+=======
+
+    /* Secondary - Soft gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
+
+    /* Muted - Light grays */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8.9% 46.1%;
+
+    /* Accent - Vibrant interactions */
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     /* Social interaction colors */
     --like: 0 84% 60%;
     --like-foreground: 0 0% 100%;
     --favorite: 45 93% 58%;
+<<<<<<< HEAD
     --favorite-foreground: 0 0% 100%;
     --seen: 220 8.9% 46.1%;
+=======
+    --favorite-foreground: 0 0% 100%; 
+    --seen: 220 8.9% 46.1%;
+
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     /* Status colors */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -41,9 +77,85 @@
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
+<<<<<<< HEAD
     /* UI elements */
     --border: 220 13% 91%;
     /* ... existing code ... */
+=======
+
+    /* UI elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    /* Modern gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-hero: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    
+    /* Shadows for depth */
+    --shadow-soft: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
+    --shadow-strong: 0 8px 32px rgba(0,0,0,0.16);
+    --shadow-glow: 0 0 24px hsl(var(--primary) / 0.3);
+
+    /* Animation timing */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius: 0.75rem;
+
+    /* Safe area support */
+    --safe-area-top: env(safe-area-inset-top);
+    --safe-area-bottom: env(safe-area-inset-bottom);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -55,7 +167,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+<<<<<<< HEAD
     font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+=======
+    font-family: 'Merriweather', 'Lora', Georgia, serif;
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     font-size: 18px;
     line-height: 1.8;
     overscroll-behavior: none;
@@ -64,6 +180,7 @@
     user-select: none;
   }
 
+<<<<<<< HEAD
   .logo-cakenews {
     font-family: 'Chakra Petch', sans-serif;
     font-weight: 700;
@@ -110,12 +227,32 @@
   .button, .ui-text {
     @apply text-[14px] md:text-[15px] font-semibold leading-[1.3];
     color: #171717;
+=======
+  /* Mobile-first typography - Magazine style */
+  h1 { 
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight; 
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  h2 { 
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight; 
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  h3 { 
+    @apply text-2xl md:text-3xl lg:text-4xl font-medium leading-tight; 
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  
+  p {
+    @apply text-lg md:text-xl;
+    margin-bottom: 1.5rem;
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   }
 
   /* Smooth scrolling for articles */
   .article-content {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+<<<<<<< HEAD
     font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1.125rem;
     line-height: 1.75;
@@ -169,18 +306,177 @@
     margin-bottom: 1.75rem;
   }
 
+=======
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+  
+  .article-content h2 {
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .article-content h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .article-content p {
+    margin-bottom: 1.75rem;
+  }
+  
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   /* Safe area padding utilities */
   .pb-safe-bottom {
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   .pb-safe-bottom-actions {
     padding-bottom: calc(8rem + env(safe-area-inset-bottom));
   }
 }
 
 @layer components {
+<<<<<<< HEAD
   /* ... existing code ... */
 }
 
 /* ... existing code ... */
+=======
+  /* TikTok-style full screen container */
+  .feed-container {
+    @apply h-screen w-screen relative overflow-hidden;
+  }
+
+  /* Swipe gesture area */
+  .swipe-area {
+    @apply absolute inset-0 touch-pan-y;
+    touch-action: pan-y;
+  }
+
+  /* Item containers - NO animations as per requirements */
+  .feed-item {
+    @apply absolute inset-0 flex flex-col;
+  }
+
+  /* Hero image with gradient overlay */
+  .hero-container {
+    @apply relative w-full h-64 overflow-hidden rounded-t-lg;
+    background: var(--gradient-hero);
+  }
+
+  .hero-image {
+    @apply w-full h-full object-cover;
+    filter: brightness(0.9);
+  }
+
+  /* Social action buttons - NO animations */
+  .social-button {
+    @apply inline-flex items-center justify-center rounded-full p-2;
+    @apply bg-black/10 hover:bg-black/20;
+    backdrop-filter: blur(8px);
+  }
+
+  .social-button.liked {
+    @apply bg-like text-like-foreground;
+    box-shadow: 0 0 16px hsl(var(--like) / 0.4);
+  }
+
+  .social-button.favorited {
+    @apply bg-favorite text-favorite-foreground;
+    box-shadow: 0 0 16px hsl(var(--favorite) / 0.4);
+  }
+
+  /* Bottom navigation */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50;
+    @apply bg-background/95 backdrop-blur-lg border-t border-border;
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+
+  /* Safe area utilities */
+  .top-safe-area {
+    top: max(env(safe-area-inset-top), 16px);
+  }
+
+  .bottom-safe-area {
+    bottom: max(calc(env(safe-area-inset-bottom) + 80px), 96px);
+  }
+
+  /* Skeleton loading - NO animation as per requirements */
+  .skeleton {
+    @apply bg-muted rounded;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Seen indicator */
+  .seen-indicator {
+    @apply opacity-75 relative;
+  }
+
+  .seen-indicator::after {
+    content: '';
+    @apply absolute inset-0 bg-seen/10 rounded pointer-events-none;
+  }
+
+  /* Prose styling for rich text editor */
+  .prose {
+    @apply text-foreground;
+  }
+
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply text-foreground;
+  }
+
+  .prose a {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  .prose strong {
+    @apply text-foreground font-semibold;
+  }
+
+  .prose code {
+    @apply bg-muted text-foreground px-1 py-0.5 rounded text-sm;
+  }
+
+  .prose pre {
+    @apply bg-muted text-foreground p-4 rounded-lg overflow-x-auto;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 py-2 my-4 italic text-muted-foreground bg-muted/30 rounded-r;
+  }
+
+  .prose img {
+    @apply rounded-lg my-4;
+  }
+
+  .prose .video-wrapper {
+    @apply my-4;
+  }
+
+  .prose .video-wrapper iframe {
+    @apply w-full rounded-lg;
+  }
+
+  .ProseMirror-selectednode {
+    @apply outline outline-2 outline-primary;
+  }
+}
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46

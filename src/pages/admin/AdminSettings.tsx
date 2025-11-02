@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { ArrowLeft, LogOut } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -11,10 +12,24 @@ import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 // SUPPRESSION: import { t } from "@/lib/i18n";
 // SUPPRESSION: import { useTranslation } from 'react-i18next';
+=======
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { toast } from "sonner";
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 export default function AdminSettings() {
   const { user, loading: authLoading, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+<<<<<<< HEAD
 
   // Ne rediriger que si le chargement est terminé et que l'utilisateur n'est pas admin
   if (!authLoading && !isAdmin) {
@@ -29,18 +44,66 @@ export default function AdminSettings() {
   };
 
   if (authLoading) {
+=======
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Déconnexion réussie");
+    navigate("/auth");
+  };
+
+  if (authLoading || loading) {
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     return (
       <div className="min-h-screen bg-background p-4 md:p-8">
         <Skeleton className="h-12 w-64 mb-8" />
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
+<<<<<<< HEAD
             <Skeleton key={`skeleton-settings-${i}`} className="h-32" />
+=======
+            <Skeleton key={i} className="h-32" />
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
           ))}
         </div>
       </div>
     );
   }
 
+<<<<<<< HEAD
+=======
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-6 border-orange-500">
+            <p className="text-center text-muted-foreground">
+              ⚠️ Vous n'avez pas les droits administrateur. Contactez un administrateur pour obtenir l'accès.
+            </p>
+            <div className="mt-4 text-center">
+              <Button onClick={() => navigate("/admin")}>
+                Retour au tableau de bord
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-4xl mx-auto">
@@ -59,7 +122,11 @@ export default function AdminSettings() {
             <div className="space-y-4">
               <div>
                 <Label>Email</Label>
+<<<<<<< HEAD
                 <Input value={user.email ?? ''} disabled />
+=======
+                <Input value={user.email || ""} disabled />
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
               </div>
               <div>
                 <Label>Modifier le mot de passe</Label>
@@ -121,4 +188,8 @@ export default function AdminSettings() {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+<<<<<<< HEAD
     "build": "npm run type-check && vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
@@ -15,6 +16,12 @@
     "test:card": "vitest run src/components/ui/card.test.tsx",
     "audit": "cd scripts && npm run audit:combined",
     "quality-check": "npm run lint:fix && npm run audit"
+=======
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint .",
+    "preview": "vite preview"
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -46,7 +53,11 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
+<<<<<<< HEAD
     "@supabase/supabase-js": "^2.75.0",
+=======
+    "@supabase/supabase-js": "^2.58.0",
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     "@tanstack/react-query": "^5.83.0",
     "@tiptap/extension-color": "^3.6.2",
     "@tiptap/extension-highlight": "^3.6.2",
@@ -57,6 +68,7 @@
     "@tiptap/extension-youtube": "^3.6.5",
     "@tiptap/react": "^3.6.2",
     "@tiptap/starter-kit": "^3.6.2",
+<<<<<<< HEAD
     "@types/dompurify": "^3.0.5",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
@@ -66,6 +78,14 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.24",
     "i18next": "^25.5.3",
+=======
+    "browser-image-compression": "^2.0.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.6.0",
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
@@ -73,6 +93,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.61.1",
+<<<<<<< HEAD
     "react-i18next": "^16.0.0",
     "react-resizable-panels": "^2.1.9",
     "react-router-dom": "^6.30.1",
@@ -123,5 +144,34 @@
     "typescript-eslint": "^8.38.0",
     "vite": "^6.0.0",
     "vitest": "^3.2.4"
+=======
+    "react-resizable-panels": "^2.1.9",
+    "react-router-dom": "^6.30.1",
+    "recharts": "^2.15.4",
+    "sonner": "^1.7.4",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^0.9.9",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^22.16.5",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.32.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^15.15.0",
+    "lovable-tagger": "^1.1.10",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0",
+    "vite": "^5.4.19"
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   }
 }

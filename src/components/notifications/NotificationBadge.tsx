@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -131,6 +132,14 @@ import { NotificationsList } from './NotificationsList';
 
 
 
+=======
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { NotificationsList } from "./NotificationsList";
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 
 export const NotificationBadge = () => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -147,7 +156,11 @@ export const NotificationBadge = () => {
         {
           event: '*',
           schema: 'public',
+<<<<<<< HEAD
           table: 'notifications',
+=======
+          table: 'notifications'
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
         },
         () => {
           fetchUnreadCount();
@@ -161,9 +174,13 @@ export const NotificationBadge = () => {
   }, []);
 
   const fetchUnreadCount = async () => {
+<<<<<<< HEAD
     const {
       data: { user },
     } = await supabase.auth.getUser();
+=======
+    const { data: { user } } = await supabase.auth.getUser();
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
     if (!user) return;
 
     const { count } = await supabase
@@ -172,7 +189,11 @@ export const NotificationBadge = () => {
       .eq('user_id', user.id)
       .eq('read', false);
 
+<<<<<<< HEAD
     setUnreadCount(count ?? 0);
+=======
+    setUnreadCount(count || 0);
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   };
 
   return (
@@ -185,8 +206,13 @@ export const NotificationBadge = () => {
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
+<<<<<<< HEAD
           <Badge
             variant="destructive"
+=======
+          <Badge 
+            variant="destructive" 
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
             className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
           >
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -201,4 +227,8 @@ export const NotificationBadge = () => {
       />
     </>
   );
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46

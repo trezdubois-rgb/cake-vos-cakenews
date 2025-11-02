@@ -73,8 +73,15 @@ serve(async (req) => {
         const randomDelay = Math.random() * twentyFourHours;
         const scheduledTime = new Date(now + randomDelay);
         
+<<<<<<< HEAD
         // TODO: Implémenter une vraie file d'attente de tâches pour la production
       // console.log(`Scheduled view ${i + 2}/10 for ${scheduledTime.toISOString()}`);
+=======
+        // In production, this would use a job queue. For now, we simulate with setTimeout
+        // Note: Edge functions have max execution time, so this is a simplified approach
+        // In production, use Supabase cron or external scheduler
+        console.log(`Scheduled view ${i + 2}/10 for ${scheduledTime.toISOString()}`);
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
       }
     }
 

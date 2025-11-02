@@ -82,6 +82,7 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+<<<<<<< HEAD
       keyframes: {
         "accordion-down": {
           to: { height: "var(--radix-accordion-content-height)" },
@@ -98,3 +99,11 @@ export default {
   },
   plugins: [import("tailwindcss-animate"), import("tailwind-scrollbar")],
 } satisfies Config;
+=======
+      keyframes: {},
+      animation: {},
+    },
+  },
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+} satisfies Config;
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46

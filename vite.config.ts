@@ -1,15 +1,22 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+<<<<<<< HEAD
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 // Force refresh
+=======
+import { componentTagger } from "lovable-tagger";
+
+// https://vitejs.dev/config/
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
   },
+<<<<<<< HEAD
   plugins: [
     react(),
     VitePWA({
@@ -85,11 +92,15 @@ export default defineConfig(({ mode }) => ({
       }
     })
   ].filter(Boolean),
+=======
+  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+<<<<<<< HEAD
   build: {
     rollupOptions: {
       output: {
@@ -105,3 +116,6 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
   }
 }));
+=======
+}));
+>>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46
