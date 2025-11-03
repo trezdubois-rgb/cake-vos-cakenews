@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FeedContainer } from "@/components/feed/FeedContainer";
+import { FullScreenArticleFeed } from "@/components/feed/FullScreenArticleFeed";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -90,8 +90,8 @@ const Accueil = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <FeedContainer items={feedItems} />
+    <div className="h-screen bg-background overflow-hidden">
+      <FullScreenArticleFeed items={feedItems} />
     </div>
   );
 };
