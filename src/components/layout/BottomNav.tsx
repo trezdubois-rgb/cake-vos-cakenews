@@ -13,8 +13,8 @@ export const BottomNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-primary backdrop-blur-sm border-t border-primary-foreground/10 shadow-lg z-50">
-      <div className="flex items-center justify-around h-16 px-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-[hsl(217,91%,60%)]/95 backdrop-blur border-t border-[hsl(217,91%,70%)]">
+      <div className="h-full flex items-center justify-around px-2">
         {navItems.map(({ id, label, icon: Icon, path }) => {
           const isActive = location.pathname === path;
           
@@ -22,22 +22,10 @@ export const BottomNav = () => {
             <Link
               key={id}
               to={path}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all",
-                "min-w-0 flex-1 text-xs font-medium",
-                isActive 
-                  ? "text-primary-foreground bg-primary-foreground/20" 
-                  : "text-primary-foreground/70 hover:text-primary-foreground"
-              )}
+              className="flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-white/90 min-w-[70px]"
             >
-              <Icon 
-                size={20} 
-                className={cn(
-                  "transition-transform",
-                  isActive && "scale-110"
-                )} 
-              />
-              <span className="truncate">{label}</span>
+              <Icon size={24} />
+              <span>{label}</span>
             </Link>
           );
         })}

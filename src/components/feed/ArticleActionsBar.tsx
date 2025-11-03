@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ReportMenu } from "@/components/article/ReportMenu";
@@ -276,28 +275,24 @@ export const ArticleActionsBar = ({
   return (
     <>
       {/* Barre d'actions rouge - fixe au-dessus de la navigation */}
-      <div className="fixed bottom-16 left-0 right-0 bg-destructive/95 backdrop-blur-sm border-t border-destructive-foreground/10 shadow-lg z-40">
-        <div className="flex items-center justify-around px-4 py-3 max-w-screen-xl mx-auto">
-          <Button
-            variant="ghost"
-            size="sm"
+      <div className="fixed bottom-16 left-0 right-0 z-40 h-16 bg-destructive/95 backdrop-blur border-t border-destructive-foreground/20">
+        <div className="h-full flex items-center justify-around px-2">
+          <button
             onClick={handleLike}
             disabled={loading}
-            className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-destructive-foreground min-w-[70px]"
           >
-            <Heart size={24} className={liked ? "fill-destructive-foreground" : ""} />
+            <Heart size={24} fill={liked ? "currentColor" : "none"} />
             <span className="font-medium">{likeCount > 0 ? likeCount : "J'aime"}</span>
-          </Button>
+          </button>
 
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => setShowComments(true)}
-            className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-destructive-foreground min-w-[70px]"
           >
             <MessageCircle size={24} />
             <span className="font-medium">Commenter</span>
-          </Button>
+          </button>
 
           <ReportMenu
             articleId={articleId}
@@ -313,15 +308,13 @@ export const ArticleActionsBar = ({
             onHideTag={handleHideTag}
           />
 
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={handleShare}
-            className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-destructive-foreground min-w-[70px]"
           >
             <Share2 size={24} />
             <span className="font-medium">Partager</span>
-          </Button>
+          </button>
         </div>
       </div>
 

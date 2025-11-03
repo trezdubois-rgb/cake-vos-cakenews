@@ -6,7 +6,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 
 interface ReportMenuProps {
   articleId: string;
@@ -38,12 +37,12 @@ export const ReportMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10">
+        <button className="flex flex-col items-center justify-center gap-0.5 text-xs text-destructive-foreground min-w-[70px]">
           <Flag size={24} />
           <span className="font-medium">Signaler</span>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="center" className="w-64 bg-background z-50">
+      <DropdownMenuContent align="center" side="top" className="w-64 mb-2 bg-background z-50">
         <DropdownMenuItem onClick={onSendFeedback}>
           <MessageSquare className="mr-2 h-4 w-4" />
           <span>Donner un avis aux développeurs</span>

@@ -1,26 +1,22 @@
-import { Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { SearchDialog } from "./SearchDialog";
-import { ThemeSwitcher } from "../ThemeSwitcher";
-import { NotificationBadge } from "../notifications/NotificationBadge";
-import { Button } from "@/components/ui/button";
 
 export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-background/95 backdrop-blur border-b border-border/40">
+      <div className="flex h-full items-center justify-between px-4">
         {/* Menu Hamburger */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
-            <button className="p-2 hover:bg-accent rounded-lg">
+            <button className="p-2">
               <Menu className="h-6 w-6" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[280px] sm:w-[350px]">
+          <SheetContent side="left" className="w-[280px]">
             <nav className="flex flex-col gap-4 mt-8">
               <Link 
                 to="/" 
@@ -54,20 +50,13 @@ export const Header = () => {
           </SheetContent>
         </Sheet>
 
-        {/* Logo & Slogan */}
-        <Link to="/" className="flex flex-col items-center flex-1">
-          <h1 className="text-3xl font-bold text-primary" style={{ fontFamily: "'Pacifico', cursive" }}>
-            Cake
-          </h1>
-          <p className="text-xs text-muted-foreground">Vos Cakenews</p>
-        </Link>
+        {/* Logo CAKENEWS */}
+        <h1 className="text-2xl font-bold tracking-wider text-muted-foreground/60">
+          CAKENEWS
+        </h1>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <SearchDialog />
-          <NotificationBadge />
-          <ThemeSwitcher />
-        </div>
+        {/* Avatar */}
+        <div className="w-10 h-10 rounded-full bg-muted" />
       </div>
     </header>
   );

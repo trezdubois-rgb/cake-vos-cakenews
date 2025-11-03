@@ -90,7 +90,7 @@ const Accueil = () => {
   }
 
   return (
-    <div className="h-screen bg-background overflow-hidden">
+    <div className="h-screen bg-background">
       <FullScreenArticleFeed items={feedItems} />
     </div>
   );
