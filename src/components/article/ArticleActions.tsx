@@ -3,7 +3,7 @@ import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { HideMenu } from "./HideMenu";
+import { ReportMenu } from "./ReportMenu";
 import { CommentDialog } from "./CommentDialog";
 
 interface Comment {
@@ -199,6 +199,14 @@ export const ArticleActions = ({
     }
   };
 
+  const handleReportContent = () => {
+    toast.info("Contenu signalé. Merci pour votre vigilance.");
+  };
+
+  const handleSendFeedback = () => {
+    toast.info("Merci pour votre avis !");
+  };
+
   const handleHideArticle = () => {
     toast.info("Article masqué");
   };
@@ -265,18 +273,19 @@ export const ArticleActions = ({
 
   return (
     <>
-      <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-40">
+      {/* Barre d'actions - Rouge (au-dessus de la navigation) */}
+      <div className="fixed bottom-16 left-0 right-0 bg-destructive/95 backdrop-blur-sm border-t border-destructive shadow-lg z-40">
         <div className="flex items-center justify-around px-4 py-3 max-w-screen-xl mx-auto">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLike}
             disabled={loading}
-            className={`flex flex-col items-center gap-1 text-xs ${liked ? 'text-primary' : 'text-foreground'}`}
+            className={`flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10 ${liked ? 'opacity-100' : 'opacity-90'}`}
           >
             <Heart
               size={24}
-              className={liked ? 'fill-primary' : ''}
+              className={liked ? 'fill-destructive-foreground' : ''}
             />
             <span className="font-medium">{likeCount > 0 ? likeCount : 'J\'aime'}</span>
           </Button>
@@ -285,18 +294,20 @@ export const ArticleActions = ({
             variant="ghost"
             size="sm"
             onClick={() => setShowComments(true)}
-            className="flex flex-col items-center gap-1 text-xs"
+            className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10"
           >
             <MessageCircle size={24} />
             <span className="font-medium">Commenter</span>
           </Button>
 
-          <HideMenu
+          <ReportMenu
             articleId={articleId}
             authorId={authorId}
             authorName={authorName}
             category={category}
             tags={tags}
+            onReportContent={handleReportContent}
+            onSendFeedback={handleSendFeedback}
             onHideArticle={handleHideArticle}
             onHideAuthor={handleHideAuthor}
             onHideCategory={handleHideCategory}
@@ -307,7 +318,7 @@ export const ArticleActions = ({
             variant="ghost"
             size="sm"
             onClick={handleShare}
-            className="flex flex-col items-center gap-1 text-xs"
+            className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10"
           >
             <Share2 size={24} />
             <span className="font-medium">Partager</span>

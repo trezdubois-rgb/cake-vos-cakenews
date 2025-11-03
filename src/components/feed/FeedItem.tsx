@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CommentSection } from "@/components/article/CommentSection";
-import { HideMenu } from "@/components/article/HideMenu";
+import { ReportMenu } from "@/components/article/ReportMenu";
 import { Link } from "react-router-dom";
 
 interface FeedItemProps {
@@ -113,6 +113,14 @@ export const FeedItem = ({ item, isActive }: FeedItemProps) => {
           ) || []
         }
     ));
+  };
+
+  const handleReportContent = () => {
+    console.log("Report content:", item.id);
+  };
+
+  const handleSendFeedback = () => {
+    console.log("Send feedback");
   };
 
   const handleHideArticle = () => {
@@ -359,12 +367,14 @@ export const FeedItem = ({ item, isActive }: FeedItemProps) => {
             <span>{comments.length > 0 ? comments.length : "Commenter"}</span>
           </Button>
 
-          <HideMenu
+          <ReportMenu
             articleId={item.id}
             authorId={item.author.id}
             authorName={item.author.name}
             category={item.category}
             tags={item.tags}
+            onReportContent={handleReportContent}
+            onSendFeedback={handleSendFeedback}
             onHideArticle={handleHideArticle}
             onHideAuthor={handleHideAuthor}
             onHideCategory={handleHideCategory}

@@ -1,44 +1,61 @@
-import { EyeOff, UserX, Tag, Ban } from "lucide-react";
+import { Flag, MessageSquare, EyeOff, UserX, Tag, Ban } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-interface HideMenuProps {
+interface ReportMenuProps {
   articleId: string;
   authorId: string;
   authorName: string;
   category: string;
   tags: string[];
+  onReportContent: () => void;
+  onSendFeedback: () => void;
   onHideArticle: () => void;
   onHideAuthor: () => void;
   onHideCategory: () => void;
   onHideTag: (tag: string) => void;
 }
 
-export const HideMenu = ({
+export const ReportMenu = ({
   articleId,
   authorId,
   authorName,
   category,
   tags,
+  onReportContent,
+  onSendFeedback,
   onHideArticle,
   onHideAuthor,
   onHideCategory,
   onHideTag
-}: HideMenuProps) => {
+}: ReportMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-xs">
-          <EyeOff size={20} />
-          <span>Masquer</span>
+          <Flag size={24} />
+          <span className="font-medium">Signaler</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" className="w-64">
+        <DropdownMenuItem onClick={onSendFeedback}>
+          <MessageSquare className="mr-2 h-4 w-4" />
+          <span>Donner un avis aux développeurs</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem onClick={onReportContent}>
+          <Flag className="mr-2 h-4 w-4" />
+          <span>Signaler ce contenu</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+        
         <DropdownMenuItem onClick={onHideArticle}>
           <EyeOff className="mr-2 h-4 w-4" />
           <span>Masquer cet article</span>
@@ -46,7 +63,7 @@ export const HideMenu = ({
         
         <DropdownMenuItem onClick={onHideAuthor}>
           <UserX className="mr-2 h-4 w-4" />
-          <span>Masquer tous les articles de {authorName}</span>
+          <span>Masquer {authorName}</span>
         </DropdownMenuItem>
         
         <DropdownMenuItem onClick={onHideCategory}>
@@ -56,6 +73,7 @@ export const HideMenu = ({
         
         {tags.length > 0 && (
           <>
+            <DropdownMenuSeparator />
             {tags.slice(0, 3).map(tag => (
               <DropdownMenuItem key={tag} onClick={() => onHideTag(tag)}>
                 <Tag className="mr-2 h-4 w-4" />
