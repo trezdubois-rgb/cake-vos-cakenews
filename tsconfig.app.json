@@ -1,12 +1,4 @@
 {
-<<<<<<< HEAD
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx"
-  },
-  "include": ["src"]
-}
-=======
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -36,4 +28,3 @@
   },
   "include": ["src"]
 }
->>>>>>> b65705b24288fc0f8b6de278730f2ab0c24fbf46

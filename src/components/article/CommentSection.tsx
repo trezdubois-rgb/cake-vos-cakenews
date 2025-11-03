@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, Heart, Send } from "lucide-react";
+import { MessageCircle, Heart, MoreVertical, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -197,4 +197,4 @@ export const CommentSection = ({
       </div>
     </div>
   );
-};
+}

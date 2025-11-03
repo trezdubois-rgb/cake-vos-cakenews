@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { CommentSection } from "@/components/article/CommentSection";
 import { HideMenu } from "@/components/article/HideMenu";
 import { Link } from "react-router-dom";
-import { useArticleView } from "@/hooks/useArticleView";
 
 interface FeedItemProps {
   item: FeedItemType;
@@ -19,7 +18,6 @@ interface FeedItemProps {
 }
 
 export const FeedItem = ({ item, isActive }: FeedItemProps) => {
-  const { trackView } = useArticleView();
   const [interaction, setInteraction] = useState(getUserInteraction(item.id));
   const [timeSpent, setTimeSpent] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -34,9 +32,6 @@ export const FeedItem = ({ item, isActive }: FeedItemProps) => {
   useEffect(() => {
     if (isActive) {
       startTimeRef.current = Date.now();
-      
-      // Track view in Supabase
-      trackView(item.id);
       
       // Simulate content loading
       const loadingTimer = setTimeout(() => {
@@ -58,7 +53,7 @@ export const FeedItem = ({ item, isActive }: FeedItemProps) => {
     } else {
       setIsLoading(true);
     }
-  }, [isActive, item.id, trackView]);
+  }, [isActive]);
 
   // Handle video autoplay
   useEffect(() => {

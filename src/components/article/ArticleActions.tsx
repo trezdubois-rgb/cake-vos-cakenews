@@ -71,6 +71,7 @@ export const ArticleActions = ({
       return;
     }
 
+    // Format comments with nested replies
     const formattedComments: Comment[] = [];
     const commentMap = new Map<string, Comment>();
 
@@ -94,6 +95,7 @@ export const ArticleActions = ({
       }
     });
 
+    // Link replies to parents
     data?.forEach((comment: any) => {
       if (comment.parent_id) {
         const parent = commentMap.get(comment.parent_id);
@@ -139,6 +141,7 @@ export const ArticleActions = ({
     try {
       const newLiked = !liked;
       
+      // Update or insert user interaction
       const { data: existingInteraction } = await supabase
         .from("user_interactions")
         .select("id")
@@ -161,6 +164,7 @@ export const ArticleActions = ({
           });
       }
 
+      // Update article like count
       const newLikeCount = newLiked ? likeCount + 1 : likeCount - 1;
       await supabase
         .from("articles")
@@ -213,96 +217,78 @@ export const ArticleActions = ({
 
   const handleAddComment = async (content: string, parentId?: string) => {
     const { data: { user } } = await supabase.auth.getUser();
-    
     if (!user) {
       toast.error("Vous devez être connecté pour commenter");
       return;
     }
 
-    try {
-      const { error } = await supabase
-        .from('comments')
-        .insert({
-          article_id: articleId,
-          user_id: user.id,
-          content,
-          parent_id: parentId,
-        });
+    const { error } = await supabase.from('comments').insert({
+      article_id: articleId,
+      user_id: user.id,
+      content,
+      parent_id: parentId,
+    });
 
-      if (error) throw error;
-
-      await fetchComments();
-      toast.success("Commentaire ajouté");
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      toast.error("Erreur lors de l'ajout du commentaire");
+    if (error) {
+      console.error('Error adding comment:', error);
+      throw error;
     }
+
+    await fetchComments();
   };
 
-  const handleLikeComment = async (commentId: string) => {
+  const handleLikeComment = async (commentId: string, isLiked: boolean) => {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Vous devez être connecté pour liker");
-      return;
-    }
+    if (!user) return;
 
-    try {
-      const { data: existingLike } = await supabase
-        .from('comment_likes')
-        .select('id')
-        .eq('comment_id', commentId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+    if (isLiked) {
+      const { error } = await supabase.from('comment_likes').insert({
+        comment_id: commentId,
+        user_id: user.id,
+      });
 
-      if (existingLike) {
-        await supabase
-          .from('comment_likes')
-          .delete()
-          .eq('id', existingLike.id);
-        
-        await supabase.rpc('decrement_comment_likes', { comment_id: commentId });
-      } else {
-        await supabase
-          .from('comment_likes')
-          .insert({
-            comment_id: commentId,
-            user_id: user.id,
-          });
-
+      if (!error) {
         await supabase.rpc('increment_comment_likes', { comment_id: commentId });
       }
+    } else {
+      await supabase
+        .from('comment_likes')
+        .delete()
+        .eq('comment_id', commentId)
+        .eq('user_id', user.id);
 
-      await fetchComments();
-    } catch (error) {
-      console.error("Error liking comment:", error);
-      toast.error("Erreur lors du like du commentaire");
+      await supabase.rpc('decrement_comment_likes', { comment_id: commentId });
     }
+
+    await fetchComments();
   };
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-background/98 backdrop-blur-xl border-t border-border z-50 safe-area-bottom">
-        <div className="flex justify-around items-center py-3 px-2">
+      <div className="fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-40">
+        <div className="flex items-center justify-around px-4 py-3 max-w-screen-xl mx-auto">
           <Button
             variant="ghost"
             size="sm"
-            className="flex flex-col items-center gap-1 text-xs font-medium"
             onClick={handleLike}
             disabled={loading}
+            className={`flex flex-col items-center gap-1 text-xs ${liked ? 'text-primary' : 'text-foreground'}`}
           >
-            <Heart size={22} className={liked ? "fill-current text-like" : ""} />
-            <span>{likeCount > 0 ? likeCount : "J'aime"}</span>
+            <Heart
+              size={24}
+              className={liked ? 'fill-primary' : ''}
+            />
+            <span className="font-medium">{likeCount > 0 ? likeCount : 'J\'aime'}</span>
           </Button>
 
           <Button
             variant="ghost"
             size="sm"
-            className="flex flex-col items-center gap-1 text-xs font-medium"
             onClick={() => setShowComments(true)}
+            className="flex flex-col items-center gap-1 text-xs"
           >
-            <MessageCircle size={22} />
-            <span>{comments.length > 0 ? comments.length : "Commenter"}</span>
+            <MessageCircle size={24} />
+            <span className="font-medium">Commenter</span>
           </Button>
 
           <HideMenu
@@ -320,11 +306,11 @@ export const ArticleActions = ({
           <Button
             variant="ghost"
             size="sm"
-            className="flex flex-col items-center gap-1 text-xs font-medium"
             onClick={handleShare}
+            className="flex flex-col items-center gap-1 text-xs"
           >
-            <Share2 size={22} />
-            <span>Partager</span>
+            <Share2 size={24} />
+            <span className="font-medium">Partager</span>
           </Button>
         </div>
       </div>

@@ -12,6 +12,7 @@ export const NotificationBadge = () => {
   useEffect(() => {
     fetchUnreadCount();
 
+    // Subscribe to real-time notifications
     const channel = supabase
       .channel('notifications-changes')
       .on(

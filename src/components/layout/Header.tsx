@@ -1,10 +1,11 @@
-import { Menu } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { SearchDialog } from './SearchDialog';
-import { ThemeSwitcher } from '../ThemeSwitcher';
-import { NotificationBadge } from '../notifications/NotificationBadge';
+import { Menu, Search } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { SearchDialog } from "./SearchDialog";
+import { ThemeSwitcher } from "../ThemeSwitcher";
+import { NotificationBadge } from "../notifications/NotificationBadge";
+import { Button } from "@/components/ui/button";
 
 export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,35 +16,35 @@ export const Header = () => {
         {/* Menu Hamburger */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
-            <button className="p-2 hover:bg-accent rounded-lg" aria-label="Ouvrir le menu">
+            <button className="p-2 hover:bg-accent rounded-lg">
               <Menu className="h-6 w-6" />
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[280px] sm:w-[350px]">
             <nav className="flex flex-col gap-4 mt-8">
-              <Link
-                to="/"
+              <Link 
+                to="/" 
                 className="text-lg font-medium hover:text-primary p-3 hover:bg-accent rounded-lg"
                 onClick={() => setMenuOpen(false)}
               >
                 Accueil
               </Link>
-              <Link
-                to="/mon-flux"
+              <Link 
+                to="/mon-flux" 
                 className="text-lg font-medium hover:text-primary p-3 hover:bg-accent rounded-lg"
                 onClick={() => setMenuOpen(false)}
               >
                 Mon Flux
               </Link>
-              <Link
-                to="/messages"
+              <Link 
+                to="/messages" 
                 className="text-lg font-medium hover:text-primary p-3 hover:bg-accent rounded-lg"
                 onClick={() => setMenuOpen(false)}
               >
                 Messages
               </Link>
-              <Link
-                to="/profil"
+              <Link 
+                to="/profil" 
                 className="text-lg font-medium hover:text-primary p-3 hover:bg-accent rounded-lg"
                 onClick={() => setMenuOpen(false)}
               >

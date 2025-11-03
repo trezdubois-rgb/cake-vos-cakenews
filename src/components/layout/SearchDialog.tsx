@@ -34,6 +34,7 @@ export const SearchDialog = () => {
     const lowerQuery = searchQuery.toLowerCase();
     const searchResults: SearchResult[] = [];
 
+    // Search in articles
     mockFeedItems.forEach((item) => {
       if (item.title.toLowerCase().includes(lowerQuery)) {
         searchResults.push({
@@ -44,6 +45,7 @@ export const SearchDialog = () => {
         });
       }
 
+      // Search in authors
       if (item.author.name.toLowerCase().includes(lowerQuery)) {
         searchResults.push({
           id: `author-${item.author.id}`,
@@ -53,6 +55,7 @@ export const SearchDialog = () => {
         });
       }
 
+      // Search in categories
       if (item.category?.toLowerCase().includes(lowerQuery)) {
         searchResults.push({
           id: `category-${item.category}`,
@@ -62,6 +65,7 @@ export const SearchDialog = () => {
         });
       }
 
+      // Search in tags
       item.tags?.forEach((tag) => {
         if (tag.toLowerCase().includes(lowerQuery)) {
           searchResults.push({
@@ -74,6 +78,7 @@ export const SearchDialog = () => {
       });
     });
 
+    // Remove duplicates
     const uniqueResults = searchResults.filter(
       (result, index, self) =>
         index === self.findIndex((r) => r.id === result.id && r.type === result.type)
@@ -129,6 +134,7 @@ export const SearchDialog = () => {
                 key={`${result.type}-${result.id}`}
                 className="p-3 hover:bg-accent rounded-lg cursor-pointer"
                 onClick={() => {
+                  // Handle navigation based on result type
                   setOpen(false);
                 }}
               >
