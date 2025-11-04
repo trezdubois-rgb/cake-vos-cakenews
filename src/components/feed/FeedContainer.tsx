@@ -1,33 +1,80 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { FeedItem } from "./FeedItem";
-import { FeedItem as FeedItemType, mockFeedItems } from "@/data/mockData";
+import { FeedItem as FeedItemType } from "@/data/mockData";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FeedContainerProps {
   items?: FeedItemType[];
   personalFilter?: boolean;
 }
 
-export const FeedContainer = ({ items = mockFeedItems, personalFilter = false }: FeedContainerProps) => {
+export const FeedContainer = ({ personalFilter = false }: FeedContainerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [preloadedItems, setPreloadedItems] = useState<FeedItemType[]>([]);
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Preload initial batch of 15 items
+  // Fetch articles from Supabase
   useEffect(() => {
-    const initialBatch = items.slice(0, Math.min(15, items.length));
-    setPreloadedItems(initialBatch);
-  }, [items]);
+    fetchArticles();
+  }, [personalFilter]);
 
-  // Preload next batch when reaching 80% (index >= 12)
-  useEffect(() => {
-    if (currentIndex >= Math.floor(preloadedItems.length * 0.8)) {
-      const nextBatch = items.slice(preloadedItems.length, preloadedItems.length + 15);
-      if (nextBatch.length > 0) {
-        setPreloadedItems(prev => [...prev, ...nextBatch]);
+  const fetchArticles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("articles")
+        .select(`
+          *,
+          profiles (
+            display_name,
+            avatar_url
+          )
+        `)
+        .eq("published", true)
+        .order("published_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        setPreloadedItems([]);
+        setLoading(false);
+        return;
       }
+
+      const formattedItems = data.map((article: any) => ({
+        id: article.id,
+        type: "article" as const,
+        slug: article.id,
+        category: article.category || "Non catégorisé",
+        title: article.title,
+        excerpt: article.excerpt || article.title,
+        contentHtml: article.content_html,
+        heroSrc: article.hero_image_url || "/placeholder.svg",
+        heroLqip: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSrhtyahhp80B//Z",
+        videoHls: article.hero_video_url,
+        author: {
+          id: article.author_id,
+          name: article.profiles?.display_name || "Auteur",
+          avatar: article.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${article.author_id}`,
+        },
+        tags: article.tags || [],
+        engagement: {
+          likes: article.like_count || 0,
+          views: article.view_count || 0,
+          shares: 0,
+        },
+        publishedAt: article.published_at || article.created_at,
+      }));
+
+      setPreloadedItems(formattedItems.slice(0, 15));
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [currentIndex, preloadedItems.length, items]);
+  };
 
   const goToNext = useCallback(() => {
     if (currentIndex < preloadedItems.length - 1) {
@@ -51,16 +98,27 @@ export const FeedContainer = ({ items = mockFeedItems, personalFilter = false }:
 
   const currentItem = preloadedItems[currentIndex];
 
-  if (!currentItem) {
+  if (loading) {
+    return (
+      <div className="feed-container flex items-center justify-center">
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  if (preloadedItems.length === 0) {
     return (
       <div className="feed-container flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="skeleton w-12 h-12 rounded-full mx-auto"></div>
-          <div className="skeleton h-4 w-48 rounded mx-auto"></div>
-          <p className="text-muted-foreground text-sm">Chargement du flux...</p>
+          <h2 className="text-2xl font-bold">Aucun article disponible</h2>
+          <p className="text-muted-foreground">Les articles publiés apparaîtront ici.</p>
         </div>
       </div>
     );
+  }
+
+  if (!currentItem) {
+    return null;
   }
 
   return (

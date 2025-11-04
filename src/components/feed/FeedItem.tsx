@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Heart, Share2, Eye, Play, Pause, MessageCircle, ExternalLink } from "lucide-react";
-import { FeedItem as FeedItemType, getUserInteraction } from "@/data/mockData";
+import { FeedItem as FeedItemType } from "@/data/mockData";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CommentSection } from "@/components/article/CommentSection";
@@ -18,7 +19,14 @@ interface FeedItemProps {
 }
 
 export const FeedItem = ({ item, isActive }: FeedItemProps) => {
-  const [interaction, setInteraction] = useState(getUserInteraction(item.id));
+  const [interaction, setInteraction] = useState({
+    itemId: item.id,
+    seen: false,
+    liked: false,
+    favorited: false,
+    timeSpentSec: 0,
+    lastSeenAt: new Date().toISOString()
+  });
   const [timeSpent, setTimeSpent] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

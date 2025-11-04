@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import {
   Dialog,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { mockFeedItems } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
 
 type SearchResult = {
   id: string;
@@ -22,69 +22,69 @@ export const SearchDialog = () => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (searchQuery: string) => {
-    setQuery(searchQuery);
-    
-    if (!searchQuery.trim()) {
+  useEffect(() => {
+    if (query.length < 2) {
       setResults([]);
       return;
     }
 
-    const lowerQuery = searchQuery.toLowerCase();
-    const searchResults: SearchResult[] = [];
+    const searchTimeout = setTimeout(async () => {
+      await handleSearch();
+    }, 300);
 
-    // Search in articles
-    mockFeedItems.forEach((item) => {
-      if (item.title.toLowerCase().includes(lowerQuery)) {
-        searchResults.push({
-          id: item.id,
-          type: "article",
-          title: item.title,
-          subtitle: item.excerpt,
-        });
-      }
+    return () => clearTimeout(searchTimeout);
+  }, [query]);
 
-      // Search in authors
-      if (item.author.name.toLowerCase().includes(lowerQuery)) {
-        searchResults.push({
-          id: `author-${item.author.id}`,
-          type: "author",
-          title: item.author.name,
-          subtitle: "Auteur",
-        });
-      }
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const searchResults: SearchResult[] = [];
 
-      // Search in categories
-      if (item.category?.toLowerCase().includes(lowerQuery)) {
-        searchResults.push({
-          id: `category-${item.category}`,
-          type: "category",
-          title: item.category,
-          subtitle: "Catégorie",
-        });
-      }
+      // Search articles
+      const { data: articles, error } = await supabase
+        .from("articles")
+        .select("id, title, excerpt, tags")
+        .eq("published", true)
+        .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+        .limit(20);
 
-      // Search in tags
-      item.tags?.forEach((tag) => {
-        if (tag.toLowerCase().includes(lowerQuery)) {
+      if (!error && articles) {
+        articles.forEach((article) => {
           searchResults.push({
-            id: `tag-${tag}`,
-            type: "tag",
-            title: tag,
-            subtitle: "Tag",
+            id: article.id,
+            type: "article",
+            title: article.title,
+            subtitle: article.excerpt,
           });
-        }
-      });
-    });
 
-    // Remove duplicates
-    const uniqueResults = searchResults.filter(
-      (result, index, self) =>
-        index === self.findIndex((r) => r.id === result.id && r.type === result.type)
-    );
+          // Also search in tags
+          article.tags?.forEach((tag: string) => {
+            if (tag.toLowerCase().includes(query.toLowerCase())) {
+              searchResults.push({
+                id: `tag-${tag}`,
+                type: "tag",
+                title: tag,
+                subtitle: "Tag",
+              });
+            }
+          });
+        });
+      }
 
-    setResults(uniqueResults.slice(0, 20));
+      // Remove duplicates
+      const uniqueResults = searchResults.filter(
+        (result, index, self) =>
+          index === self.findIndex((r) => r.id === result.id && r.type === result.type)
+      );
+
+      setResults(uniqueResults);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getTypeColor = (type: string) => {
@@ -115,15 +115,21 @@ export const SearchDialog = () => {
         </DialogHeader>
         <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
           <Input
-            placeholder="Rechercher un article, auteur, sujet, tag..."
+            placeholder="Rechercher un article, tag..."
             value={query}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="w-full"
             autoFocus
           />
           
           <div className="flex-1 overflow-y-auto space-y-2">
-            {query && results.length === 0 && (
+            {loading && (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Recherche en cours...
+              </p>
+            )}
+
+            {!loading && query && results.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-8">
                 Aucun résultat trouvé
               </p>

@@ -95,7 +95,7 @@ const MonFlux = () => {
         </Link>
       </div>
 
-      <FeedContainer items={personalizedItems} personalFilter={true} />
+      <FeedContainer personalFilter={true} />
 
       {/* Empty state if no personalized content */}
       {personalizedItems.length === 0 && (
