@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import { toast } from "sonner";
-import { BlockEditor, Block } from "@/components/editor/BlockEditor";
+import { TipTapBlockEditor } from "@/components/editor/TipTapBlockEditor";
 import { compressImageFor1080 } from "@/lib/imageCompression";
 
 export default function ArticleEditor() {
@@ -27,7 +27,6 @@ export default function ArticleEditor() {
     title: "",
     category_id: "",
     content_html: "",
-    content_blocks: [] as Block[],
     tags: [] as string[],
     status: "draft",
     excerpt: "",
@@ -85,15 +84,9 @@ export default function ArticleEditor() {
         .single();
 
       if (error) throw error;
-      
-      // Initialize blocks if empty
-      const blocks = data.content_blocks && Array.isArray(data.content_blocks) && data.content_blocks.length > 0
-        ? (data.content_blocks as unknown as Block[])
-        : [{ id: 'initial', type: 'paragraph' as const, content: '' }];
 
       setFormData({
         ...data,
-        content_blocks: blocks,
         scheduled_publish_at: data.scheduled_publish_at ? new Date(data.scheduled_publish_at).toISOString().slice(0, 16) : "",
       });
     } catch (error: any) {
@@ -160,7 +153,7 @@ export default function ArticleEditor() {
   };
 
   const handleSave = async (publish = false, schedule = false) => {
-    if (!formData.title || formData.content_blocks.length === 0) {
+    if (!formData.title || !formData.content_html) {
       toast.error("Titre et contenu sont obligatoires");
       return;
     }
@@ -172,33 +165,11 @@ export default function ArticleEditor() {
 
     setSaving(true);
     try {
-      // Generate HTML from blocks for backward compatibility
-      const contentHtml = formData.content_blocks.map(block => {
-        switch (block.type) {
-          case 'paragraph':
-            return `<p>${block.content}</p>`;
-          case 'heading':
-            return `<h${block.attributes?.level || 2}>${block.content}</h${block.attributes?.level || 2}>`;
-          case 'image':
-            return `<figure><img src="${block.content}" alt="${block.attributes?.caption || ''}" />${block.attributes?.caption ? `<figcaption>${block.attributes.caption}</figcaption>` : ''}</figure>`;
-          case 'quote':
-            return `<blockquote><p>${block.content}</p>${block.attributes?.author ? `<footer>— ${block.attributes.author}</footer>` : ''}</blockquote>`;
-          case 'code':
-            return `<pre><code>${block.content}</code></pre>`;
-          case 'list':
-            const tag = block.content?.ordered ? 'ol' : 'ul';
-            const items = (block.content?.items || []).map((item: string) => `<li>${item}</li>`).join('');
-            return `<${tag}>${items}</${tag}>`;
-          default:
-            return '';
-        }
-      }).join('');
-
       const articleData = {
         title: formData.title,
         category_id: formData.category_id || null,
-        content_html: contentHtml,
-        content_blocks: formData.content_blocks as any,
+        content_html: formData.content_html,
+        content_blocks: null,
         tags: formData.tags,
         status: schedule ? "scheduled" : (publish ? "published" : "draft"),
         excerpt: formData.excerpt || null,
@@ -359,9 +330,9 @@ export default function ArticleEditor() {
 
           <div>
             <Label>Contenu de l'article *</Label>
-            <BlockEditor
-              blocks={formData.content_blocks.length > 0 ? formData.content_blocks : [{ id: 'initial', type: 'paragraph', content: '' }]}
-              onChange={(blocks) => setFormData({ ...formData, content_blocks: blocks })}
+            <TipTapBlockEditor
+              content={formData.content_html}
+              onChange={(html) => setFormData({ ...formData, content_html: html })}
             />
           </div>
 
