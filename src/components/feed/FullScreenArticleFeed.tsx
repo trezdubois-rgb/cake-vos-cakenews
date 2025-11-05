@@ -30,20 +30,22 @@ interface Article {
 }
 
 interface FullScreenArticleFeedProps {
-  items: Article[];
+  items?: Article[];
+  articles?: any[];
 }
 
-export const FullScreenArticleFeed = ({ items }: FullScreenArticleFeedProps) => {
+export const FullScreenArticleFeed = ({ items, articles }: FullScreenArticleFeedProps) => {
+  const feedItems = items || articles || [];
   const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goToNext = useCallback(() => {
-    setCurrentArticleIndex((prev) => (prev + 1) % items.length);
-  }, [items.length]);
+    setCurrentArticleIndex((prev) => (prev + 1) % feedItems.length);
+  }, [feedItems.length]);
 
   const goToPrevious = useCallback(() => {
-    setCurrentArticleIndex((prev) => (prev - 1 + items.length) % items.length);
-  }, [items.length]);
+    setCurrentArticleIndex((prev) => (prev - 1 + feedItems.length) % feedItems.length);
+  }, [feedItems.length]);
 
   const { swipeHandlers } = useSwipeGesture({
     onSwipeLeft: goToNext,
@@ -51,7 +53,7 @@ export const FullScreenArticleFeed = ({ items }: FullScreenArticleFeedProps) => 
     threshold: 50,
   });
 
-  const currentArticle = items[currentArticleIndex];
+  const currentArticle = feedItems[currentArticleIndex];
 
   if (!currentArticle) return null;
 
@@ -66,7 +68,7 @@ export const FullScreenArticleFeed = ({ items }: FullScreenArticleFeedProps) => 
           className="h-full flex transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${currentArticleIndex * 100}%)` }}
         >
-          {items.map((article, index) => (
+          {feedItems.map((article, index) => (
             <article
               key={article.id}
               className="min-w-full h-full flex flex-col overflow-y-auto"

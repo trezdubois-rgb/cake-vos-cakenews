@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Settings, Heart, Bookmark, Clock, Download, Trash2, Plus, X } from "lucide-react";
+import { User, Settings, Heart, Bookmark, Clock, Download, Trash2, Plus, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface UserPreference {
   id: string;
@@ -15,24 +19,74 @@ interface UserPreference {
   weight: number;
 }
 
-const mockPreferences: UserPreference[] = [
-  { id: "1", type: "tag", value: "technologie", weight: 0.9 },
-  { id: "2", type: "tag", value: "ia", weight: 0.8 },
-  { id: "3", type: "category", value: "Tech", weight: 0.7 },
-  { id: "4", type: "author", value: "Sarah Tech", weight: 0.6 },
-  { id: "5", type: "format", value: "article", weight: 0.5 },
-];
-
 const Profil = () => {
-  const [preferences, setPreferences] = useState(mockPreferences);
+  const [preferences, setPreferences] = useState<UserPreference[]>([]);
   const [newPreference, setNewPreference] = useState({ type: 'tag', value: '' });
   const [isLoading, setIsLoading] = useState(true);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 400);
-  }, []);
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    loadPreferences();
+  }, [user]);
 
-  const addPreference = () => {
+  const loadPreferences = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("preferences")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data?.preferences) {
+        const prefs = data.preferences as any;
+        const allPrefs: UserPreference[] = [
+          ...(prefs.tags || []).map((t: string, i: number) => ({ id: `tag-${i}`, type: 'tag' as const, value: t, weight: 0.8 })),
+          ...(prefs.authors || []).map((a: string, i: number) => ({ id: `author-${i}`, type: 'author' as const, value: a, weight: 0.7 })),
+          ...(prefs.categories || []).map((c: string, i: number) => ({ id: `category-${i}`, type: 'category' as const, value: c, weight: 0.9 })),
+          ...(prefs.formats || []).map((f: string, i: number) => ({ id: `format-${i}`, type: 'format' as const, value: f, weight: 0.6 })),
+        ];
+        setPreferences(allPrefs);
+      }
+    } catch (error) {
+      console.error("Error loading preferences:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const savePreferences = async (updatedPrefs: UserPreference[]) => {
+    if (!user) return;
+
+    const formatted = {
+      tags: updatedPrefs.filter(p => p.type === 'tag').map(p => p.value),
+      authors: updatedPrefs.filter(p => p.type === 'author').map(p => p.value),
+      categories: updatedPrefs.filter(p => p.type === 'category').map(p => p.value),
+      formats: updatedPrefs.filter(p => p.type === 'format').map(p => p.value),
+    };
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ preferences: formatted })
+      .eq("id", user.id);
+
+    if (error) {
+      toast.error("Erreur lors de la sauvegarde");
+      throw error;
+    }
+
+    toast.success("Préférences sauvegardées");
+  };
+
+  const addPreference = async () => {
     if (newPreference.value.trim()) {
       const preference: UserPreference = {
         id: Date.now().toString(),
@@ -40,13 +94,22 @@ const Profil = () => {
         value: newPreference.value.trim(),
         weight: 0.7
       };
-      setPreferences([...preferences, preference]);
+      const updated = [...preferences, preference];
+      setPreferences(updated);
+      await savePreferences(updated);
       setNewPreference({ type: 'tag', value: '' });
     }
   };
 
-  const removePreference = (id: string) => {
-    setPreferences(preferences.filter(p => p.id !== id));
+  const removePreference = async (id: string) => {
+    const updated = preferences.filter(p => p.id !== id);
+    setPreferences(updated);
+    await savePreferences(updated);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
   };
 
   const getPreferenceTypeLabel = (type: string) => {
@@ -78,7 +141,11 @@ const Profil = () => {
             <User size={32} className="text-primary" />
           </div>
           <h1 className="text-2xl font-bold mb-1">Mon Profil</h1>
-          <p className="text-muted-foreground">user@example.com</p>
+          <p className="text-muted-foreground">{user?.email}</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={handleSignOut}>
+            <LogOut size={16} className="mr-2" />
+            Déconnexion
+          </Button>
         </div>
 
         <Tabs defaultValue="preferences" className="w-full">

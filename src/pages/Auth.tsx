@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +15,13 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,22 +36,25 @@ export default function Auth() {
         
         if (error) throw error;
         toast.success("Connexion réussie");
-        navigate("/admin");
+        navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
               display_name: displayName,
             },
-            emailRedirectTo: `${window.location.origin}/admin`,
+            emailRedirectTo: `${window.location.origin}/`,
           },
         });
 
         if (error) throw error;
-        toast.success("Compte créé avec succès");
-        navigate("/admin");
+        
+        if (data?.user) {
+          toast.success("Compte créé ! Vous pouvez maintenant vous connecter.");
+          setIsLogin(true);
+        }
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -54,15 +65,13 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Pacifico, cursive' }}>
-            Cake Admin
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Espace administrateur
-          </p>
-        </div>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">
+            {isLogin ? "Connexion" : "Créer un compte"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
         
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
@@ -115,6 +124,7 @@ export default function Auth() {
             {isLogin ? "Créer un compte" : "Déjà un compte ? Se connecter"}
           </button>
         </div>
+        </CardContent>
       </Card>
     </div>
   );

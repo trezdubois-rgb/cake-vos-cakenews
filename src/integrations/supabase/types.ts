@@ -151,7 +151,7 @@ export type Database = {
         Row: {
           audio_url: string | null
           author_id: string
-          category: string | null
+          category: string
           category_id: string | null
           content_blocks: Json | null
           content_html: string
@@ -177,7 +177,7 @@ export type Database = {
         Insert: {
           audio_url?: string | null
           author_id: string
-          category?: string | null
+          category?: string
           category_id?: string | null
           content_blocks?: Json | null
           content_html: string
@@ -203,7 +203,7 @@ export type Database = {
         Update: {
           audio_url?: string | null
           author_id?: string
-          category?: string | null
+          category?: string
           category_id?: string | null
           content_blocks?: Json | null
           content_html?: string
@@ -484,6 +484,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          preferences: Json | null
           updated_at: string
         }
         Insert: {
@@ -491,6 +492,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          preferences?: Json | null
           updated_at?: string
         }
         Update: {
@@ -498,6 +500,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          preferences?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -604,6 +607,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      article_matches_preferences: {
+        Args: {
+          article_author_id: string
+          article_category: string
+          article_tags: string[]
+          user_preferences: Json
+        }
+        Returns: boolean
+      }
       decrement_comment_likes: {
         Args: { comment_id: string }
         Returns: undefined
