@@ -13,11 +13,10 @@ interface LoginRequest {
   id: string;
   user_id: string;
   email_used: string;
-  status: "pending" | "approved" | "rejected";
+  status: string;
   created_at: string;
-  profiles?: {
-    display_name: string;
-  };
+  validated_by?: string;
+  validated_at?: string;
 }
 
 export default function AdminLoginRequests() {
@@ -65,16 +64,11 @@ export default function AdminLoginRequests() {
     try {
       const { data, error } = await supabase
         .from("admin_login_requests")
-        .select(`
-          *,
-          profiles (
-            display_name
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setRequests(data || []);
+      setRequests((data || []) as LoginRequest[]);
     } catch (error) {
       console.error("Error fetching login requests:", error);
       toast.error("Erreur lors du chargement des demandes");
@@ -192,9 +186,6 @@ export default function AdminLoginRequests() {
                 >
                   <div className="space-y-1">
                     <p className="font-medium">
-                      {request.profiles?.display_name || "Utilisateur"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
                       {request.email_used}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -248,9 +239,6 @@ export default function AdminLoginRequests() {
                 >
                   <div className="space-y-1">
                     <p className="text-sm font-medium">
-                      {request.profiles?.display_name || "Utilisateur"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
                       {request.email_used}
                     </p>
                   </div>
