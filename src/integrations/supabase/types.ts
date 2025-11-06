@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_credentials: {
+        Row: {
+          created_at: string
+          created_by: string
+          generated_email: string
+          generated_password_hash: string
+          id: string
+          is_active: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          generated_email: string
+          generated_password_hash: string
+          id?: string
+          is_active?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          generated_email?: string
+          generated_password_hash?: string
+          id?: string
+          is_active?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_login_requests: {
+        Row: {
+          created_at: string
+          email_used: string
+          id: string
+          status: string
+          user_id: string
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_used: string
+          id?: string
+          status?: string
+          user_id: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_used?: string
+          id?: string
+          status?: string
+          user_id?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: []
+      }
       ads: {
         Row: {
           active: boolean | null
@@ -360,6 +420,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      guest_sessions: {
+        Row: {
+          blocked_until: string | null
+          created_at: string
+          first_visit: string
+          id: string
+          last_visit: string
+          session_id: string
+          time_remaining_seconds: number
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string
+          first_visit?: string
+          id?: string
+          last_visit?: string
+          session_id: string
+          time_remaining_seconds?: number
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string
+          first_visit?: string
+          id?: string
+          last_visit?: string
+          session_id?: string
+          time_remaining_seconds?: number
+        }
+        Relationships: []
       }
       media_library: {
         Row: {

@@ -154,17 +154,25 @@ export const FullScreenArticleFeed = ({ items, articles }: FullScreenArticleFeed
             </article>
           ))}
         </div>
+        {/* Barre d'actions dédiée à chaque article */}
+        {feedItems.map((article, index) => (
+          <div
+            key={`actions-${article.id}`}
+            className={`fixed bottom-0 left-0 right-0 transition-opacity duration-300 ${
+              index === currentArticleIndex ? "opacity-100 z-40" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <ArticleActionsBar
+              articleId={article.id}
+              authorId={article.author.id}
+              authorName={article.author.name}
+              category={article.category}
+              tags={article.tags}
+              initialLikeCount={article.engagement.likes}
+            />
+          </div>
+        ))}
       </div>
-
-      {/* Actions Bar for Current Article */}
-      <ArticleActionsBar
-        articleId={currentArticle.id}
-        authorId={currentArticle.author.id}
-        authorName={currentArticle.author.name}
-        category={currentArticle.category}
-        tags={currentArticle.tags}
-        initialLikeCount={currentArticle.engagement.likes}
-      />
     </>
   );
 };

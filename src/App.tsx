@@ -12,7 +12,7 @@ import MonFlux from "./pages/MonFlux";
 import Messages from "./pages/Messages";
 import Profil from "./pages/Profil";
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
+import AuthNew from "./pages/AuthNew";
 import Admin from "./pages/Admin";
 import Article from "./pages/Article";
 import ArticlesList from "./pages/admin/ArticlesList";
@@ -23,6 +23,8 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import CategoriesManager from "./pages/admin/CategoriesManager";
 import UsersManager from "./pages/admin/UsersManager";
+import AdminLoginRequests from "./pages/admin/AdminLoginRequests";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -35,21 +37,27 @@ const AppContent = () => {
       <Header />
       <Routes>
         <Route path="/" element={<Accueil />} />
-        <Route path="/mon-flux" element={<MonFlux />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/profil" element={<Profil />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/article/:id" element={<Article />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/articles" element={<ArticlesList />} />
-        <Route path="/admin/articles/new" element={<ArticleEditor />} />
-        <Route path="/admin/articles/edit/:id" element={<ArticleEditor />} />
-        <Route path="/admin/ads" element={<AdsManager />} />
-          <Route path="/admin/design" element={<DesignManager />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/media" element={<MediaLibrary />} />
-          <Route path="/admin/categories" element={<CategoriesManager />} />
-          <Route path="/admin/users" element={<UsersManager />} />
+        <Route path="/auth" element={<AuthNew />} />
+        
+        {/* Routes protégées - nécessitent une authentification */}
+        <Route path="/mon-flux" element={<ProtectedRoute><MonFlux /></ProtectedRoute>} />
+        <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+        <Route path="/profil" element={<ProtectedRoute><Profil /></ProtectedRoute>} />
+        <Route path="/article/:id" element={<ProtectedRoute><Article /></ProtectedRoute>} />
+        
+        {/* Routes admin - nécessitent le rôle admin */}
+        <Route path="/admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
+        <Route path="/admin/articles" element={<ProtectedRoute requireAdmin><ArticlesList /></ProtectedRoute>} />
+        <Route path="/admin/articles/new" element={<ProtectedRoute requireAdmin><ArticleEditor /></ProtectedRoute>} />
+        <Route path="/admin/articles/edit/:id" element={<ProtectedRoute requireAdmin><ArticleEditor /></ProtectedRoute>} />
+        <Route path="/admin/ads" element={<ProtectedRoute requireAdmin><AdsManager /></ProtectedRoute>} />
+        <Route path="/admin/design" element={<ProtectedRoute requireAdmin><DesignManager /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><AdminSettings /></ProtectedRoute>} />
+        <Route path="/admin/media" element={<ProtectedRoute requireAdmin><MediaLibrary /></ProtectedRoute>} />
+        <Route path="/admin/categories" element={<ProtectedRoute requireAdmin><CategoriesManager /></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute requireAdmin><UsersManager /></ProtectedRoute>} />
+        <Route path="/admin/login-requests" element={<ProtectedRoute requireAdmin><AdminLoginRequests /></ProtectedRoute>} />
+        
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
