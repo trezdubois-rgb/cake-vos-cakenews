@@ -5,6 +5,12 @@ import { toast } from "sonner";
 import { ReportMenu } from "@/components/article/ReportMenu";
 import { CommentDialog } from "@/components/article/CommentDialog";
 
+interface CommentReaction {
+  emoji: string;
+  count: number;
+  userReacted: boolean;
+}
+
 interface Comment {
   id: string;
   content: string;
@@ -15,6 +21,8 @@ interface Comment {
   };
   created_at: string;
   like_count: number;
+  reactions?: CommentReaction[];
+  isHidden?: boolean;
   replies?: Comment[];
 }
 
@@ -47,6 +55,8 @@ export const ArticleActionsBar = ({
   }, [articleId]);
 
   const fetchComments = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase
       .from("comments")
       .select(`
@@ -70,20 +80,59 @@ export const ArticleActionsBar = ({
       return;
     }
 
+    // Fetch reactions for all comments
+    const { data: reactionsData } = await supabase
+      .from('comment_reactions')
+      .select('comment_id, emoji, user_id')
+      .in('comment_id', data?.map(c => c.id) || []);
+
+    // Fetch hidden comments for current user
+    const { data: hiddenData } = user ? await supabase
+      .from('hidden_comments')
+      .select('comment_id')
+      .eq('user_id', user.id)
+      .in('comment_id', data?.map(c => c.id) || []) : { data: [] };
+
+    const hiddenCommentIds = new Set(hiddenData?.map(h => h.comment_id) || []);
+
+    // Group reactions by comment
+    const reactionsByComment = new Map<string, Map<string, { count: number; userReacted: boolean }>>();
+    reactionsData?.forEach((reaction: any) => {
+      if (!reactionsByComment.has(reaction.comment_id)) {
+        reactionsByComment.set(reaction.comment_id, new Map());
+      }
+      const emojiMap = reactionsByComment.get(reaction.comment_id)!;
+      if (!emojiMap.has(reaction.emoji)) {
+        emojiMap.set(reaction.emoji, { count: 0, userReacted: false });
+      }
+      const emojiData = emojiMap.get(reaction.emoji)!;
+      emojiData.count++;
+      if (user && reaction.user_id === user.id) {
+        emojiData.userReacted = true;
+      }
+    });
+
     const formattedComments: Comment[] = [];
     const commentMap = new Map<string, Comment>();
 
     data?.forEach((comment: any) => {
+      const reactions = reactionsByComment.get(comment.id);
       const formattedComment: Comment = {
         id: comment.id,
         content: comment.content,
         author: {
-          id: comment.profiles.id,
-          name: comment.profiles.display_name || "Utilisateur",
-          avatar: comment.profiles.avatar_url,
+          id: comment.profiles?.id || comment.user_id,
+          name: comment.profiles?.display_name || "Utilisateur",
+          avatar: comment.profiles?.avatar_url,
         },
         created_at: comment.created_at,
         like_count: comment.like_count || 0,
+        reactions: reactions ? Array.from(reactions.entries()).map(([emoji, data]) => ({
+          emoji,
+          count: data.count,
+          userReacted: data.userReacted,
+        })) : [],
+        isHidden: hiddenCommentIds.has(comment.id),
         replies: [],
       };
       commentMap.set(comment.id, formattedComment);
