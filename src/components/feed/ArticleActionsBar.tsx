@@ -56,7 +56,7 @@ export const ArticleActionsBar = ({
         like_count,
         user_id,
         parent_id,
-        profiles!user_id (
+        profiles (
           id,
           display_name,
           avatar_url
