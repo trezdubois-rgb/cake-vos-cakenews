@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const GUEST_SESSION_KEY = "guest_session_id";
-const GUEST_TIME_LIMIT = 240; // 4 minutes en secondes
+const GUEST_TIME_LIMIT = 40; // 40 secondes
 const BLOCK_DURATION = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
 
 export const useGuestMode = () => {

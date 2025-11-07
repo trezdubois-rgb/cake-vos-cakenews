@@ -76,6 +76,12 @@ export const CommentDialog = ({
   const handleSubmit = async () => {
     if (!newComment.trim()) return;
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Vous devez être connecté pour commenter");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await onAddComment(newComment, replyTo || undefined);

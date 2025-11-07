@@ -140,7 +140,7 @@ export default function Article() {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error("Vous devez être connecté pour commenter");
+      toast.error("Connectez-vous pour commenter");
       return;
     }
 
@@ -155,9 +155,12 @@ export default function Article() {
         });
 
       if (error) throw error;
-      toast.success("Commentaire ajouté");
-      fetchComments();
+      
+      // Recharger immédiatement les commentaires
+      await fetchComments();
+      toast.success("Commentaire publié !");
     } catch (error: any) {
+      console.error("Error adding comment:", error);
       toast.error("Erreur lors de l'ajout du commentaire");
     }
   };
@@ -166,7 +169,7 @@ export default function Article() {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error("Vous devez être connecté pour liker");
+      toast.error("Connectez-vous pour liker");
       return;
     }
 

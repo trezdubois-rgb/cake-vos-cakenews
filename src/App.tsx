@@ -25,6 +25,7 @@ import CategoriesManager from "./pages/admin/CategoriesManager";
 import UsersManager from "./pages/admin/UsersManager";
 import AdminLoginRequests from "./pages/admin/AdminLoginRequests";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { GuestBlocker } from "./components/auth/GuestBlocker";
 
 const queryClient = new QueryClient();
 
@@ -33,9 +34,10 @@ const AppContent = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <div className="relative min-h-screen bg-background pb-16 md:pb-0">
-      <Header />
-      <Routes>
+    <GuestBlocker>
+      <div className="relative min-h-screen bg-background pb-16 md:pb-0">
+        <Header />
+        <Routes>
         <Route path="/" element={<Accueil />} />
         <Route path="/auth" element={<AuthNew />} />
         
@@ -62,7 +64,8 @@ const AppContent = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {isAdminRoute ? <AdminBottomNav /> : <BottomNav />}
-    </div>
+      </div>
+    </GuestBlocker>
   );
 };
 

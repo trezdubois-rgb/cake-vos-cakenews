@@ -183,7 +183,7 @@ export const ArticleActionsBar = ({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      toast.error("Vous devez être connecté pour liker");
+      toast.error("Connectez-vous pour interagir avec les articles");
       return;
     }
 
@@ -228,6 +228,13 @@ export const ArticleActionsBar = ({
   };
 
   const handleShare = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Connectez-vous pour partager des articles");
+      return;
+    }
+    
     const url = `${window.location.origin}/article/${articleId}`;
 
     if (navigator.share) {
@@ -245,7 +252,14 @@ export const ArticleActionsBar = ({
     }
   };
 
-  const handleReportContent = () => {
+  const handleReportContent = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Connectez-vous pour signaler du contenu");
+      return;
+    }
+    
     toast.info("Contenu signalé. Merci pour votre vigilance.");
   };
 
@@ -269,12 +283,24 @@ export const ArticleActionsBar = ({
     toast.info(`Tag #${tag} masqué`);
   };
 
+  const handleOpenComments = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Connectez-vous pour voir et ajouter des commentaires");
+      return;
+    }
+    
+    setShowComments(true);
+    await fetchComments();
+  };
+
   const handleAddComment = async (content: string, parentId?: string) => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      toast.error("Vous devez être connecté pour commenter");
+      toast.error("Connectez-vous pour commenter");
       return;
     }
 
@@ -297,7 +323,11 @@ export const ArticleActionsBar = ({
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return;
+    
+    if (!user) {
+      toast.error("Connectez-vous pour liker");
+      return;
+    }
 
     if (isLiked) {
       const { error } = await supabase.from("comment_likes").insert({
@@ -336,7 +366,7 @@ export const ArticleActionsBar = ({
           </button>
 
           <button
-            onClick={() => setShowComments(true)}
+            onClick={handleOpenComments}
             className="flex flex-col items-center justify-center gap-0.5 text-xs text-destructive-foreground min-w-[70px]"
           >
             <MessageCircle size={24} />

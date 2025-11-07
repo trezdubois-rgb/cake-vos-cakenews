@@ -182,7 +182,7 @@ export const ArticleActions = ({
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      toast.error("Vous devez être connecté pour liker");
+      toast.error("Connectez-vous pour interagir avec les articles");
       return;
     }
 
@@ -231,6 +231,13 @@ export const ArticleActions = ({
   };
 
   const handleShare = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Connectez-vous pour partager des articles");
+      return;
+    }
+    
     const url = `${window.location.origin}/article/${articleId}`;
     
     if (navigator.share) {
@@ -248,7 +255,14 @@ export const ArticleActions = ({
     }
   };
 
-  const handleReportContent = () => {
+  const handleReportContent = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Connectez-vous pour signaler du contenu");
+      return;
+    }
+    
     toast.info("Contenu signalé. Merci pour votre vigilance.");
   };
 

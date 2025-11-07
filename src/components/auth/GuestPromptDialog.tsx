@@ -23,9 +23,16 @@ export const GuestPromptDialog = ({ open, onOpenChange, isBlocked }: GuestPrompt
     navigate("/auth");
   };
 
+  // Empêcher la fermeture du dialogue quand bloqué
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!isBlocked) {
+      onOpenChange(newOpen);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => isBlocked && e.preventDefault()} onEscapeKeyDown={(e) => isBlocked && e.preventDefault()}>
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
             {isBlocked ? (
@@ -44,7 +51,7 @@ export const GuestPromptDialog = ({ open, onOpenChange, isBlocked }: GuestPrompt
                   Votre temps de navigation en mode invité est écoulé pour aujourd'hui.
                 </p>
                 <p className="text-base font-medium text-foreground">
-                  Revenez dans 24h pour 4 nouvelles minutes gratuites, ou créez votre compte
+                  Revenez dans 24h pour 40 nouvelles secondes gratuites, ou créez votre compte
                   maintenant pour un accès illimité !
                 </p>
               </>
@@ -69,16 +76,6 @@ export const GuestPromptDialog = ({ open, onOpenChange, isBlocked }: GuestPrompt
           >
             Créer mon compte gratuitement
           </Button>
-          {isBlocked && (
-            <Button
-              onClick={() => onOpenChange(false)}
-              variant="outline"
-              className="w-full"
-              size="lg"
-            >
-              Je reviendrai dans 24h
-            </Button>
-          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
