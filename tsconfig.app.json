@@ -20,6 +20,8 @@
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
 
     "baseUrl": ".",
     "paths": {
