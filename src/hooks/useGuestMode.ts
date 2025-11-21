@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const GUEST_SESSION_KEY = "guest_session_id";
-const GUEST_TIME_LIMIT = 40; // 40 secondes
+const GUEST_TIME_LIMIT = 300; // 5 minutes
 const BLOCK_DURATION = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
 
 export const useGuestMode = () => {
@@ -55,7 +55,7 @@ export const useGuestMode = () => {
                 last_visit: now.toISOString(),
               })
               .eq("session_id", sessionId);
-            
+
             setIsBlocked(false);
             setTimeRemaining(GUEST_TIME_LIMIT);
           }
@@ -79,7 +79,7 @@ export const useGuestMode = () => {
 
   const updateTimeRemaining = useCallback(async (newTime: number) => {
     const sessionId = getOrCreateSessionId();
-    
+
     if (newTime <= 0) {
       // Bloquer pendant 24h
       const blockedUntil = new Date(Date.now() + BLOCK_DURATION);
@@ -91,7 +91,7 @@ export const useGuestMode = () => {
           last_visit: new Date().toISOString(),
         })
         .eq("session_id", sessionId);
-      
+
       setIsBlocked(true);
       setShowAuthPrompt(true);
     } else {

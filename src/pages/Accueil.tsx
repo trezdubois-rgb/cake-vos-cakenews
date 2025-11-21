@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { GuestTimer } from "@/components/auth/GuestTimer";
 import { GuestPromptDialog } from "@/components/auth/GuestPromptDialog";
+import { SEO } from "@/components/SEO";
 
 const Accueil = () => {
   const [feedItems, setFeedItems] = useState<any[]>([]);
@@ -101,6 +102,10 @@ const Accueil = () => {
 
   return (
     <div className="h-screen bg-background">
+      <SEO 
+        title="Cakenews - L'actualité en temps réel"
+        description="Découvrez toute l'actualité en direct sur Cakenews. Politique, Tech, Culture et plus encore."
+      />
       {shouldShowGuestTimer && (
         <GuestTimer
           timeRemaining={guestMode.timeRemaining}

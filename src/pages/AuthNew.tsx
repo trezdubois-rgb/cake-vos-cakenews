@@ -81,22 +81,7 @@ export default function AuthNew() {
     setLoading(true);
 
     try {
-      // Vérifier si les identifiants admin existent
-      const { data: adminCreds, error: credsError } = await supabase
-        .from("admin_credentials")
-        .select("user_id, is_active")
-        .eq("generated_email", email)
-        .maybeSingle();
-
-      if (credsError || !adminCreds) {
-        throw new Error("Identifiants admin invalides");
-      }
-
-      if (!adminCreds.is_active) {
-        throw new Error("Ce compte admin a été désactivé");
-      }
-
-      // Tenter la connexion
+      // 1. Connexion standard
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -104,39 +89,23 @@ export default function AuthNew() {
 
       if (authError) throw authError;
 
-      // Créer une demande de validation
-      await supabase.from("admin_login_requests").insert({
-        user_id: adminCreds.user_id,
-        email_used: email,
-        status: "pending",
-      });
+      if (!authData.user) throw new Error("Erreur lors de la connexion");
 
-      toast.success("Demande de connexion envoyée. En attente de validation...");
-      
-      // Attendre la validation (polling)
-      const checkValidation = setInterval(async () => {
-        const { data: request } = await supabase
-          .from("admin_login_requests")
-          .select("status")
-          .eq("user_id", adminCreds.user_id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+      // 2. Vérification du rôle admin
+      const { data: roleData, error: roleError } = await supabase
+        .rpc('has_role', { _user_id: authData.user.id, _role: 'admin' });
 
-        if (request?.status === "approved") {
-          clearInterval(checkValidation);
-          toast.success("Connexion validée ! Redirection...");
-          navigate("/admin");
-        } else if (request?.status === "rejected") {
-          clearInterval(checkValidation);
-          toast.error("Connexion refusée par l'administrateur");
-          await supabase.auth.signOut();
-        }
-      }, 3000);
+      if (roleError || !roleData) {
+        // Si pas admin, on déconnecte
+        await supabase.auth.signOut();
+        throw new Error("Accès refusé : Vous n'avez pas les droits administrateur");
+      }
 
-      // Arrêter le polling après 5 minutes
-      setTimeout(() => clearInterval(checkValidation), 300000);
+      // 3. Redirection
+      toast.success("Connexion admin réussie !");
+      navigate("/admin");
     } catch (error: any) {
+      console.error("Admin login error:", error);
       toast.error(error.message || "Erreur de connexion admin");
     } finally {
       setLoading(false);

@@ -7,13 +7,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
 import { ArticleActions } from "@/components/article/ArticleActions";
 import { CommentSection, Comment } from "@/components/article/CommentSection";
+import { ArticleSEO } from "@/components/SEO";
 import { toast } from "sonner";
+import { buildCommentTree } from "@/lib/commentUtils";
 
 interface Article {
   id: string;
   title: string;
   category: string;
   content_html: string;
+  excerpt?: string;
   tags: string[];
   hero_image_url: string | null;
   hero_video_url: string | null;
@@ -71,8 +74,13 @@ export default function Article() {
     }
   };
 
+
+
+// ... (inside Article component)
+
   const fetchComments = async () => {
     try {
+      // Fetch ALL comments for this article in one query
       const { data, error } = await supabase
         .from("comments")
         .select(`
@@ -83,54 +91,18 @@ export default function Article() {
           )
         `)
         .eq("article_id", id)
-        .is("parent_id", null)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Get oldest first to build tree correctly
 
       if (error) throw error;
 
-      const formattedComments: Comment[] = await Promise.all(
-        (data || []).map(async (comment: any) => {
-          const { data: replies } = await supabase
-            .from("comments")
-            .select(`
-              *,
-              profiles (
-                display_name,
-                avatar_url
-              )
-            `)
-            .eq("parent_id", comment.id)
-            .order("created_at", { ascending: true });
+      if (!data) {
+        setComments([]);
+        return;
+      }
 
-          return {
-            id: comment.id,
-            author: {
-              id: comment.user_id,
-              name: comment.profiles?.display_name || "Utilisateur",
-              avatar: comment.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`,
-            },
-            content: comment.content,
-            likes: comment.like_count || 0,
-            isLiked: false,
-            createdAt: comment.created_at,
-            replies: (replies || []).map((reply: any) => ({
-              id: reply.id,
-              author: {
-                id: reply.user_id,
-                name: reply.profiles?.display_name || "Utilisateur",
-                avatar: reply.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${reply.user_id}`,
-              },
-              content: reply.content,
-              likes: reply.like_count || 0,
-              isLiked: false,
-              createdAt: reply.created_at,
-              replies: [],
-            })),
-          };
-        })
-      );
-
-      setComments(formattedComments);
+      // Use utility function to build tree
+      const rootComments = buildCommentTree(data);
+      setComments(rootComments);
     } catch (error: any) {
       console.error("Error fetching comments:", error);
     }
@@ -233,6 +205,15 @@ export default function Article() {
 
   return (
     <div className="min-h-screen bg-background pb-32">
+      <ArticleSEO
+        title={article.title}
+        excerpt={article.excerpt || article.title}
+        heroImage={article.hero_image_url || undefined}
+        publishedAt={article.created_at}
+        authorName={article.profiles?.display_name || "Auteur"}
+        tags={article.tags}
+        slug={article.id}
+      />
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
         <Link to="/">
