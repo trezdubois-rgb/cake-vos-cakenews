@@ -20,6 +20,39 @@ export interface Comment {
   is_liked?: boolean;
 }
 
+// Helper function to find a comment in the tree
+function findComment(comments: Comment[], commentId: string): Comment | null {
+  for (const comment of comments) {
+    if (comment.id === commentId) return comment;
+    if (comment.replies) {
+      const found = findComment(comment.replies, commentId);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// Helper function to update a comment in the tree (for optimistic updates)
+function updateCommentInTree(
+  comments: Comment[], 
+  commentId: string, 
+  updates: Partial<Comment>
+): Comment[] {
+  return comments.map(comment => {
+    if (comment.id === commentId) {
+      return { ...comment, ...updates };
+    }
+    if (comment.replies) {
+      return {
+        ...comment,
+        replies: updateCommentInTree(comment.replies, commentId, updates)
+      };
+    }
+    return comment;
+  });
+}
+
+
 export const useComments = (articleId: string) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -217,15 +250,3 @@ export const useComments = (articleId: string) => {
     refreshComments: fetchComments,
   };
 };
-
-// Helper function to find a comment in the tree
-function findComment(comments: Comment[], commentId: string): Comment | null {
-  for (const comment of comments) {
-    if (comment.id === commentId) return comment;
-    if (comment.replies) {
-      const found = findComment(comment.replies, commentId);
-      if (found) return found;
-    }
-  }
-  return null;
-}
