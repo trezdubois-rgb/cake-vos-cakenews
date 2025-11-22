@@ -66,9 +66,9 @@ export const ArticleActionsBar = ({
         like_count,
         user_id,
         parent_id,
-        profiles (
+        user:profiles!user_id (
           id,
-          display_name,
+          full_name,
           avatar_url
         )
       `)
@@ -121,9 +121,9 @@ export const ArticleActionsBar = ({
         id: comment.id,
         content: comment.content,
         author: {
-          id: comment.profiles?.id || comment.user_id,
-          name: comment.profiles?.display_name || "Utilisateur",
-          avatar: comment.profiles?.avatar_url,
+          id: comment.user?.id || comment.user_id,
+          name: comment.user?.full_name || "Utilisateur",
+          avatar: comment.user?.avatar_url,
         },
         created_at: comment.created_at,
         like_count: comment.like_count || 0,
