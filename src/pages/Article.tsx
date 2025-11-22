@@ -6,10 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
 import { ArticleActions } from "@/components/article/ArticleActions";
-import { CommentSection, Comment } from "@/components/article/CommentSection";
+import { CommentSystem } from "@/components/comments/CommentSystem";
 import { ArticleSEO } from "@/components/SEO";
 import { toast } from "sonner";
-import { buildCommentTree } from "@/lib/commentUtils";
 
 interface Article {
   id: string;
@@ -298,12 +297,7 @@ export default function Article() {
 
         {/* Comments Section */}
         <div className="mt-12">
-          <CommentSection
-            articleId={article.id}
-            comments={comments}
-            onAddComment={handleAddComment}
-            onLikeComment={handleLikeComment}
-          />
+          <CommentSystem articleId={article.id} />
         </div>
       </div>
 
