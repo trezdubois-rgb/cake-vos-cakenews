@@ -18,7 +18,10 @@ import Article from "./pages/Article";
 // Admin pages - lazy loaded to reduce initial bundle
 const AuthNew = lazy(() => import("./pages/AuthNew"));
 const Admin = lazy(() => import("./pages/Admin"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const ArticleEditor = lazy(() => import("./pages/admin/ArticleEditor"));
+const CategoryPage = lazy(() => import("./pages/CategoryPage"));
+const TagSearchPage = lazy(() => import("./pages/TagSearchPage"));
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,8 @@ const AppContent = () => {
               }
             />
             <Route path="/article/:id" element={<Article />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/tags" element={<TagSearchPage />} />
             <Route path="/auth" element={<AuthNew />} />
 
             {/* Admin Routes */}
@@ -52,6 +57,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requireAdmin>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Dashboard />
                 </ProtectedRoute>
               }
             />

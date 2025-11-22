@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://cakenews.vercel.app</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://cakenews.vercel.app/auth</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://cakenews.vercel.app/admin</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://cakenews.vercel.app/article/164f7223-bd45-48e3-83fe-d1a2e7379c0c</loc>
+    <lastmod>2025-11-05T07:03:00.704Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://cakenews.vercel.app/article/55db64c0-12db-4488-aba0-45ef437123d3</loc>
+    <lastmod>2025-11-05T07:03:00.704Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://cakenews.vercel.app/article/63c1f87f-db2f-46a0-a52e-1a037e7919a1</loc>
+    <lastmod>2025-11-05T07:07:42.996Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

@@ -2,6 +2,7 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -55,8 +56,11 @@ export const Header = () => {
           CAKENEWS
         </h1>
 
-        {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-muted" />
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          {/* Avatar */}
+          <div className="w-10 h-10 rounded-full bg-muted" />
+        </div>
       </div>
     </header>
   );
