@@ -60,7 +60,16 @@ export const useGuestMode = () => {
             setTimeRemaining(GUEST_TIME_LIMIT);
           }
         } else {
-          setTimeRemaining(existingSession.time_remaining_seconds);
+          // CORRECTION: Ne charger le temps que si on n'a pas encore de valeur
+          // Cela évite de réinitialiser le timer à chaque navigation
+          setTimeRemaining((prev) => {
+            // Si le timer est déjà en cours (prev < GUEST_TIME_LIMIT), on garde la valeur actuelle
+            // Sinon, on charge depuis la DB (première visite)
+            if (prev < GUEST_TIME_LIMIT && prev > 0) {
+              return prev;
+            }
+            return existingSession.time_remaining_seconds;
+          });
         }
       } else {
         // Créer une nouvelle session invité
