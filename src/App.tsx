@@ -43,11 +43,7 @@ const AppContent = () => {
           <Routes>
             <Route
               path="/"
-              element={
-                <GuestBlocker>
-                  <Accueil />
-                </GuestBlocker>
-              }
+              element={<Accueil />}
             />
             <Route path="/article/:id" element={<Article />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
