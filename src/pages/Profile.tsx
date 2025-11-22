@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Profile = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -109,6 +109,15 @@ const Profile = () => {
     navigate("/");
   };
 
+  // Attendre que l'authentification soit chargée avant de rediriger
+  if (authLoading || loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center space-y-4">
@@ -118,14 +127,6 @@ const Profile = () => {
           Connectez-vous pour accéder à votre profil et personnaliser votre expérience.
         </p>
         <Button onClick={() => navigate("/auth")}>Se connecter</Button>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
