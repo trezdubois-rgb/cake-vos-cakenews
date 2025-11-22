@@ -4,7 +4,10 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
-import { Loader2, Image as ImageIcon, Save, ArrowLeft, Upload, X, Plus } from "lucide-react";
+import Youtube from "@tiptap/extension-youtube";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { common, createLowlight } from "lowlight";
+import { Loader2, Image as ImageIcon, Save, ArrowLeft, Upload, X, Plus, Youtube as YoutubeIcon, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +26,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useArticleForm } from "@/hooks/useArticleForm";
-import { toast } from "sonner";
+
+const lowlight = createLowlight(common);
 
 const ArticleEditor = () => {
   const { id } = useParams();
@@ -45,10 +49,18 @@ const ArticleEditor = () => {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false,
+      }),
       Image,
       Link.configure({
         openOnClick: false,
+      }),
+      Youtube.configure({
+        controls: false,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
       }),
     ],
     content: formData.content_html,
@@ -132,7 +144,7 @@ const ArticleEditor = () => {
           </div>
 
           <div className="min-h-[500px] border rounded-lg p-4 bg-background">
-            <div className="flex gap-2 mb-4 border-b pb-2">
+            <div className="flex gap-2 mb-4 border-b pb-2 flex-wrap">
               <Button
                 variant="ghost"
                 size="sm"
@@ -149,6 +161,30 @@ const ArticleEditor = () => {
                 accept="image/*"
                 onChange={handleImageUpload}
               />
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const url = prompt("Entrez l'URL de la vidéo YouTube :");
+                  if (url) {
+                    editor?.commands.setYoutubeVideo({ src: url });
+                  }
+                }}
+              >
+                <YoutubeIcon className="w-4 h-4 mr-2" />
+                YouTube
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+                className={editor?.isActive("codeBlock") ? "bg-muted" : ""}
+              >
+                <Code className="w-4 h-4 mr-2" />
+                Code
+              </Button>
             </div>
             <EditorContent editor={editor} className="prose prose-invert max-w-none" />
           </div>

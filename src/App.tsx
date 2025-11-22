@@ -22,6 +22,9 @@ const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const ArticleEditor = lazy(() => import("./pages/admin/ArticleEditor"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const TagSearchPage = lazy(() => import("./pages/TagSearchPage"));
+const MyFeed = lazy(() => import("./pages/MyFeed"));
+const Messaging = lazy(() => import("./pages/Messaging"));
+const Profile = lazy(() => import("./pages/Profile"));
 
 const queryClient = new QueryClient();
 
@@ -50,6 +53,9 @@ const AppContent = () => {
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/tags" element={<TagSearchPage />} />
             <Route path="/auth" element={<AuthNew />} />
+            <Route path="/my-feed" element={<MyFeed />} />
+            <Route path="/messages" element={<Messaging />} />
+            <Route path="/profile" element={<Profile />} />
 
             {/* Admin Routes */}
             <Route

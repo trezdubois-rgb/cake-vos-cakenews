@@ -1,35 +1,67 @@
-import { Home, Sparkles, MessageCircle, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-
-const navItems = [
-  { id: "home", label: "Accueil", icon: Home, path: "/" },
-  { id: "personal", label: "Mon Flux", icon: Sparkles, path: "/mon-flux" },
-  { id: "messages", label: "Messages", icon: MessageCircle, path: "/messages" },
-  { id: "profile", label: "Profil", icon: User, path: "/profil" },
-];
+import { Home, Sparkles, MessageSquare, User } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export const BottomNav = () => {
+  const navigate = useNavigate();
   const location = useLocation();
+  const { unreadCount } = useNotifications();
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const navItems = [
+    {
+      label: "Accueil",
+      icon: Home,
+      path: "/",
+    },
+    {
+      label: "Mon Feed",
+      icon: Sparkles,
+      path: "/my-feed",
+    },
+    {
+      label: "Messagerie",
+      icon: MessageSquare,
+      path: "/messages",
+      badge: unreadCount > 0 ? unreadCount : undefined,
+    },
+    {
+      label: "Profil",
+      icon: User,
+      path: "/profile",
+    },
+  ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-[hsl(217,91%,60%)]/95 backdrop-blur border-t border-[hsl(217,91%,70%)]">
-      <div className="h-full flex items-center justify-around px-2">
-        {navItems.map(({ id, label, icon: Icon, path }) => {
-          const isActive = location.pathname === path;
-          
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border md:hidden z-50 pb-safe">
+      <div className="flex justify-around items-center h-16">
+        {navItems.map((item) => {
+          const active = isActive(item.path);
           return (
-            <Link
-              key={id}
-              to={path}
-              className="flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-white/90 min-w-[70px]"
+            <button
+              key={item.label}
+              onClick={() => navigate(item.path)}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+                active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <Icon size={24} />
-              <span>{label}</span>
-            </Link>
+              <div className="relative">
+                <item.icon
+                  className={`w-6 h-6 ${active ? "fill-current" : ""}`}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+                {item.badge && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
           );
         })}
       </div>
-    </nav>
+    </div>
   );
 };
