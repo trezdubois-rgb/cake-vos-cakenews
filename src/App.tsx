@@ -102,7 +102,6 @@ const AppContent = () => {
         </Suspense>
       </main>
       <BottomNav />
-      <AdminBottomNav />
     </div>
   );
 };

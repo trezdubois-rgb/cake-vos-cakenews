@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS public.guest_sessions (
   session_id text UNIQUE NOT NULL,
   first_visit timestamp with time zone DEFAULT now() NOT NULL,
   last_visit timestamp with time zone DEFAULT now() NOT NULL,
-  time_remaining_seconds integer DEFAULT 240 NOT NULL,
+  time_remaining_seconds integer DEFAULT 300 NOT NULL,
   blocked_until timestamp with time zone,
   created_at timestamp with time zone DEFAULT now() NOT NULL
 );

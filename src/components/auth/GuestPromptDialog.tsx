@@ -51,7 +51,7 @@ export const GuestPromptDialog = ({ open, onOpenChange, isBlocked }: GuestPrompt
                   Votre temps de navigation en mode invité est écoulé pour aujourd'hui.
                 </p>
                 <p className="text-base font-medium text-foreground">
-                  Revenez dans 24h pour 40 nouvelles secondes gratuites, ou créez votre compte
+                  Revenez dans 24h pour 5 nouvelles minutes gratuites, ou créez votre compte
                   maintenant pour un accès illimité !
                 </p>
               </>
