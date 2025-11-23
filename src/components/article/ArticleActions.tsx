@@ -21,62 +21,6 @@ interface Comment {
     avatar?: string;
   };
   created_at: string;
-  like_count: number;
-  reactions?: CommentReaction[];
-  isHidden?: boolean;
-  replies?: Comment[];
-}
-
-interface ArticleActionsProps {
-  articleId: string;
-  authorId: string;
-  authorName: string;
-  category: string;
-  tags: string[];
-  initialLikeCount: number;
-}
-
-export const ArticleActions = ({
-  articleId,
-  authorId,
-  authorName,
-  category,
-  tags,
-  initialLikeCount,
-}: ArticleActionsProps) => {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(initialLikeCount);
-  const [loading, setLoading] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
-
-  useEffect(() => {
-    checkIfLiked();
-    fetchComments();
-  }, [articleId]);
-
-  const fetchComments = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const { data, error } = await supabase
-      .from('comments')
-      .select(`
-        id,
-        content,
-        created_at,
-        like_count,
-        user_id,
-        parent_id,
-        profiles!user_id (
-          id,
-          display_name,
-          avatar_url
-        )
-      `)
-      .eq('article_id', articleId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
       console.error('Error fetching comments:', error);
       return;
     }
@@ -156,78 +100,6 @@ export const ArticleActions = ({
     });
 
     setComments(formattedComments);
-  };
-
-  const checkIfLiked = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    try {
-      const { data } = await supabase
-        .from("user_interactions")
-        .select("liked")
-        .eq("article_id", articleId)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (data) {
-        setLiked(data.liked || false);
-      }
-    } catch (error) {
-      console.error("Error checking like status:", error);
-    }
-  };
-
-  const handleLike = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour interagir avec les articles");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const newLiked = !liked;
-      
-      // Update or insert user interaction
-      const { data: existingInteraction } = await supabase
-        .from("user_interactions")
-        .select("id")
-        .eq("article_id", articleId)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (existingInteraction) {
-        await supabase
-          .from("user_interactions")
-          .update({ liked: newLiked })
-          .eq("id", existingInteraction.id);
-      } else {
-        await supabase
-          .from("user_interactions")
-          .insert({
-            article_id: articleId,
-            user_id: user.id,
-            liked: newLiked,
-          });
-      }
-
-      // Update article like count
-      const newLikeCount = newLiked ? likeCount + 1 : likeCount - 1;
-      await supabase
-        .from("articles")
-        .update({ like_count: newLikeCount })
-        .eq("id", articleId);
-
-      setLiked(newLiked);
-      setLikeCount(newLikeCount);
-    } catch (error: any) {
-      toast.error("Erreur lors du like");
-      console.error("Error liking:", error);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleShare = async () => {
@@ -342,8 +214,8 @@ export const ArticleActions = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLike}
-            disabled={loading}
+            onClick={onLike}
+            disabled={loadingLike}
             className={`flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10 ${liked ? 'opacity-100' : 'opacity-90'}`}
           >
             <Heart

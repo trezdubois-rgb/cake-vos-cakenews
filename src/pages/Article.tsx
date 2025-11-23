@@ -9,6 +9,9 @@ import { ArticleActions } from "@/components/article/ArticleActions";
 import { CommentSystem } from "@/components/comments/CommentSystem";
 import { ArticleSEO } from "@/components/SEO";
 import { toast } from "sonner";
+import { useArticleLike } from "@/hooks/useArticleLike";
+import { HeartAnimation } from "@/components/ui/HeartAnimation";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface Article {
   id: string;
@@ -35,6 +38,27 @@ export default function Article() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  
+  // Like & Haptic Logic
+  const { liked, likeCount, handleLike, loading: loadingLike } = useArticleLike(id || "", article?.like_count || 0);
+  const { trigger } = useHaptic();
+  const [lastTap, setLastTap] = useState(0);
+  const [heartPosition, setHeartPosition] = useState<{x: number, y: number} | null>(null);
+
+  const handleDoubleTap = (e: React.MouseEvent) => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      // Double tap detected
+      handleLike();
+      
+      // Show animation if we are liking (not unliking)
+      // Since handleLike toggles, if we are currently NOT liked, we will become liked.
+      if (!liked) {
+        setHeartPosition({ x: e.clientX, y: e.clientY });
+      }
+    }
+    setLastTap(now);
+  };
 
   useEffect(() => {
     if (id) {
@@ -279,9 +303,11 @@ export default function Article() {
         )}
 
         {/* Article Content */}
+        {/* Article Content with Double Tap */}
         <div 
-          className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-headings:font-bold prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary prose-a:font-semibold prose-strong:text-foreground prose-strong:font-bold mb-8"
+          className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-headings:font-bold prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary prose-a:font-semibold prose-strong:text-foreground prose-strong:font-bold mb-8 select-none"
           dangerouslySetInnerHTML={{ __html: article.content_html }}
+          onClick={handleDoubleTap}
         />
 
         {/* Tags */}
@@ -309,7 +335,19 @@ export default function Article() {
         category={article.category}
         tags={article.tags || []}
         initialLikeCount={article.like_count || 0}
+        liked={liked}
+        likeCount={likeCount}
+        onLike={handleLike}
+        loadingLike={loadingLike}
       />
+      
+      {heartPosition && (
+        <HeartAnimation 
+          x={heartPosition.x} 
+          y={heartPosition.y} 
+          onComplete={() => setHeartPosition(null)} 
+        />
+      )}
     </div>
   );
 }
