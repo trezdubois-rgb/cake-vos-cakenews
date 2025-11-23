@@ -18,16 +18,17 @@ export default function Admin() {
     categories: 0,
   });
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
+  // Authentication temporairement désactivée pour développement
+  // useEffect(() => {
+  //   if (!loading && !user) {
+  //     navigate("/auth");
+  //   }
+  // }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user && isAdmin) {
+    // if (user && isAdmin) {
       fetchStats();
-    }
+    // }
   }, [user, isAdmin]);
 
   const fetchStats = async () => {
@@ -90,9 +91,9 @@ export default function Admin() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  // if (!user) {
+  //   return null;
+  // }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
