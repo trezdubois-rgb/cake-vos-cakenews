@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ReportMenu } from "./ReportMenu";
 import { CommentDialog } from "./CommentDialog";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface CommentReaction {
   emoji: string;
@@ -21,6 +22,65 @@ interface Comment {
     avatar?: string;
   };
   created_at: string;
+  like_count: number;
+  reactions?: CommentReaction[];
+  isHidden?: boolean;
+  replies?: Comment[];
+}
+
+interface ArticleActionsProps {
+  articleId: string;
+  authorId: string;
+  authorName: string;
+  category: string;
+  tags: string[];
+  liked: boolean;
+  likeCount: number;
+  onLike: () => void;
+  loadingLike: boolean;
+}
+
+export const ArticleActions = ({
+  articleId,
+  authorId,
+  authorName,
+  category,
+  tags,
+  liked,
+  likeCount,
+  onLike,
+  loadingLike,
+}: ArticleActionsProps) => {
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const { trigger } = useHaptic();
+
+  useEffect(() => {
+    fetchComments();
+  }, [articleId]);
+
+  const fetchComments = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const { data, error } = await supabase
+      .from('comments')
+      .select(`
+        id,
+        content,
+        created_at,
+        like_count,
+        user_id,
+        parent_id,
+        profiles!user_id (
+          id,
+          display_name,
+          avatar_url
+        )
+      `)
+      .eq('article_id', articleId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
       console.error('Error fetching comments:', error);
       return;
     }
@@ -103,6 +163,7 @@ interface Comment {
   };
 
   const handleShare = async () => {
+    trigger('light');
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
@@ -228,7 +289,10 @@ interface Comment {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowComments(true)}
+            onClick={() => {
+              trigger('light');
+              setShowComments(true);
+            }}
             className="flex flex-col items-center gap-1 text-xs text-destructive-foreground hover:bg-destructive-foreground/10"
           >
             <MessageCircle size={24} />
