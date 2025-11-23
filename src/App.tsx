@@ -5,11 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { Header } from "./components/layout/Header";
-import { BottomNav } from "./components/layout/BottomNav";
-import { AdminBottomNav } from "./components/layout/AdminBottomNav";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { GuestBlocker } from "./components/auth/GuestBlocker";
+import { UserLayout } from "./components/layout/UserLayout";
+import { AdminLayout } from "./components/layout/AdminLayout";
 
 // Public pages - loaded immediately
 import Accueil from "./pages/Accueil";
@@ -20,6 +19,14 @@ const AuthNew = lazy(() => import("./pages/AuthNew"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const ArticleEditor = lazy(() => import("./pages/admin/ArticleEditor"));
+const ArticlesList = lazy(() => import("./pages/admin/ArticlesList"));
+const UsersManager = lazy(() => import("./pages/admin/UsersManager"));
+const DesignManager = lazy(() => import("./pages/admin/DesignManager"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const CategoriesManager = lazy(() => import("./pages/admin/CategoriesManager"));
+const MediaLibrary = lazy(() => import("./pages/admin/MediaLibrary"));
+const AdsManager = lazy(() => import("./pages/admin/AdsManager"));
+
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const TagSearchPage = lazy(() => import("./pages/TagSearchPage"));
 const MyFeed = lazy(() => import("./pages/MyFeed"));
@@ -36,69 +43,43 @@ const LoadingFallback = () => (
 
 const AppContent = () => {
   return (
-    <div className="min-h-screen bg-background font-sans antialiased pb-16 md:pb-0">
-      <Header />
-      <main className="container mx-auto px-0 md:px-4 py-4 max-w-7xl">
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route
-              path="/"
-              element={<Accueil />}
-            />
-            <Route path="/article/:id" element={<Article />} />
-            <Route path="/category/:slug" element={<CategoryPage />} />
-            <Route path="/tags" element={<TagSearchPage />} />
-            <Route path="/auth" element={<AuthNew />} />
-            <Route path="/my-feed" element={<MyFeed />} />
-            <Route path="/messages" element={<Messaging />} />
-            <Route path="/profile" element={<Profile />} />
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        {/* USER INTERFACE - Public & Authenticated User Routes */}
+        <Route element={<UserLayout />}>
+          <Route path="/" element={<Accueil />} />
+          <Route path="/article/:id" element={<Article />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/tags" element={<TagSearchPage />} />
+          <Route path="/auth" element={<AuthNew />} />
+          <Route path="/my-feed" element={<MyFeed />} />
+          <Route path="/messages" element={<Messaging />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/articles"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/articles/new"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <ArticleEditor />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/articles/:id"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <ArticleEditor />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Suspense>
-      </main>
-      <BottomNav />
-    </div>
+        {/* ADMIN INTERFACE - Strictly Separated */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Admin />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="articles" element={<ArticlesList />} />
+          <Route path="articles/new" element={<ArticleEditor />} />
+          <Route path="articles/:id" element={<ArticleEditor />} />
+          <Route path="users" element={<UsersManager />} />
+          <Route path="design" element={<DesignManager />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="categories" element={<CategoriesManager />} />
+          <Route path="media" element={<MediaLibrary />} />
+          <Route path="ads" element={<AdsManager />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 };
 
