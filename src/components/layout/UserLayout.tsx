@@ -4,7 +4,7 @@ import { BottomNav } from "./BottomNav";
 
 export const UserLayout = () => {
   return (
-    <div className="min-h-screen bg-background font-sans antialiased pb-16 md:pb-0">
+    <div className="min-h-screen bg-background font-sans antialiased pb-16">
       <Header />
       <main className="container mx-auto px-0 md:px-4 py-4 max-w-7xl">
         <Outlet />
