@@ -65,18 +65,22 @@ export const useComments = (articleId: string) => {
       // Fetch all comments for the article
       const { data: commentsData, error: commentsError } = await supabase
         .from("comments")
-        .select(`
-          *,
-          user:profiles!user_id (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select("*")
         .eq("article_id", articleId)
         .order("created_at", { ascending: true });
 
       if (commentsError) throw commentsError;
+
+      // Fetch profiles for the comments
+      const userIds = Array.from(new Set(commentsData?.map((c) => c.user_id) || []));
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", userIds);
+
+      const profilesMap = new Map(
+        profilesData?.map((profile) => [profile.id, profile]) || []
+      );
 
       // Fetch user's likes if authenticated
       let userLikes: Set<string> = new Set();
@@ -95,9 +99,18 @@ export const useComments = (articleId: string) => {
       const rootComments: Comment[] = [];
 
       commentsData?.forEach((comment: any) => {
+        const profile = profilesMap.get(comment.user_id);
         const formattedComment: Comment = {
           ...comment,
-          user: comment.user || { id: comment.user_id, full_name: "Utilisateur", avatar_url: null },
+          user: profile ? {
+            id: profile.id,
+            full_name: profile.display_name || "Utilisateur",
+            avatar_url: profile.avatar_url
+          } : { 
+            id: comment.user_id, 
+            full_name: "Utilisateur", 
+            avatar_url: null 
+          },
           replies: [],
           is_liked: userLikes.has(comment.id),
         };
