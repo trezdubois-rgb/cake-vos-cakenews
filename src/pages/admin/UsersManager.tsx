@@ -37,7 +37,7 @@ import {
 type UserProfile = {
   id: string;
   email: string;
-  full_name?: string;
+  display_name?: string;
   avatar_url?: string;
   created_at: string;
   role?: string;
@@ -84,7 +84,7 @@ export default function UsersManager() {
     if (searchQuery) {
       filtered = filtered.filter((u) =>
         u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        u.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -129,7 +129,7 @@ export default function UsersManager() {
       const simpleUsers: UserProfile[] = userRoles.map((role) => ({
         id: role.user_id,
         email: `user-${role.user_id.substring(0, 8)}`,
-        full_name: "Utilisateur",
+        display_name: "Utilisateur",
         avatar_url: undefined,
         created_at: role.created_at || new Date().toISOString(),
         role: role.role,
@@ -433,7 +433,7 @@ export default function UsersManager() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-medium text-slate-700">
-                          {usr.full_name || "Utilisateur"}
+                          {usr.display_name || "Utilisateur"}
                         </p>
                         {usr.role && (
                           <Badge variant="outline" className={getRoleBadgeColor(usr.role)}>

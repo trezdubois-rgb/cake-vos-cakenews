@@ -6,7 +6,7 @@ export const useAuth = () => {
     id: "00000000-0000-0000-0000-000000000000",
     app_metadata: {},
     user_metadata: {
-      full_name: "Admin User",
+      display_name: "Admin User",
       avatar_url: null,
     },
     aud: "authenticated",

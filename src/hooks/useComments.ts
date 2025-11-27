@@ -13,7 +13,7 @@ export interface Comment {
   like_count: number;
   user: {
     id: string;
-    full_name: string;
+    display_name: string;
     avatar_url: string | null;
   };
   replies?: Comment[];
@@ -69,7 +69,7 @@ export const useComments = (articleId: string) => {
           *,
           user:profiles!user_id (
             id,
-            full_name,
+            display_name,
             avatar_url
           )
         `)
@@ -97,7 +97,7 @@ export const useComments = (articleId: string) => {
       commentsData?.forEach((comment: any) => {
         const formattedComment: Comment = {
           ...comment,
-          user: comment.user || { id: comment.user_id, full_name: "Utilisateur", avatar_url: null },
+          user: comment.user || { id: comment.user_id, display_name: "Utilisateur", avatar_url: null },
           replies: [],
           is_liked: userLikes.has(comment.id),
         };

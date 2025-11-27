@@ -146,11 +146,11 @@ const Profile = () => {
           <Avatar className="w-20 h-20">
             <AvatarImage src={profile?.avatar_url} />
             <AvatarFallback className="text-2xl">
-              {profile?.full_name?.[0]?.toUpperCase() || "U"}
+              {profile?.display_name?.[0]?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h2 className="text-xl font-bold">{profile?.full_name || "Utilisateur"}</h2>
+            <h2 className="text-xl font-bold">{profile?.display_name || "Utilisateur"}</h2>
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
         </CardContent>
@@ -256,7 +256,7 @@ const Profile = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Nom complet</Label>
-                <Input value={profile?.full_name || ""} disabled />
+                <Input value={profile?.display_name || ""} disabled />
               </div>
               <div className="space-y-2">
                 <Label>Email</Label>
