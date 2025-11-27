@@ -67,8 +67,8 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Admin />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route index element={<Dashboard />} />
+          <Route path="menu" element={<Admin />} />
           <Route path="articles" element={<ArticlesList />} />
           <Route path="articles/new" element={<ArticleEditor />} />
           <Route path="articles/:id" element={<ArticleEditor />} />

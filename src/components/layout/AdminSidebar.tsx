@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const navItems = [
-  { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard, path: "/admin/dashboard" },
+  { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard, path: "/admin" },
   { id: "articles", label: "Articles", icon: FileText, path: "/admin/articles" },
   { id: "media", label: "Médiathèque", icon: Image, path: "/admin/media" },
   { id: "ads", label: "Publicités", icon: Video, path: "/admin/ads" },
