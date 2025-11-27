@@ -16,45 +16,45 @@ interface StatCardProps {
 
 const colorConfig = {
   green: {
-    bg: "bg-[#2ecc71]",
+    bg: "bg-[#16a34a]", // Darker green for better contrast (was #2ecc71)
     iconBg: "bg-green-100",
-    iconColor: "text-[#2ecc71]",
-    textLight: "text-green-100",
+    iconColor: "text-[#16a34a]",
+    textLight: "text-green-50",
     accent: "bg-white/20",
   },
   orange: {
-    bg: "bg-[#f39c12]",
+    bg: "bg-[#ea580c]", // Darker orange for better contrast (was #f39c12)
     iconBg: "bg-orange-100",
-    iconColor: "text-[#f39c12]",
-    textLight: "text-orange-100",
+    iconColor: "text-[#ea580c]",
+    textLight: "text-orange-50",
     accent: "bg-white/20",
   },
   teal: {
-    bg: "bg-[#1abc9c]",
+    bg: "bg-[#0f766e]", // Darker teal for better contrast (was #1abc9c)
     iconBg: "bg-teal-100",
-    iconColor: "text-[#1abc9c]",
-    textLight: "text-teal-100",
+    iconColor: "text-[#0f766e]",
+    textLight: "text-teal-50",
     accent: "bg-white/20",
   },
   blue: {
-    bg: "bg-[#3498db]",
+    bg: "bg-[#2563eb]", // Darker blue for better contrast (was #3498db)
     iconBg: "bg-blue-100",
-    iconColor: "text-[#3498db]",
-    textLight: "text-blue-100",
+    iconColor: "text-[#2563eb]",
+    textLight: "text-blue-50",
     accent: "bg-white/20",
   },
   purple: {
-    bg: "bg-[#9b59b6]",
+    bg: "bg-[#7c3aed]", // Darker purple for better contrast (was #9b59b6)
     iconBg: "bg-purple-100",
-    iconColor: "text-[#9b59b6]",
-    textLight: "text-purple-100",
+    iconColor: "text-[#7c3aed]",
+    textLight: "text-purple-50",
     accent: "bg-white/20",
   },
   red: {
-    bg: "bg-[#e74c3c]",
+    bg: "bg-[#dc2626]", // Darker red for better contrast (was #e74c3c)
     iconBg: "bg-red-100",
-    iconColor: "text-[#e74c3c]",
-    textLight: "text-red-100",
+    iconColor: "text-[#dc2626]",
+    textLight: "text-red-50",
     accent: "bg-white/20",
   },
 };
