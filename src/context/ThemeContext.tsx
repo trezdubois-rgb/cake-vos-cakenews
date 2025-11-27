@@ -153,6 +153,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const fetchTheme = async () => {
     try {
+      // Check if Supabase client is configured before making request
+      if (!supabase) {
+        console.warn("Supabase client not initialized, using default theme");
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("theme_settings")
         .select("*")
@@ -163,14 +170,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         if (error.code === 'PGRST116') {
           // No rows - use defaults silently
           console.info("No theme settings found, using defaults");
-        } else if (error.message.includes('relation "public.theme_settings" does not exist')) {
+        } else if (error.message && error.message.includes('relation "public.theme_settings" does not exist')) {
           // Table not created yet
           setError("La table de thème n'existe pas encore. Utilisation des valeurs par défaut.");
           toast.warning("Thème: Table non initialisée, utilisation des valeurs par défaut", {
             description: "Exécutez la migration Supabase pour activer la persistance."
           });
         } else {
-          throw error;
+          // Log other errors but don't crash app
+          console.warn("Theme fetch error:", error);
         }
       } else if (data) {
         setTheme(data);
@@ -178,10 +186,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (e: any) {
       console.error("Error fetching theme:", e);
-      setError(e.message || "Erreur de chargement du thème");
-      toast.error("Impossible de charger le thème", {
-        description: "Les paramètres par défaut seront utilisés."
-      });
+      // Don't set user-facing error for network issues to avoid scary red banners on initial load
+      // just log to console and use defaults
     } finally {
       setLoading(false);
     }
