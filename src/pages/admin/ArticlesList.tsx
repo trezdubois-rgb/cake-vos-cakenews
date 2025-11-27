@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Eye, Trash2 } from "lucide-react";
+import { FileText, Edit, Eye, Trash2, Plus, Heart, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { StatCard } from "@/components/admin/StatCard";
 
 interface Article {
   id: string;
@@ -24,6 +26,12 @@ export default function ArticlesList() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Stats for the header
+  const totalArticles = articles.length;
+  const publishedCount = articles.filter((a) => a.published).length;
+  const draftCount = articles.filter((a) => a.published === false).length;
+  const totalViews = articles.reduce((sum, a) => sum + (a.view_count || 0), 0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -72,8 +80,14 @@ export default function ArticlesList() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <Skeleton className="h-12 w-64 mb-8" />
+      <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+        <Skeleton className="h-20 w-full" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-32" />
@@ -83,66 +97,103 @@ export default function ArticlesList() {
     );
   }
 
-  if (!user) {
-    navigate("/auth");
+  if (!user || !isAdmin) {
     return null;
   }
 
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-6 border-orange-500">
-            <p className="text-center text-muted-foreground">
-              ⚠️ Vous n'avez pas les droits administrateur.
-            </p>
-            <div className="mt-4 text-center">
-              <Button onClick={() => navigate("/admin")}>
-                Retour au tableau de bord
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link to="/admin">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-6 w-6" />
+    <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+      <AdminPageHeader
+        title="Articles"
+        description="Gérer tous les articles publiés et brouillons"
+        icon={FileText}
+        actions={
+          <Link to="/admin/articles/new">
+            <Button className="shadow-lg shadow-primary/20">
+              <Plus className="mr-2 h-4 w-4" />
+              Nouvel article
             </Button>
           </Link>
-          <h1 className="text-4xl font-bold">Articles</h1>
-        </div>
+        }
+        statusIndicator={{
+          label: `${totalArticles} articles`,
+          color: "blue",
+        }}
+      />
 
-        <div className="space-y-4">
-          {articles.map((article) => (
-            <Card key={article.id} className="p-6">
-              <div className="flex items-start justify-between">
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Articles"
+          value={totalArticles}
+          icon={FileText}
+          color="blue"
+          subtitle="Tous les contenus"
+        />
+        <StatCard
+          title="Publiés"
+          value={publishedCount}
+          icon={TrendingUp}
+          color="green"
+          subtitle="En ligne"
+        />
+        <StatCard
+          title="Brouillons"
+          value={draftCount}
+          icon={Edit}
+          color="orange"
+          subtitle="En attente"
+        />
+        <StatCard
+          title="Vues Totales"
+          value={totalViews}
+          icon={Eye}
+          color="teal"
+          subtitle="Toutes vues"
+        />
+      </div>
+
+      {/* Articles List */}
+      <Card className="border-none shadow-md">
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4">
+            Liste des articles
+          </h2>
+          <div className="space-y-4">
+            {articles.map((article) => (
+              <div
+                key={article.id}
+                className="flex items-start justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+              >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-xl font-bold">{article.title}</h3>
+                    <h3 className="text-lg font-bold text-slate-700">
+                      {article.title}
+                    </h3>
                     <Badge variant={article.published ? "default" : "secondary"}>
                       {article.published ? "Publié" : "Brouillon"}
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground mb-2">{article.category}</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {article.category}
+                  </p>
                   <div className="flex gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Eye className="h-4 w-4" />
                       {article.view_count} vues
                     </span>
-                    <span>{article.like_count} likes</span>
-                    <span>{new Date(article.created_at).toLocaleDateString()}</span>
+                    <span className="flex items-center gap-1">
+                      <Heart className="h-4 w-4" />
+                      {article.like_count} j'aime
+                    </span>
+                    <span>
+                      {new Date(article.created_at).toLocaleDateString("fr-FR")}
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-2">
-                  <Link to={`/admin/articles/edit/${article.id}`}>
+                  <Link to={`/admin/articles/${article.id}`}>
                     <Button variant="outline" size="icon">
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -156,19 +207,22 @@ export default function ArticlesList() {
                   </Button>
                 </div>
               </div>
-            </Card>
-          ))}
+            ))}
 
-          {articles.length === 0 && (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">Aucun article pour le moment</p>
-              <Link to="/admin/articles/new">
-                <Button className="mt-4">Créer le premier article</Button>
-              </Link>
-            </Card>
-          )}
+            {articles.length === 0 && (
+              <div className="p-12 text-center bg-white rounded-lg border-2 border-dashed">
+                <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground mb-4">
+                  Aucun article pour le moment
+                </p>
+                <Link to="/admin/articles/new">
+                  <Button>Créer le premier article</Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
