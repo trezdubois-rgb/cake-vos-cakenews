@@ -68,7 +68,7 @@ export const ArticleActionsBar = ({
         parent_id,
         user:profiles!user_id (
           id,
-          display_name,
+          full_name,
           avatar_url
         )
       `)
@@ -122,7 +122,7 @@ export const ArticleActionsBar = ({
         content: comment.content,
         author: {
           id: comment.user?.id || comment.user_id,
-          name: comment.user?.display_name || "Utilisateur",
+          name: comment.user?.full_name || "Utilisateur",
           avatar: comment.user?.avatar_url,
         },
         created_at: comment.created_at,

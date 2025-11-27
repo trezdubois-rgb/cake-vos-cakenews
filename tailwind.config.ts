@@ -13,14 +13,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ['Poppins', 'system-ui', 'sans-serif'],
-        display: ['Pacifico', 'cursive'],
-      },
-      fontWeight: {
-        'medium': '500',
-        'extrabold': '800',
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
