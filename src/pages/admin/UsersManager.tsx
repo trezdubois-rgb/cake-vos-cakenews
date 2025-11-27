@@ -101,49 +101,52 @@ export default function UsersManager() {
   }, [users, searchQuery, roleFilter]);
 
   const fetchUsers = async () => {
+    console.log("🔍 Starting to fetch users...");
     try {
       setLoading(true);
       
-      // 1. Fetch all profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url, created_at");
-
-      if (profilesError) throw profilesError;
-
-      // 2. Fetch all user roles
+      // Simple fetch of user_roles only
+      console.log("📊 Fetching user roles...");
       const { data: userRoles, error: rolesError } = await supabase
         .from("user_roles")
-        .select("id, user_id, role");
+        .select("*");
 
-      if (rolesError) throw rolesError;
+      console.log("📋 User roles response:", { userRoles, rolesError });
 
-      // 3. Create a map of roles
-      const roleMap = new Map(
-        userRoles?.map(r => [r.user_id, { role: r.role, role_id: r.id }]) || []
-      );
+      if (rolesError) {
+        console.error("❌ Error fetching roles:", rolesError);
+        throw new Error(`RLS Error: ${rolesError.message}`);
+      }
 
-      // 4. Try to get emails from auth.users (this might fail due to RLS)
-      // We'll use a workaround: check if we can access metadata
-      const usersWithProfiles: UserProfile[] = (profiles || []).map((profile) => {
-        const roleInfo = roleMap.get(profile.id);
-        return {
-          id: profile.id,
-          email: `user-${profile.id.substring(0, 8)}@cakenews.app`, // Fallback email
-          full_name: profile.full_name,
-          avatar_url: profile.avatar_url,
-          created_at: profile.created_at,
-          role: roleInfo?.role,
-          role_id: roleInfo?.role_id,
-        };
-      });
+      if (!userRoles || userRoles.length === 0) {
+        console.warn("⚠️ No user roles found");
+        setUsers([]);
+        toast.info("Aucun rôle d'utilisateur trouvé");
+        return;
+      }
 
-      setUsers(usersWithProfiles);
+      // Create simple user list from roles
+      const simpleUsers: UserProfile[] = userRoles.map((role) => ({
+        id: role.user_id,
+        email: `user-${role.user_id.substring(0, 8)}`,
+        full_name: "Utilisateur",
+        avatar_url: undefined,
+        created_at: role.created_at || new Date().toISOString(),
+        role: role.role,
+        role_id: role.id,
+      }));
+
+      console.log("✅ Successfully created user list:", simpleUsers.length);
+      setUsers(simpleUsers);
+      toast.success(`${simpleUsers.length} utilisateur(s) chargé(s)`);
+      
     } catch (error: any) {
-      console.error("Error fetching users:", error);
-      toast.error("Erreur lors du chargement des utilisateurs");
+      console.error("💥 Fatal error fetching users:", error);
+      toast.error(`Erreur: ${error.message || "Impossible de charger"}`);
+      setUsers([]);
     } finally {
       setLoading(false);
+      console.log("🏁 Fetch complete");
     }
   };
 
@@ -173,7 +176,7 @@ export default function UsersManager() {
 
       const { error } = await supabase
         .from("user_roles")
-        .insert([{ user_id: matchingUser.id, role: newUserRole }]);
+        .insert([{ user_id: matchingUser.id, role: newUserRole } as any]);
 
       if (error) throw error;
 
@@ -192,7 +195,7 @@ export default function UsersManager() {
     try {
       const { error } = await supabase
         .from("user_roles")
-        .update({ role: newRole })
+        .update({ role: newRole as any })
         .eq("id", currentRoleId);
 
       if (error) throw error;
