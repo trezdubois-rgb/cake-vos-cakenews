@@ -13,7 +13,7 @@ interface Article {
   content_html: string;
   hero_image_url: string;
   category: { name: string; slug: string };
-  author: { full_name: string; avatar_url: string };
+  author: { display_name: string; avatar_url: string };
   published_at: string;
   slug: string;
   likes: { count: number };
@@ -49,7 +49,7 @@ const MyFeed = () => {
           .select(`
             *,
             category:categories(name, slug),
-            author:profiles(full_name, avatar_url),
+            author:profiles(display_name, avatar_url),
             likes:article_likes(count),
             comments:comments(count)
           `)

@@ -43,7 +43,7 @@ export const CommentItem = ({
         <Avatar className="w-10 h-10 flex-shrink-0">
           <AvatarImage src={comment.user.avatar_url || undefined} />
           <AvatarFallback className="bg-primary/10 text-primary">
-            {comment.user.full_name?.[0]?.toUpperCase() || "U"}
+            {comment.user.display_name?.[0]?.toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
 
@@ -52,7 +52,7 @@ export const CommentItem = ({
           {/* Header */}
           <div className="flex items-center gap-2 mb-1">
             <span className="font-semibold text-sm">
-              {comment.user.full_name || "Utilisateur"}
+              {comment.user.display_name || "Utilisateur"}
             </span>
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(comment.created_at), {
@@ -118,7 +118,7 @@ export const CommentItem = ({
             <div className="mt-3">
               <CommentInput
                 onSubmit={handleReply}
-                placeholder={`Répondre à ${comment.user.full_name}...`}
+                placeholder={`Répondre à ${comment.user.display_name}...`}
                 autoFocus
                 onCancel={() => setShowReplyInput(false)}
                 submitting={submitting}
