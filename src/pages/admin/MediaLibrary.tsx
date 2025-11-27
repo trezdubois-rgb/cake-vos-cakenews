@@ -1,5 +1,4 @@
-```
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,10 +8,9 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Image as ImageIcon, Video, File, Trash2, Search, X, Copy, Check, CloudUpload } from "lucide-react";
+import { Upload, Image as ImageIcon, Video, File, Trash2, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { compressImageFor1080, compressImageForVertical } from "@/lib/imageCompression";
-import { cn } from "@/lib/utils";
 
 interface Media {
   id: string;
@@ -39,8 +37,6 @@ export default function MediaLibrary() {
   const [filteredMedia, setFilteredMedia] = useState<Media[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,7 +89,8 @@ export default function MediaLibrary() {
     setFilteredMedia(filtered);
   };
 
-  const handleUpload = async (files: FileList | null, format?: 'square' | 'vertical') => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, format?: 'square' | 'vertical') => {
+    const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
@@ -181,214 +178,165 @@ export default function MediaLibrary() {
     }
   };
 
-  const copyToClipboard = (url: string, id: string) => {
-    navigator.clipboard.writeText(url);
-    setCopiedId(id);
-    toast.success("Lien copié !");
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
-  // Drag and Drop handlers
-  const onDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const onDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleUpload(e.dataTransfer.files);
-  }, []);
-
   if (authLoading || loading) {
     return (
-      <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-12 w-64" />
+      <div className="min-h-screen bg-background p-8 pb-20">
+        <Skeleton className="h-12 w-64 mb-8" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-xl" />
+            <Skeleton key={i} className="h-48" />
           ))}
         </div>
       </div>
     );
   }
 
-  if (!isAdmin) return null;
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-6 border-orange-500">
+            <p className="text-center text-muted-foreground">
+              ⚠️ Vous n'avez pas les droits administrateur.
+            </p>
+            <div className="mt-4 text-center">
+              <Button onClick={() => navigate("/admin")}>
+                Retour au tableau de bord
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-[1600px] mx-auto pb-24 md:pb-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            Médiathèque
-          </h1>
-          <p className="text-muted-foreground">Gérez vos images et vidéos</p>
-        </div>
-        <div className="flex gap-2">
-          <label>
-            <input
-              type="file"
-              multiple
-              accept="image/*,video/*"
-              onChange={(e) => handleUpload(e.target.files)}
-              className="hidden"
-              disabled={uploading}
-            />
-            <Button disabled={uploading} className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
-              <Upload className="mr-2 h-4 w-4" />
-              {uploading ? "Upload..." : "Importer"}
-            </Button>
-          </label>
-        </div>
-      </div>
-
-      {/* Drag & Drop Zone */}
-      <div
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-        className={cn(
-          "border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200",
-          isDragging 
-            ? "border-primary bg-primary/5 scale-[1.01]" 
-            : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
-        )}
-      >
-        <div className="flex flex-col items-center gap-2">
-          <div className="p-4 rounded-full bg-muted">
-            <CloudUpload className="h-8 w-8 text-muted-foreground" />
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold">Bibliothèque de médias</h1>
+          <div className="flex gap-2">
+            <label>
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={(e) => handleUpload(e)}
+                className="hidden"
+                disabled={uploading}
+              />
+              <Button disabled={uploading}>
+                <Upload className="mr-2 h-4 w-4" />
+                {uploading ? "Upload..." : "Upload"}
+              </Button>
+            </label>
           </div>
-          <h3 className="font-semibold text-lg">Glissez-déposez vos fichiers ici</h3>
-          <p className="text-sm text-muted-foreground">
-            ou cliquez sur le bouton "Importer" pour sélectionner des fichiers
-          </p>
         </div>
-      </div>
 
-      <Card className="p-1 border-none shadow-sm bg-muted/50">
-        <div className="flex flex-col md:flex-row gap-4 p-2">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher un fichier..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-background border-none shadow-sm"
-            />
+        <Card className="p-4 mb-6">
+          <div className="flex gap-4 mb-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
             {searchQuery && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                onClick={() => setSearchQuery("")}
-              >
+              <Button variant="ghost" size="icon" onClick={() => setSearchQuery("")}>
                 <X className="h-4 w-4" />
               </Button>
             )}
           </div>
-          
-          <Tabs value={selectedType} onValueChange={setSelectedType} className="w-full md:w-auto">
-            <TabsList className="grid w-full grid-cols-4 bg-background shadow-sm">
-              <TabsTrigger value="all">Tous</TabsTrigger>
-              <TabsTrigger value="image">Images</TabsTrigger>
-              <TabsTrigger value="video">Vidéos</TabsTrigger>
-              <TabsTrigger value="document">Docs</TabsTrigger>
+
+          <Tabs value={selectedType} onValueChange={setSelectedType}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="all">Tous ({media.length})</TabsTrigger>
+              <TabsTrigger value="image">
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Images
+              </TabsTrigger>
+              <TabsTrigger value="video">
+                <Video className="mr-2 h-4 w-4" />
+                Vidéos
+              </TabsTrigger>
+              <TabsTrigger value="document">
+                <File className="mr-2 h-4 w-4" />
+                Docs
+              </TabsTrigger>
             </TabsList>
           </Tabs>
-        </div>
-      </Card>
+        </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {filteredMedia.map((item) => (
-          <div key={item.id} className="group relative bg-card rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-            <div className="aspect-square bg-muted relative overflow-hidden">
-              {item.file_type === 'image' && (
-                <img
-                  src={item.url}
-                  alt={item.alt_text || item.original_filename}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-              )}
-              {item.file_type === 'video' && (
-                <video
-                  src={item.url}
-                  className="w-full h-full object-cover"
-                />
-              )}
-              {item.file_type === 'document' && (
-                <div className="flex items-center justify-center h-full bg-muted/50">
-                  <File className="h-16 w-16 text-muted-foreground/50" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredMedia.map((item) => (
+            <Card key={item.id} className="overflow-hidden group relative">
+              <div className="aspect-square bg-muted relative">
+                {item.file_type === 'image' && (
+                  <img
+                    src={item.url}
+                    alt={item.alt_text || item.original_filename}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                {item.file_type === 'video' && (
+                  <video
+                    src={item.url}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                {item.file_type === 'document' && (
+                  <div className="flex items-center justify-center h-full">
+                    <File className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    onClick={() => handleDelete(item.id, item.url)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
-              
-              {/* Overlay Actions */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="h-9 w-9 rounded-full bg-white/90 hover:bg-white text-black"
-                  onClick={() => copyToClipboard(item.url, item.id)}
-                  title="Copier le lien"
-                >
-                  {copiedId === item.id ? (
-                    <Check className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  className="h-9 w-9 rounded-full"
-                  onClick={() => handleDelete(item.id, item.url)}
-                  title="Supprimer"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
-            </div>
-            
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-1">
-                <Badge variant="outline" className="text-[10px] px-1.5 h-5 uppercase tracking-wider bg-muted/50 border-muted">
-                  {item.file_type}
-                </Badge>
-                <span className="text-[10px] text-muted-foreground">
-                  {formatFileSize(item.file_size)}
-                </span>
+              <div className="p-3">
+                <p className="text-sm font-medium truncate">{item.original_filename}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <Badge variant="secondary">{item.file_type}</Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {formatFileSize(item.file_size)}
+                  </span>
+                </div>
+                {item.width && item.height && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {item.width} × {item.height}
+                  </p>
+                )}
               </div>
-              <p className="text-sm font-medium truncate" title={item.original_filename}>
-                {item.original_filename}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredMedia.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="p-4 rounded-full bg-muted mb-4">
-            <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
-          </div>
-          <h3 className="text-lg font-semibold">Aucun média trouvé</h3>
-          <p className="text-muted-foreground max-w-sm mt-2">
-            Essayez de modifier vos filtres ou importez de nouveaux fichiers.
-          </p>
+            </Card>
+          ))}
         </div>
-      )}
+
+        {filteredMedia.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Aucun média trouvé</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-```

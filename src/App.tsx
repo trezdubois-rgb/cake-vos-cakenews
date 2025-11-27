@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import { ThemeProvider } from "@/context/ThemeContext";
 import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { GuestBlocker } from "./components/auth/GuestBlocker";
@@ -93,7 +92,6 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -101,7 +99,6 @@ const App = () => {
           <AppContent />
         </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
     </QueryClientProvider>
   );
 };
