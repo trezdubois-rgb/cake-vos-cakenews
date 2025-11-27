@@ -88,7 +88,7 @@ export default function DesignManager() {
   if (!isAdmin) return null;
 
   return (
-    <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto pb-24 md:pb-8">
+    <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto pb-24 md:pb-8 bg-slate-50 min-h-full">
       {/* Error Banner */}
       {error && (
         <div className="bg-warning/10 border border-warning/20 rounded-xl p-4 flex items-start gap-3">

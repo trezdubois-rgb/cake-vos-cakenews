@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, UserPlus, Shield, Trash2 } from "lucide-react";
+import { Users, UserPlus, Shield, Trash2, UserCheck } from "lucide-react";
 import { toast } from "sonner";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { StatCard } from "@/components/admin/StatCard";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +39,11 @@ export default function UsersManager() {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState<"admin" | "moderator" | "user">("user");
 
+  // Stats
+  const totalUsers = users.length;
+  const adminCount = users.filter((u) => u.role === "admin").length;
+  const moderatorCount = users.filter((u) => u.role === "moderator").length;
+
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
       navigate("/auth");
@@ -53,30 +60,19 @@ export default function UsersManager() {
     try {
       setLoading(true);
       
-      // Fetch all users with their roles
       const { data: userRoles, error: rolesError } = await supabase
         .from("user_roles")
         .select("id, user_id, role");
 
       if (rolesError) throw rolesError;
 
-      // Create a map of user_id to role info
       const roleMap = new Map(
         userRoles?.map(r => [r.user_id, { role: r.role, role_id: r.id }]) || []
       );
 
-      // Fetch profiles to get user emails
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id");
-
-      if (profilesError) throw profilesError;
-
-      // We need to use a service role or different approach to get emails
-      // For now, we'll show users with roles
       const usersWithRoles = Array.from(roleMap.entries()).map(([userId, roleInfo]) => ({
         id: userId,
-        email: userId, // We'll need to fetch this differently
+        email: userId,
         role: roleInfo.role,
         role_id: roleInfo.role_id,
       }));
@@ -97,7 +93,6 @@ export default function UsersManager() {
     }
 
     try {
-      // This is simplified - in a real app, you'd need to fetch the user_id from email
       toast.info("Cette fonctionnalité nécessite l'UUID de l'utilisateur");
     } catch (error: any) {
       toast.error("Erreur lors de l'ajout du rôle");
@@ -122,57 +117,65 @@ export default function UsersManager() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <Skeleton className="h-12 w-64 mb-8" />
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-24" />
-          ))}
+      <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+        <Skeleton className="h-20 w-full" />
+        <div className="grid gap-6 md:grid-cols-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
         </div>
+        <Skeleton className="h-64" />
       </div>
     );
   }
 
-  if (!user) {
-    navigate("/auth");
+  if (!user || !isAdmin) {
     return null;
   }
 
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-6 border-orange-500">
-            <p className="text-center text-muted-foreground">
-              ⚠️ Vous n'avez pas les droits administrateur.
-            </p>
-            <div className="mt-4 text-center">
-              <Button onClick={() => navigate("/admin")}>
-                Retour au tableau de bord
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link to="/admin">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold">Gestion des Utilisateurs</h1>
-        </div>
+    <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+      <AdminPageHeader
+        title="Gestion des Utilisateurs"
+        description="Gérer les rôles et permissions des utilisateurs"
+        icon={Users}
+        statusIndicator={{
+          label: `${totalUsers} utilisateurs avec rôles`,
+          color: "green",
+        }}
+      />
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <StatCard
+          title="Total Utilisateurs"
+          value={totalUsers}
+          icon={Users}
+          color="blue"
+          subtitle="Avec rôles"
+        />
+        <StatCard
+          title="Administrateurs"
+          value={adminCount}
+          icon={Shield}
+          color="purple"
+          subtitle="Accès complet"
+        />
+        <StatCard
+          title="Modérateurs"
+          value={moderatorCount}
+          icon={UserCheck}
+          color="teal"
+          subtitle="Modération"
+        />
+      </div>
+
+      {/* Add Role Form */}
+      <Card className="border-none shadow-md">
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
             <UserPlus className="h-6 w-6" />
-            Ajouter un rôle
+            Attribuer un rôle
           </h2>
           <div className="space-y-4">
             <div>
@@ -182,12 +185,13 @@ export default function UsersManager() {
                 placeholder="utilisateur@exemple.com"
                 value={newUserEmail}
                 onChange={(e) => setNewUserEmail(e.target.value)}
+                className="mt-1"
               />
             </div>
             <div>
               <Label>Rôle</Label>
               <Select value={newUserRole} onValueChange={(value: any) => setNewUserRole(value)}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,22 +206,43 @@ export default function UsersManager() {
               Attribuer le rôle
             </Button>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        <Card className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Utilisateurs avec rôles</h2>
-          <div className="space-y-2">
+      {/* Users List */}
+      <Card className="border-none shadow-md">
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4">
+            Utilisateurs avec rôles
+          </h2>
+          <div className="space-y-3">
             {users.length === 0 ? (
-              <p className="text-muted-foreground">Aucun utilisateur avec rôle</p>
+              <div className="p-12 text-center bg-slate-50 rounded-lg border-2 border-dashed">
+                <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Aucun utilisateur avec rôle</p>
+              </div>
             ) : (
               users.map((usr) => (
                 <div
                   key={usr.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                 >
-                  <div>
-                    <p className="font-medium">{usr.email}</p>
-                    <p className="text-sm text-muted-foreground capitalize">{usr.role}</p>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      usr.role === 'admin' ? 'bg-purple-100' :
+                      usr.role === 'moderator' ? 'bg-teal-100' :
+                      'bg-blue-100'
+                    }`}>
+                      <Shield className={`h-5 w-5 ${
+                        usr.role === 'admin' ? 'text-purple-600' :
+                        usr.role === 'moderator' ? 'text-teal-600' :
+                        'text-blue-600'
+                      }`} />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-700">{usr.email}</p>
+                      <p className="text-sm text-muted-foreground capitalize">{usr.role}</p>
+                    </div>
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -244,8 +269,8 @@ export default function UsersManager() {
               ))
             )}
           </div>
-        </Card>
-      </div>
+        </div>
+      </Card>
     </div>
   );
 }
