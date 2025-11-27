@@ -123,7 +123,6 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-  }
 }
 
 @layer base {
@@ -133,7 +132,8 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Merriweather', 'Lora', Georgia, serif;
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-weight: 500; /* Medium for paragraphs */
     font-size: 18px;
     line-height: 1.8;
     overscroll-behavior: none;
@@ -145,7 +145,8 @@
   /* Mobile-first typography - Magazine style */
   h1 { 
     @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight; 
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-weight: 800; /* ExtraBold for H1 */
   }
   h2 { 
     @apply text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight; 
