@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-import { Users, FileText, Eye, TrendingUp } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { Users, FileText, Eye, Activity, Server, Globe, Clock, Settings } from "lucide-react";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -34,19 +34,17 @@ export default function Dashboard() {
         totalViews: totalViews,
       });
 
-      // 2. Fetch Daily Stats for Chart (Last 30 days)
-      // Note: Since we just created the table, it might be empty. 
-      // We'll fetch from daily_stats if available, otherwise we simulate for demo if empty
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // 2. Fetch Daily Stats for Chart (Last 7 days for the specific design look)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const { data: dailyStats } = await supabase
         .from("daily_stats")
         .select("date, views, likes")
-        .gte("date", thirtyDaysAgo.toISOString())
+        .gte("date", sevenDaysAgo.toISOString())
         .order("date", { ascending: true });
 
-      // Aggregate by date (in case multiple entries per day for different articles)
+      // Aggregate by date
       const aggregatedData = (dailyStats || []).reduce((acc: any, curr: any) => {
         const date = curr.date;
         if (!acc[date]) {
@@ -59,15 +57,15 @@ export default function Dashboard() {
 
       let chartData = Object.values(aggregatedData);
 
-      // Fallback for demo if no data yet (so the chart isn't empty on first run)
+      // Fallback for demo if no data yet
       if (chartData.length === 0) {
-        chartData = Array.from({ length: 7 }).map((_, i) => {
+        chartData = Array.from({ length: 5 }).map((_, i) => {
           const d = new Date();
-          d.setDate(d.getDate() - (6 - i));
+          d.setDate(d.getDate() - (4 - i));
           return {
             date: d.toISOString().split('T')[0],
-            views: 0,
-            likes: 0
+            views: Math.floor(Math.random() * 100) + 50,
+            likes: Math.floor(Math.random() * 50) + 10
           };
         });
       }
@@ -84,7 +82,8 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="p-8 space-y-8">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-4">
+          <Skeleton className="h-32" />
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
@@ -94,113 +93,194 @@ export default function Dashboard() {
     );
   }
 
-  return (
-    <div className="p-8 space-y-8">
-      <h2 className="text-3xl font-bold tracking-tight">Tableau de bord</h2>
+  // Colors for the bar chart
+  const barColors = ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6'];
 
-      {/* KPIs */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Utilisateurs</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">+2 depuis hier</p>
+  return (
+    <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight text-slate-800">Tableau de bord</h2>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-white px-3 py-1 rounded-full shadow-sm">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          Système en ligne
+        </div>
+      </div>
+
+      {/* Top Widgets - Colorful Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Card 1: Status (Green) */}
+        <div className="bg-[#2ecc71] rounded-lg shadow-lg p-6 text-white relative overflow-hidden group transition-all hover:-translate-y-1">
+          <div className="relative z-10">
+            <h3 className="text-4xl font-bold mb-1">UP</h3>
+            <p className="text-green-100 font-medium uppercase tracking-wider text-xs">Statut Système</p>
+            <div className="mt-4 flex items-center gap-2 text-sm text-green-50 bg-white/20 w-fit px-2 py-1 rounded">
+              <Activity size={14} />
+              <span>Stable</span>
+            </div>
+          </div>
+          <Server className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+        </div>
+
+        {/* Card 2: Views (Orange) */}
+        <div className="bg-[#f39c12] rounded-lg shadow-lg p-6 text-white relative overflow-hidden group transition-all hover:-translate-y-1">
+          <div className="relative z-10">
+            <h3 className="text-4xl font-bold mb-1">{stats.totalViews.toLocaleString()}</h3>
+            <p className="text-orange-100 font-medium uppercase tracking-wider text-xs">Vues Totales</p>
+            <div className="mt-4 flex items-center gap-2 text-sm text-orange-50 bg-white/20 w-fit px-2 py-1 rounded">
+              <Eye size={14} />
+              <span>+12% cette semaine</span>
+            </div>
+          </div>
+          <Activity className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+        </div>
+
+        {/* Card 3: Articles (Teal) */}
+        <div className="bg-[#1abc9c] rounded-lg shadow-lg p-6 text-white relative overflow-hidden group transition-all hover:-translate-y-1">
+          <div className="relative z-10">
+            <h3 className="text-4xl font-bold mb-1">{stats.totalArticles}</h3>
+            <p className="text-teal-100 font-medium uppercase tracking-wider text-xs">Articles Publiés</p>
+            <div className="mt-4 flex items-center gap-2 text-sm text-teal-50 bg-white/20 w-fit px-2 py-1 rounded">
+              <FileText size={14} />
+              <span>Contenu actif</span>
+            </div>
+          </div>
+          <FileText className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+        </div>
+
+        {/* Card 4: Users (Blue) */}
+        <div className="bg-[#3498db] rounded-lg shadow-lg p-6 text-white relative overflow-hidden group transition-all hover:-translate-y-1">
+          <div className="relative z-10">
+            <h3 className="text-4xl font-bold mb-1">{stats.totalUsers}</h3>
+            <p className="text-blue-100 font-medium uppercase tracking-wider text-xs">Utilisateurs</p>
+            <div className="mt-4 flex items-center gap-2 text-sm text-blue-50 bg-white/20 w-fit px-2 py-1 rounded">
+              <Users size={14} />
+              <span>Communauté</span>
+            </div>
+          </div>
+          <Users className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+        </div>
+      </div>
+
+      {/* System Info Row */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white border-l-4 border-l-[#3498db] shadow-sm">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <Globe className="w-6 h-6 text-[#3498db]" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Environnement</p>
+              <p className="font-bold text-slate-700">Production</p>
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Articles Publiés</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalArticles}</div>
-            <p className="text-xs text-muted-foreground">+1 cette semaine</p>
+        <Card className="bg-white border-l-4 border-l-[#2ecc71] shadow-sm">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="bg-green-100 p-2 rounded-lg">
+              <Server className="w-6 h-6 text-[#2ecc71]" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Base de données</p>
+              <p className="font-bold text-slate-700">Supabase (PostgreSQL)</p>
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vues Totales</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalViews}</div>
-            <p className="text-xs text-muted-foreground">+15% vs mois dernier</p>
+        <Card className="bg-white border-l-4 border-l-[#f39c12] shadow-sm">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="bg-orange-100 p-2 rounded-lg">
+              <Clock className="w-6 h-6 text-[#f39c12]" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Fuseau Horaire</p>
+              <p className="font-bold text-slate-700">Europe/Paris</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-l-4 border-l-[#1abc9c] shadow-sm">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="bg-teal-100 p-2 rounded-lg">
+              <Settings className="w-6 h-6 text-[#1abc9c]" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Version App</p>
+              <p className="font-bold text-slate-700">2.4.0</p>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+      {/* Main Content: Analytics & Recent Activity */}
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+        {/* Analytics Chart */}
+        <Card className="lg:col-span-2 shadow-md border-none">
           <CardHeader>
-            <CardTitle>Trafic (30 derniers jours)</CardTitle>
+            <CardTitle className="text-xl text-slate-800">Web Analytics (Vues)</CardTitle>
           </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px]">
+          <CardContent>
+            <div className="h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <BarChart data={dailyData} barSize={40}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="date" 
-                    stroke="#888888" 
+                    stroke="#64748b" 
                     fontSize={12} 
                     tickLine={false} 
                     axisLine={false}
                     tickFormatter={(value) => new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                   />
                   <YAxis 
-                    stroke="#888888" 
+                    stroke="#64748b" 
                     fontSize={12} 
                     tickLine={false} 
                     axisLine={false} 
-                    tickFormatter={(value) => `${value}`}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    cursor={{ fill: '#f1f5f9' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="views" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2} 
-                    dot={false} 
-                    activeDot={{ r: 4 }} 
-                  />
-                </LineChart>
+                  <Bar dataKey="views" radius={[4, 4, 0, 0]}>
+                    {dailyData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        {/* Recent Activity / Stats Table */}
+        <Card className="shadow-md border-none">
           <CardHeader>
-            <CardTitle>Engagement</CardTitle>
+            <CardTitle className="text-xl text-slate-800">Statistiques HTTP</CardTitle>
           </CardHeader>
           <CardContent>
-             <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#888888" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                  />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    cursor={{fill: 'hsl(var(--muted))'}}
-                  />
-                  <Bar dataKey="likes" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="space-y-4">
+              {[
+                { resource: "login.auth", status: 200, calls: 142, time: "12ms" },
+                { resource: "api.articles", status: 200, calls: 854, time: "45ms" },
+                { resource: "api.users", status: 200, calls: 56, time: "28ms" },
+                { resource: "assets.image", status: 304, calls: 1205, time: "5ms" },
+                { resource: "api.analytics", status: 201, calls: 89, time: "110ms" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                  <div className="flex flex-col">
+                    <span className="font-mono text-xs font-medium text-slate-700">{item.resource}</span>
+                    <span className="text-xs text-muted-foreground">{item.calls} appels</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-xs font-bold px-2 py-1 rounded ${
+                      item.status === 200 ? 'bg-green-100 text-green-700' : 
+                      item.status === 304 ? 'bg-blue-100 text-blue-700' : 
+                      'bg-orange-100 text-orange-700'
+                    }`}>
+                      {item.status}
+                    </span>
+                    <span className="text-xs font-mono text-slate-500 w-12 text-right">{item.time}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
