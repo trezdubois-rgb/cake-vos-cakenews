@@ -113,12 +113,12 @@ export default function Dashboard() {
           <div className="relative z-10">
             <h3 className="text-4xl font-bold mb-1">UP</h3>
             <p className="text-green-100 font-medium uppercase tracking-wider text-xs">Statut Système</p>
-            <div className="mt-4 flex items-center gap-2 text-sm text-green-50 bg-white/20 w-fit px-2 py-1 rounded">
+            <div className="mt-4 flex items-center gap-2 text-sm text-green-50 bg-white/20 w-fit px-2 py-1 rounded backdrop-blur-sm">
               <Activity size={14} />
               <span>Stable</span>
             </div>
           </div>
-          <Server className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+          <Server className="absolute -right-6 -bottom-6 w-24 h-24 text-white/10 group-hover:scale-110 transition-transform" />
         </div>
 
         {/* Card 2: Views (Orange) */}
@@ -126,12 +126,12 @@ export default function Dashboard() {
           <div className="relative z-10">
             <h3 className="text-4xl font-bold mb-1">{stats.totalViews.toLocaleString()}</h3>
             <p className="text-orange-100 font-medium uppercase tracking-wider text-xs">Vues Totales</p>
-            <div className="mt-4 flex items-center gap-2 text-sm text-orange-50 bg-white/20 w-fit px-2 py-1 rounded">
+            <div className="mt-4 flex items-center gap-2 text-sm text-orange-50 bg-white/20 w-fit px-2 py-1 rounded backdrop-blur-sm">
               <Eye size={14} />
               <span>+12% cette semaine</span>
             </div>
           </div>
-          <Activity className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+          <Activity className="absolute -right-6 -bottom-6 w-24 h-24 text-white/10 group-hover:scale-110 transition-transform" />
         </div>
 
         {/* Card 3: Articles (Teal) */}
@@ -139,12 +139,12 @@ export default function Dashboard() {
           <div className="relative z-10">
             <h3 className="text-4xl font-bold mb-1">{stats.totalArticles}</h3>
             <p className="text-teal-100 font-medium uppercase tracking-wider text-xs">Articles Publiés</p>
-            <div className="mt-4 flex items-center gap-2 text-sm text-teal-50 bg-white/20 w-fit px-2 py-1 rounded">
+            <div className="mt-4 flex items-center gap-2 text-sm text-teal-50 bg-white/20 w-fit px-2 py-1 rounded backdrop-blur-sm">
               <FileText size={14} />
               <span>Contenu actif</span>
             </div>
           </div>
-          <FileText className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+          <FileText className="absolute -right-6 -bottom-6 w-24 h-24 text-white/10 group-hover:scale-110 transition-transform" />
         </div>
 
         {/* Card 4: Users (Blue) */}
@@ -152,12 +152,12 @@ export default function Dashboard() {
           <div className="relative z-10">
             <h3 className="text-4xl font-bold mb-1">{stats.totalUsers}</h3>
             <p className="text-blue-100 font-medium uppercase tracking-wider text-xs">Utilisateurs</p>
-            <div className="mt-4 flex items-center gap-2 text-sm text-blue-50 bg-white/20 w-fit px-2 py-1 rounded">
+            <div className="mt-4 flex items-center gap-2 text-sm text-blue-50 bg-white/20 w-fit px-2 py-1 rounded backdrop-blur-sm">
               <Users size={14} />
               <span>Communauté</span>
             </div>
           </div>
-          <Users className="absolute -right-4 -bottom-4 w-32 h-32 text-white/20 group-hover:scale-110 transition-transform" />
+          <Users className="absolute -right-6 -bottom-6 w-24 h-24 text-white/10 group-hover:scale-110 transition-transform" />
         </div>
       </div>
 
