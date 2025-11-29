@@ -1,35 +1,27 @@
+import { useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+
+// MOCK USER FOR TESTING - AUTH DISABLED
+const MOCK_USER: User = {
+  id: "00000000-0000-0000-0000-000000000000",
+  app_metadata: {},
+  user_metadata: {
+    display_name: "Admin Test",
+    email: "admin@test.local"
+  },
+  aud: "authenticated",
+  created_at: new Date().toISOString(),
+  email: "admin@test.local",
+} as User;
 
 export const useAuth = () => {
-  // MOCK AUTHENTICATION - ALWAYS LOGGED IN AS ADMIN
-  const mockUser: User = {
-    id: "00000000-0000-0000-0000-000000000000",
-    app_metadata: {},
-    user_metadata: {
-      display_name: "Admin User",
-      avatar_url: null,
-    },
-    aud: "authenticated",
-    created_at: new Date().toISOString(),
-  } as User;
+  const [user] = useState<User | null>(MOCK_USER);
+  const [session] = useState<Session | null>(null);
+  const [loading] = useState(false);
+  const [isAdmin] = useState(true);
 
-  const mockSession: Session = {
-    access_token: "mock-token",
-    refresh_token: "mock-refresh-token",
-    expires_in: 3600,
-    token_type: "bearer",
-    user: mockUser,
-  };
+  const signOut = () => supabase.auth.signOut();
 
-  const signOut = async () => {
-    console.log("Sign out disabled in mock mode");
-  };
-
-  return { 
-    user: mockUser, 
-    session: mockSession, 
-    loading: false, 
-    isAdmin: true, 
-    signOut 
-  };
+  return { user, session, loading, isAdmin, signOut };
 };
