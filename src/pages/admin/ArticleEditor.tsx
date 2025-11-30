@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import Youtube from "@tiptap/extension-youtube";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import { common, createLowlight } from "lowlight";
-import { Loader2, Image as ImageIcon, Save, ArrowLeft, Upload, X, Plus, Youtube as YoutubeIcon, Code } from "lucide-react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { Loader2, Save, ArrowLeft, Upload, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,8 +23,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useArticleForm } from "@/hooks/useArticleForm";
 
-const lowlight = createLowlight(common);
-
 const ArticleEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,34 +41,48 @@ const ArticleEditor = () => {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [newTag, setNewTag] = useState("");
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        codeBlock: false,
-      }),
-      Image,
-      Link.configure({
-        openOnClick: false,
-      }),
-      Youtube.configure({
-        controls: false,
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-      }),
-    ],
-    content: formData.content_html,
-    onUpdate: ({ editor }) => {
-      updateField("content_html", editor.getHTML());
+  // Create BlockNote editor with file upload handler
+  const editor = useCreateBlockNote({
+    uploadFile: async (file: File) => {
+      if (!user) return "";
+      const url = await uploadImage(file, user.id);
+      return url || "";
     },
   });
 
-  // Sync content when loaded
+  // Load initial content from HTML
   useEffect(() => {
-    if (editor && formData.content_html && editor.getHTML() !== formData.content_html) {
-      editor.commands.setContent(formData.content_html);
-    }
+    const loadContent = async () => {
+      if (formData.content_html && editor) {
+        try {
+          const blocks = await editor.tryParseHTMLToBlocks(formData.content_html);
+          editor.replaceBlocks(editor.document, blocks);
+        } catch (error) {
+          console.error("Error parsing HTML to blocks:", error);
+        }
+      }
+    };
+    loadContent();
   }, [formData.content_html, editor]);
+
+  // Save content as HTML when editor changes
+  useEffect(() => {
+    if (!editor) return;
+    
+    const saveContent = async () => {
+      const html = await editor.blocksToHTMLLossy(editor.document);
+      updateField("content_html", html);
+    };
+
+    // Listen to editor changes
+    const unsubscribe = editor.onChange(() => {
+      saveContent();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [editor, updateField]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -83,14 +91,6 @@ const ArticleEditor = () => {
     };
     fetchCategories();
   }, []);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0 || !user) return;
-    const url = await uploadImage(e.target.files[0], user.id);
-    if (url) {
-      editor?.chain().focus().setImage({ src: url }).run();
-    }
-  };
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !user) return;
@@ -143,50 +143,8 @@ const ArticleEditor = () => {
             />
           </div>
 
-          <div className="min-h-[500px] border rounded-lg p-4 bg-background">
-            <div className="flex gap-2 mb-4 border-b pb-2 flex-wrap">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => document.getElementById("editor-image-upload")?.click()}
-                disabled={uploading}
-              >
-                <ImageIcon className="w-4 h-4 mr-2" />
-                Image
-              </Button>
-              <input
-                type="file"
-                id="editor-image-upload"
-                className="hidden"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const url = prompt("Entrez l'URL de la vidéo YouTube :");
-                  if (url) {
-                    editor?.commands.setYoutubeVideo({ src: url });
-                  }
-                }}
-              >
-                <YoutubeIcon className="w-4 h-4 mr-2" />
-                YouTube
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
-                className={editor?.isActive("codeBlock") ? "bg-muted" : ""}
-              >
-                <Code className="w-4 h-4 mr-2" />
-                Code
-              </Button>
-            </div>
-            <EditorContent editor={editor} className="prose prose-invert max-w-none" />
+          <div className="min-h-[500px] border rounded-lg overflow-hidden bg-background">
+            <BlockNoteView editor={editor} theme="dark" />
           </div>
         </div>
 
@@ -238,7 +196,7 @@ const ArticleEditor = () => {
                       {uploading ? (
                         <Loader2 className="w-8 h-8 animate-spin mb-2" />
                       ) : (
-                        <ImageIcon className="w-8 h-8 mb-2" />
+                        <Upload className="w-8 h-8 mb-2" />
                       )}
                       <span className="text-sm">Cliquez pour ajouter une image</span>
                     </div>
