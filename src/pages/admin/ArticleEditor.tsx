@@ -1,9 +1,36 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { Loader2, Save, ArrowLeft, Upload, X, Plus } from "lucide-react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import Youtube from "@tiptap/extension-youtube";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import TextAlign from "@tiptap/extension-text-align";
+import Placeholder from "@tiptap/extension-placeholder";
+import { common, createLowlight } from "lowlight";
+import { 
+  Loader2, 
+  Bold, 
+  Italic, 
+  List, 
+  ListOrdered,
+  Heading1,
+  Heading2,
+  Heading3,
+  Image as ImageIcon, 
+  Save, 
+  ArrowLeft, 
+  Upload, 
+  X, 
+  Plus, 
+  Youtube as YoutubeIcon, 
+  Code,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Quote
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +50,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useArticleForm } from "@/hooks/useArticleForm";
 
+const lowlight = createLowlight(common);
+
 const ArticleEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,48 +70,54 @@ const ArticleEditor = () => {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [newTag, setNewTag] = useState("");
 
-  // Create BlockNote editor with file upload handler
-  const editor = useCreateBlockNote({
-    uploadFile: async (file: File) => {
-      if (!user) return "";
-      const url = await uploadImage(file, user.id);
-      return url || "";
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline',
+        },
+      }),
+      Youtube.configure({
+        controls: true,
+        nocookie: true,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Placeholder.configure({
+        placeholder: 'Tapez "/" pour les commandes ou commencez à écrire...',
+      }),
+    ],
+    content: formData.content_html || '<p></p>',
+    editorProps: {
+      attributes: {
+        class: 'prose prose-invert max-w-none focus:outline-none min-h-[400px] px-4 py-3',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      updateField("content_html", editor.getHTML());
     },
   });
 
-  // Load initial content from HTML
+  // Sync content when loaded
   useEffect(() => {
-    const loadContent = async () => {
-      if (formData.content_html && editor) {
-        try {
-          const blocks = await editor.tryParseHTMLToBlocks(formData.content_html);
-          editor.replaceBlocks(editor.document, blocks);
-        } catch (error) {
-          console.error("Error parsing HTML to blocks:", error);
-        }
-      }
-    };
-    loadContent();
+    if (editor && formData.content_html && editor.getHTML() !== formData.content_html) {
+      editor.commands.setContent(formData.content_html);
+    }
   }, [formData.content_html, editor]);
-
-  // Save content as HTML when editor changes
-  useEffect(() => {
-    if (!editor) return;
-    
-    const saveContent = async () => {
-      const html = await editor.blocksToHTMLLossy(editor.document);
-      updateField("content_html", html);
-    };
-
-    // Listen to editor changes
-    const unsubscribe = editor.onChange(() => {
-      saveContent();
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [editor, updateField]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -91,6 +126,14 @@ const ArticleEditor = () => {
     };
     fetchCategories();
   }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !user) return;
+    const url = await uploadImage(e.target.files[0], user.id);
+    if (url) {
+      editor?.chain().focus().setImage({ src: url }).run();
+    }
+  };
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !user) return;
@@ -143,8 +186,157 @@ const ArticleEditor = () => {
             />
           </div>
 
-          <div className="min-h-[500px] border rounded-lg overflow-hidden bg-background">
-            <BlockNoteView editor={editor} theme="dark" />
+          <div className="border rounded-lg bg-background overflow-hidden">
+            {/* Toolbar améliorée style Gutenberg */}
+            <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1">
+              {/* Formatting */}
+              <div className="flex gap-1 border-r pr-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleBold().run()}
+                  className={editor?.isActive("bold") ? "bg-muted" : ""}
+                >
+                  <Bold className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleItalic().run()}
+                  className={editor?.isActive("italic") ? "bg-muted" : ""}
+                >
+                  <Italic className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Headings */}
+              <div className="flex gap-1 border-r pr-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                  className={editor?.isActive("heading", { level: 1 }) ? "bg-muted" : ""}
+                >
+                  <Heading1 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                  className={editor?.isActive("heading", { level: 2 }) ? "bg-muted" : ""}
+                >
+                  <Heading2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+                  className={editor?.isActive("heading", { level: 3 }) ? "bg-muted" : ""}
+                >
+                  <Heading3 className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Lists */}
+              <div className="flex gap-1 border-r pr-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                  className={editor?.isActive("bulletList") ? "bg-muted" : ""}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                  className={editor?.isActive("orderedList") ? "bg-muted" : ""}
+                >
+                  <ListOrdered className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+                  className={editor?.isActive("blockquote") ? "bg-muted" : ""}
+                >
+                  <Quote className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Alignment */}
+              <div className="flex gap-1 border-r pr-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().setTextAlign('left').run()}
+                  className={editor?.isActive({ textAlign: 'left' }) ? "bg-muted" : ""}
+                >
+                  <AlignLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().setTextAlign('center').run()}
+                  className={editor?.isActive({ textAlign: 'center' }) ? "bg-muted" : ""}
+                >
+                  <AlignCenter className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().setTextAlign('right').run()}
+                  className={editor?.isActive({ textAlign: 'right' }) ? "bg-muted" : ""}
+                >
+                  <AlignRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Media */}
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.getElementById("editor-image-upload")?.click()}
+                  disabled={uploading}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
+                <input
+                  type="file"
+                  id="editor-image-upload"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const url = prompt("Entrez l'URL de la vidéo YouTube :");
+                    if (url) {
+                      editor?.commands.setYoutubeVideo({ src: url });
+                    }
+                  }}
+                >
+                  <YoutubeIcon className="w-4 h-4" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+                  className={editor?.isActive("codeBlock") ? "bg-muted" : ""}
+                >
+                  <Code className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Editor */}
+            <EditorContent editor={editor} />
           </div>
         </div>
 
@@ -196,7 +388,7 @@ const ArticleEditor = () => {
                       {uploading ? (
                         <Loader2 className="w-8 h-8 animate-spin mb-2" />
                       ) : (
-                        <Upload className="w-8 h-8 mb-2" />
+                        <ImageIcon className="w-8 h-8 mb-2" />
                       )}
                       <span className="text-sm">Cliquez pour ajouter une image</span>
                     </div>
