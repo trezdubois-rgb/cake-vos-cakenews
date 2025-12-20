@@ -92,6 +92,10 @@ export default function MediaLibrary() {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, format?: 'square' | 'vertical') => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+    if (!user) {
+      toast.error("Vous devez être connecté");
+      return;
+    }
 
     setUploading(true);
     const uploadedFiles: Media[] = [];
@@ -131,7 +135,7 @@ export default function MediaLibrary() {
         const { data: mediaData, error: mediaError } = await supabase
           .from('media_library')
           .insert([{
-            user_id: user?.id,
+            user_id: user.id,
             filename: fileName,
             original_filename: file.name,
             file_type: isImage ? 'image' : isVideo ? 'video' : 'document',
