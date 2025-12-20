@@ -30,9 +30,9 @@ const AdsManager = lazy(() => import("./pages/admin/AdsManager"));
 
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const TagSearchPage = lazy(() => import("./pages/TagSearchPage"));
-const MyFeed = lazy(() => import("./pages/MyFeed"));
+const MonFlux = lazy(() => import("./pages/MonFlux"));
 const Messaging = lazy(() => import("./pages/Messaging"));
-const Profile = lazy(() => import("./pages/Profile"));
+const Profil = lazy(() => import("./pages/Profil"));
 
 const queryClient = new QueryClient();
 
@@ -54,9 +54,11 @@ const AppContent = () => {
           <Route path="/tags" element={<TagSearchPage />} />
           <Route path="/auth" element={<AuthNew />} />
           <Route path="/auth/new" element={<AuthNew />} />
-          <Route path="/my-feed" element={<MyFeed />} />
+          <Route path="/my-feed" element={<MonFlux />} />
+          <Route path="/mon-flux" element={<MonFlux />} />
           <Route path="/messages" element={<Messaging />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<Profil />} />
+          <Route path="/profil" element={<Profil />} />
         </Route>
 
         {/* ADMIN INTERFACE - Strictly Separated */}

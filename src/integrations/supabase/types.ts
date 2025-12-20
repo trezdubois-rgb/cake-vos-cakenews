@@ -700,6 +700,44 @@ export type Database = {
         }
         Relationships: []
       }
+      user_content_restrictions: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          reason: string | null
+          restriction_type: string
+          restriction_value: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          reason?: string | null
+          restriction_type: string
+          restriction_value: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          reason?: string | null
+          restriction_type?: string
+          restriction_value?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_content_restrictions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_interactions: {
         Row: {
           article_id: string
@@ -758,6 +796,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_suspensions: {
+        Row: {
+          created_by: string
+          id: string
+          is_permanent: boolean | null
+          lifted_at: string | null
+          lifted_by: string | null
+          reason: string
+          suspended_at: string | null
+          suspended_until: string | null
+          user_id: string
+        }
+        Insert: {
+          created_by: string
+          id?: string
+          is_permanent?: boolean | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason: string
+          suspended_at?: string | null
+          suspended_until?: string | null
+          user_id: string
+        }
+        Update: {
+          created_by?: string
+          id?: string
+          is_permanent?: boolean | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason?: string
+          suspended_at?: string | null
+          suspended_until?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_suspensions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       view_tracking: {
         Row: {
