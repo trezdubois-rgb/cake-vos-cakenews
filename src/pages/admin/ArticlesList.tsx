@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Edit, Eye, Trash2, Plus, Heart, TrendingUp } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileText, Edit, Eye, Trash2, Plus, Heart, TrendingUp, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { StatCard } from "@/components/admin/StatCard";
@@ -21,10 +22,13 @@ interface Article {
   created_at: string;
 }
 
+type SortOption = "newest" | "oldest" | "most_views" | "most_likes" | "title_asc" | "title_desc";
+
 export default function ArticlesList() {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const navigate = useNavigate();
 
   // Stats for the header
@@ -49,8 +53,7 @@ export default function ArticlesList() {
     try {
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, category, published, view_count, like_count, created_at")
-        .order("created_at", { ascending: false });
+        .select("id, title, category, published, view_count, like_count, created_at");
 
       if (error) throw error;
       setArticles(data || []);
@@ -60,6 +63,26 @@ export default function ArticlesList() {
       setLoading(false);
     }
   };
+
+  // Sort articles based on selected option
+  const sortedArticles = [...articles].sort((a, b) => {
+    switch (sortBy) {
+      case "newest":
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case "oldest":
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case "most_views":
+        return (b.view_count || 0) - (a.view_count || 0);
+      case "most_likes":
+        return (b.like_count || 0) - (a.like_count || 0);
+      case "title_asc":
+        return a.title.localeCompare(b.title);
+      case "title_desc":
+        return b.title.localeCompare(a.title);
+      default:
+        return 0;
+    }
+  });
 
   const handleDelete = async (id: string) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet article ?")) return;
@@ -156,11 +179,29 @@ export default function ArticlesList() {
       {/* Articles List */}
       <Card className="border-none shadow-md">
         <div className="p-6">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">
-            Liste des articles
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-800">
+              Liste des articles
+            </h2>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+                <SelectTrigger className="w-44">
+                  <SelectValue placeholder="Trier par..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Plus récents</SelectItem>
+                  <SelectItem value="oldest">Plus anciens</SelectItem>
+                  <SelectItem value="most_views">Plus vus</SelectItem>
+                  <SelectItem value="most_likes">Plus aimés</SelectItem>
+                  <SelectItem value="title_asc">Titre A-Z</SelectItem>
+                  <SelectItem value="title_desc">Titre Z-A</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <div className="space-y-4">
-            {articles.map((article) => (
+            {sortedArticles.map((article) => (
               <div
                 key={article.id}
                 className="flex items-start justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
@@ -209,7 +250,7 @@ export default function ArticlesList() {
               </div>
             ))}
 
-            {articles.length === 0 && (
+            {sortedArticles.length === 0 && (
               <div className="p-12 text-center bg-white rounded-lg border-2 border-dashed">
                 <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground mb-4">
