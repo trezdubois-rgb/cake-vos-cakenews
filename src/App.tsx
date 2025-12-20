@@ -17,6 +17,7 @@ import Article from "./pages/Article";
 
 // Admin pages - lazy loaded to reduce initial bundle
 const AuthNew = lazy(() => import("./pages/AuthNew"));
+const AdminAuthPage = lazy(() => import("./pages/AdminAuthPage"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const ArticleEditor = lazy(() => import("./pages/admin/ArticleEditor"));
@@ -33,6 +34,9 @@ const TagSearchPage = lazy(() => import("./pages/TagSearchPage"));
 const MonFlux = lazy(() => import("./pages/MonFlux"));
 const Messaging = lazy(() => import("./pages/Messaging"));
 const Profil = lazy(() => import("./pages/Profil"));
+
+// Admin devices management - lazy loaded
+const DevicesManager = lazy(() => import("./pages/admin/DevicesManager"));
 
 const queryClient = new QueryClient();
 
@@ -54,6 +58,7 @@ const AppContent = () => {
           <Route path="/tags" element={<TagSearchPage />} />
           <Route path="/auth" element={<AuthNew />} />
           <Route path="/auth/new" element={<AuthNew />} />
+          <Route path="/admin/auth" element={<AdminAuthPage />} />
           <Route path="/my-feed" element={<MonFlux />} />
           <Route path="/mon-flux" element={<MonFlux />} />
           <Route path="/messages" element={<Messaging />} />
@@ -81,6 +86,7 @@ const AppContent = () => {
           <Route path="categories" element={<CategoriesManager />} />
           <Route path="media" element={<MediaLibrary />} />
           <Route path="ads" element={<AdsManager />} />
+          <Route path="devices" element={<DevicesManager />} />
         </Route>
       </Routes>
     </Suspense>
