@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { Eye, EyeOff, Loader2, Shield, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserPlus, AlertCircle } from "lucide-react";
+import { loginRateLimitService, signupRateLimitService, loginAttemptLogger } from "@/lib/rateLimitService";
+import { checkAdminRoleSecure } from "@/lib/serverAuth";
 
 export default function AuthNew() {
   const [email, setEmail] = useState("");
@@ -16,19 +18,53 @@ export default function AuthNew() {
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"signup" | "login" | "admin">("signup");
+  const [activeTab, setActiveTab] = useState<"signup" | "login">("signup");
+  const [rateLimitInfo, setRateLimitInfo] = useState<{message?: string, resetTime?: Date} | null>(null);
+  const [blockedInfo, setBlockedInfo] = useState<{message: string, resetTime?: Date} | null>(null);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, roleChecked } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    if (user && roleChecked) {
+      // Rediriger vers la bonne page en fonction du rôle de l'utilisateur
+      checkUserRoleAndRedirect();
+    }
+  }, [user, roleChecked]);
+
+  const checkUserRoleAndRedirect = async () => {
+    if (!user) return;
+
+    try {
+      const result = await checkAdminRoleSecure(user.id);
+
+      if (result.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error checking user role:", error);
       navigate("/");
     }
-  }, [user, navigate]);
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setRateLimitInfo(null);
+    setBlockedInfo(null);
+
+    // Vérifier le rate limit pour l'inscription
+    const rateLimitResult = await signupRateLimitService.checkSignupLimit(email);
+
+    if (!rateLimitResult.allowed) {
+      setRateLimitInfo({
+        message: rateLimitResult.message,
+        resetTime: rateLimitResult.resetTime
+      });
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -45,8 +81,11 @@ export default function AuthNew() {
       if (error) throw error;
 
       if (data?.user) {
+        // Effacer le rate limit après une inscription réussie
+        signupRateLimitService.clearLimit(email);
         toast.success("Compte créé avec succès ! Bienvenue 🎉");
-        navigate("/");
+        // L'utilisateur est automatiquement connecté après l'inscription
+        checkUserRoleAndRedirect();
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -58,6 +97,31 @@ export default function AuthNew() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setRateLimitInfo(null);
+    setBlockedInfo(null);
+
+    // Vérifier si l'utilisateur est bloqué
+    if (loginAttemptLogger.isUserBlocked(email)) {
+      setBlockedInfo({
+        message: "Compte temporairement bloqué en raison de trop nombreuses tentatives échouées. Réessayez plus tard."
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Vérifier le rate limit pour la connexion
+    const rateLimitResult = await loginRateLimitService.checkLoginLimit(email);
+
+    if (!rateLimitResult.allowed) {
+      setRateLimitInfo({
+        message: rateLimitResult.message,
+        resetTime: rateLimitResult.resetTime
+      });
+      // Enregistrer la tentative échouée pour le blocage
+      loginAttemptLogger.logAttempt(email, false);
+      setLoading(false);
+      return;
+    }
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -67,46 +131,25 @@ export default function AuthNew() {
 
       if (error) throw error;
 
+      // Enregistrer une tentative réussie
+      loginAttemptLogger.logAttempt(email, true);
+      // Effacer le rate limit après une connexion réussie
+      loginRateLimitService.clearLimit(email);
+
       toast.success("Connexion réussie !");
-      navigate("/");
+      // La redirection se fait automatiquement via le useEffect
     } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Enregistrer une tentative échouée
+      loginAttemptLogger.logAttempt(email, false);
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // 1. Connexion standard
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) throw authError;
-
-      if (!authData.user) throw new Error("Erreur lors de la connexion");
-
-      // 2. Vérification du rôle admin
-      const { data: roleData, error: roleError } = await supabase
-        .rpc('has_role', { _user_id: authData.user.id, _role: 'admin' });
-
-      if (roleError || !roleData) {
-        // Si pas admin, on déconnecte
-        await supabase.auth.signOut();
-        throw new Error("Accès refusé : Vous n'avez pas les droits administrateur");
+      // Vérifier à nouveau si l'utilisateur est maintenant bloqué
+      if (loginAttemptLogger.isUserBlocked(email)) {
+        setBlockedInfo({
+          message: "Compte temporairement bloqué en raison de trop nombreuses tentatives échouées. Réessayez plus tard."
+        });
+      } else {
+        toast.error(error.message);
       }
-
-      // 3. Redirection
-      toast.success("Connexion admin réussie !");
-      navigate("/admin");
-    } catch (error: any) {
-      console.error("Admin login error:", error);
-      toast.error(error.message || "Erreur de connexion admin");
     } finally {
       setLoading(false);
     }
@@ -128,17 +171,33 @@ export default function AuthNew() {
         </CardHeader>
 
         <CardContent>
+          {blockedInfo && (
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded-md flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-destructive">Compte bloqué</p>
+                <p className="text-xs text-destructive/80">{blockedInfo.message}</p>
+              </div>
+            </div>
+          )}
+
+          {rateLimitInfo && (
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded-md flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-destructive">Limite dépassée</p>
+                <p className="text-xs text-destructive/80">{rateLimitInfo.message}</p>
+              </div>
+            </div>
+          )}
+
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="signup" className="text-sm">
                 Inscription
               </TabsTrigger>
               <TabsTrigger value="login" className="text-sm">
                 Connexion
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="text-sm gap-1">
-                <Shield className="h-3 w-3" />
-                Équipe
               </TabsTrigger>
             </TabsList>
 
@@ -154,6 +213,7 @@ export default function AuthNew() {
                     onChange={(e) => setDisplayName(e.target.value)}
                     required
                     className="h-11"
+                    disabled={loading}
                   />
                 </div>
 
@@ -167,6 +227,7 @@ export default function AuthNew() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="h-11"
+                    disabled={loading}
                   />
                 </div>
 
@@ -182,11 +243,13 @@ export default function AuthNew() {
                       required
                       minLength={6}
                       className="h-11 pr-10"
+                      disabled={loading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      disabled={loading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -221,6 +284,7 @@ export default function AuthNew() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="h-11"
+                    disabled={loading}
                   />
                 </div>
 
@@ -235,11 +299,13 @@ export default function AuthNew() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       className="h-11 pr-10"
+                      disabled={loading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      disabled={loading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -258,71 +324,11 @@ export default function AuthNew() {
                 </Button>
               </form>
             </TabsContent>
-
-            <TabsContent value="admin">
-              <form onSubmit={handleAdminLogin} className="space-y-5">
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
-                  <div className="flex items-start gap-3">
-                    <Shield className="h-5 w-5 text-primary mt-0.5" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-foreground">
-                        Accès réservé à l'équipe
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Utilisez les identifiants générés automatiquement qui vous ont été fournis
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="admin-email">Email généré</Label>
-                  <Input
-                    id="admin-email"
-                    type="email"
-                    placeholder="admin-xxxxx@system.cakenews"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-11"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="admin-password">Mot de passe généré</Label>
-                  <div className="relative">
-                    <Input
-                      id="admin-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-11 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Connexion en cours...
-                    </>
-                  ) : (
-                    "Se connecter"
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
           </Tabs>
+
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>Les administrateurs seront redirigés vers l'interface d'administration après connexion</p>
+          </div>
         </CardContent>
       </Card>
     </div>
