@@ -11,7 +11,6 @@ import { ArticleSEO } from "@/components/SEO";
 import { toast } from "sonner";
 import { useArticleLike } from "@/hooks/useArticleLike";
 import { HeartAnimation } from "@/components/ui/HeartAnimation";
-import { useHaptic } from "@/hooks/useHaptic";
 
 interface Article {
   id: string;
@@ -35,13 +34,11 @@ interface Article {
 export default function Article() {
   const { id } = useParams();
   const [article, setArticle] = useState<Article | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   
   // Like & Haptic Logic
   const { liked, likeCount, handleLike, loading: loadingLike } = useArticleLike(id || "", article?.like_count || 0);
-  const { trigger } = useHaptic();
   const [lastTap, setLastTap] = useState(0);
   const [heartPosition, setHeartPosition] = useState<{x: number, y: number} | null>(null);
 
@@ -52,7 +49,6 @@ export default function Article() {
       handleLike();
       
       // Show animation if we are liking (not unliking)
-      // Since handleLike toggles, if we are currently NOT liked, we will become liked.
       if (!liked) {
         setHeartPosition({ x: e.clientX, y: e.clientY });
       }
@@ -63,11 +59,12 @@ export default function Article() {
   useEffect(() => {
     if (id) {
       fetchArticle();
-      fetchComments();
     }
   }, [id]);
 
   const fetchArticle = async () => {
+    if (!id) return;
+    
     try {
       const { data, error } = await supabase
         .from("articles")
@@ -94,109 +91,6 @@ export default function Article() {
       toast.error("Article introuvable");
     } finally {
       setLoading(false);
-    }
-  };
-
-
-
-// ... (inside Article component)
-
-  const fetchComments = async () => {
-    try {
-      // Fetch ALL comments for this article in one query
-      const { data, error } = await supabase
-        .from("comments")
-        .select(`
-          *,
-          profiles (
-            display_name,
-            avatar_url
-          )
-        `)
-        .eq("article_id", id)
-        .order("created_at", { ascending: true }); // Get oldest first to build tree correctly
-
-      if (error) throw error;
-
-      if (!data) {
-        setComments([]);
-        return;
-      }
-
-      // Use utility function to build tree
-      const rootComments = buildCommentTree(data);
-      setComments(rootComments);
-    } catch (error: any) {
-      console.error("Error fetching comments:", error);
-    }
-  };
-
-  const handleAddComment = async (content: string, parentId?: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour commenter");
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from("comments")
-        .insert({
-          article_id: id,
-          user_id: user.id,
-          content,
-          parent_id: parentId || null,
-        });
-
-      if (error) throw error;
-      
-      // Recharger immédiatement les commentaires
-      await fetchComments();
-      toast.success("Commentaire publié !");
-    } catch (error: any) {
-      console.error("Error adding comment:", error);
-      toast.error("Erreur lors de l'ajout du commentaire");
-    }
-  };
-
-  const handleLikeComment = async (commentId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour liker");
-      return;
-    }
-
-    try {
-      const { data: existingLike } = await supabase
-        .from("comment_likes")
-        .select("id")
-        .eq("comment_id", commentId)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (existingLike) {
-        await supabase
-          .from("comment_likes")
-          .delete()
-          .eq("id", existingLike.id);
-
-        await supabase.rpc("decrement_comment_likes", { comment_id: commentId });
-      } else {
-        await supabase
-          .from("comment_likes")
-          .insert({
-            comment_id: commentId,
-            user_id: user.id,
-          });
-
-        await supabase.rpc("increment_comment_likes", { comment_id: commentId });
-      }
-
-      fetchComments();
-    } catch (error: any) {
-      console.error("Error liking comment:", error);
     }
   };
 
@@ -302,7 +196,6 @@ export default function Article() {
           </div>
         )}
 
-        {/* Article Content */}
         {/* Article Content with Double Tap */}
         <div 
           className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-headings:font-bold prose-p:text-foreground/90 prose-p:leading-relaxed prose-a:text-primary prose-a:font-semibold prose-strong:text-foreground prose-strong:font-bold mb-8 select-none"
@@ -334,7 +227,6 @@ export default function Article() {
         authorName={article.profiles?.display_name || "Auteur"}
         category={article.category}
         tags={article.tags || []}
-        initialLikeCount={article.like_count || 0}
         liked={liked}
         likeCount={likeCount}
         onLike={handleLike}

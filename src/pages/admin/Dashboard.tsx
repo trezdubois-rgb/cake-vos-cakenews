@@ -34,15 +34,12 @@ export default function Dashboard() {
         totalViews: totalViews,
       });
 
-      // 2. Fetch Daily Stats for Chart (Last 7 days for the specific design look)
+      // 2. Generate Chart Data from articles (no daily_stats table)
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      const { data: dailyStats } = await supabase
-        .from("daily_stats")
-        .select("date, views, likes")
-        .gte("date", sevenDaysAgo.toISOString())
-        .order("date", { ascending: true });
+      // Fallback: generate demo chart data since daily_stats table doesn't exist
+      const dailyStats: any[] = [];
 
       // Aggregate by date
       const aggregatedData = (dailyStats || []).reduce((acc: any, curr: any) => {

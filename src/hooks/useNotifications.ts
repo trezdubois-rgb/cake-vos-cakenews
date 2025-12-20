@@ -5,15 +5,15 @@ import { toast } from "sonner";
 
 export interface Notification {
   id: string;
-  type: 'reply' | 'like' | 'system';
-  resource_id: string;
-  resource_type: 'comment' | 'article';
-  read_at: string | null;
+  type: string;
+  title: string;
+  message: string;
+  link_url: string | null;
+  read: boolean;
   created_at: string;
-  actor?: {
-    display_name: string | null;
-    avatar_url: string | null;
-  };
+  related_article_id: string | null;
+  related_comment_id: string | null;
+  related_user_id: string | null;
 }
 
 export const useNotifications = () => {
@@ -41,7 +41,7 @@ export const useNotifications = () => {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `recipient_id=eq.${user.id}`,
+          filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
@@ -55,8 +55,6 @@ export const useNotifications = () => {
             setNotifications((prev) =>
               prev.map((n) => (n.id === payload.new.id ? (payload.new as Notification) : n))
             );
-            // Re-calculate unread count
-            // (Ideally we'd just decrement, but to be safe we can re-fetch or derive)
           }
         }
       )
@@ -68,24 +66,20 @@ export const useNotifications = () => {
   }, [user]);
 
   const fetchNotifications = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from("notifications")
-        .select(`
-          *,
-          actor:actor_id (
-            display_name,
-            avatar_url
-          )
-        `)
-        .eq("recipient_id", user!.id)
+        .select("*")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
 
       if (error) throw error;
 
-      setNotifications(data as any);
-      setUnreadCount(data.filter((n: any) => !n.read_at).length);
+      setNotifications(data || []);
+      setUnreadCount(data?.filter((n) => !n.read).length || 0);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
@@ -97,14 +91,14 @@ export const useNotifications = () => {
     try {
       const { error } = await supabase
         .from("notifications")
-        .update({ read_at: new Date().toISOString() })
+        .update({ read: true })
         .eq("id", notificationId);
 
       if (error) throw error;
 
       // Optimistic update
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, read_at: new Date().toISOString() } : n))
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
@@ -113,17 +107,19 @@ export const useNotifications = () => {
   };
 
   const markAllAsRead = async () => {
+    if (!user) return;
+    
     try {
       const { error } = await supabase
         .from("notifications")
-        .update({ read_at: new Date().toISOString() })
-        .eq("recipient_id", user!.id)
-        .is("read_at", null);
+        .update({ read: true })
+        .eq("user_id", user.id)
+        .eq("read", false);
 
       if (error) throw error;
 
       setNotifications((prev) =>
-        prev.map((n) => ({ ...n, read_at: new Date().toISOString() }))
+        prev.map((n) => ({ ...n, read: true }))
       );
       setUnreadCount(0);
     } catch (error) {

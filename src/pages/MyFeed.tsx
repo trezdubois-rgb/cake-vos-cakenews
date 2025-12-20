@@ -5,19 +5,15 @@ import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-// Define Article interface locally or import it if available
 interface Article {
   id: string;
   title: string;
-  excerpt: string;
+  excerpt: string | null;
   content_html: string;
-  hero_image_url: string;
-  category: { name: string; slug: string };
-  author: { full_name: string; avatar_url: string };
-  published_at: string;
-  slug: string;
-  likes: { count: number };
-  comments: { count: number };
+  hero_image_url: string | null;
+  category: string;
+  published_at: string | null;
+  created_at: string;
 }
 
 const MyFeed = () => {
@@ -35,37 +31,28 @@ const MyFeed = () => {
       }
 
       try {
-        // 1. Get user preferences
-        const { data: prefs } = await supabase
-          .from("user_preferences")
-          .select("*")
-          .eq("user_id", user.id)
+        // Get user preferences from profiles table
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("preferences")
+          .eq("id", user.id)
           .single();
 
+        const prefs = profileData?.preferences as { tags?: string[] } | null;
         setPreferences(prefs);
 
         let query = supabase
           .from("articles")
-          .select(`
-            *,
-            category:categories(name, slug),
-            author:profiles(full_name, avatar_url),
-            likes:article_likes(count),
-            comments:comments(count)
-          `)
-          .eq("status", "published")
-          .order("published_at", { ascending: false });
+          .select("id, title, excerpt, content_html, hero_image_url, category, published_at, created_at")
+          .eq("published", true)
+          .order("published_at", { ascending: false, nullsFirst: false });
 
-        // 2. Apply filters based on preferences (MVP: Filter by tags if any)
-        if (prefs?.followed_tags && prefs.followed_tags.length > 0) {
-            // This is a simplified "OR" filter. A real recommendation engine would be more complex.
-            query = query.overlaps("tags", prefs.followed_tags);
-        } else {
-            // Fallback: If no preferences, maybe show trending or random?
-            // For now, we just show latest, but we'll add a UI prompt to customize.
+        // Apply filters based on preferences (MVP: Filter by tags if any)
+        if (prefs?.tags && prefs.tags.length > 0) {
+          query = query.overlaps("tags", prefs.tags);
         }
 
-        const { data, error } = await query;
+        const { data, error } = await query.limit(20);
 
         if (error) throw error;
         setArticles(data || []);
@@ -100,6 +87,8 @@ const MyFeed = () => {
     );
   }
 
+  const followedTags = (preferences?.tags as string[]) || [];
+
   return (
     <div className="container mx-auto px-4 py-6 pb-24 max-w-2xl">
       <div className="flex items-center justify-between mb-6">
@@ -110,7 +99,7 @@ const MyFeed = () => {
           </h1>
           <p className="text-muted-foreground text-sm">
             Sélectionné pour vous
-            {preferences?.followed_tags?.length > 0 && ` (${preferences.followed_tags.length} sujets suivis)`}
+            {followedTags.length > 0 && ` (${followedTags.length} sujets suivis)`}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => navigate("/profile")}>
@@ -139,8 +128,8 @@ const MyFeed = () => {
                   {article.excerpt}
                 </p>
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{article.category?.name}</span>
-                  <span>{new Date(article.published_at).toLocaleDateString()}</span>
+                  <span>{article.category}</span>
+                  <span>{new Date(article.published_at || article.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -151,7 +140,7 @@ const MyFeed = () => {
           <p className="text-muted-foreground mb-4">
             Aucun article ne correspond à vos préférences pour le moment.
           </p>
-          <Button onClick={() => navigate("/tags")}>Explorer les sujets</Button>
+          <Button onClick={() => navigate("/")}>Explorer les articles</Button>
         </div>
       )}
     </div>

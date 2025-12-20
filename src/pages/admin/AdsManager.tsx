@@ -24,9 +24,9 @@ interface Ad {
   image_url: string;
   link_url: string | null;
   placement: string;
-  active: boolean;
-  impression_count: number;
-  click_count: number;
+  active: boolean | null;
+  impression_count: number | null;
+  click_count: number | null;
 }
 
 export default function AdsManager() {
@@ -305,13 +305,13 @@ export default function AdsManager() {
                 Placement: {ad.placement === 'after_title' ? 'Après titre' : ad.placement === 'mid_article' ? 'Milieu' : 'Fin'}
               </p>
               <p className="text-sm text-muted-foreground mb-4">
-                {ad.impression_count} vues • {ad.click_count} clics
+                {ad.impression_count ?? 0} vues • {ad.click_count ?? 0} clics
               </p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={ad.active}
-                    onCheckedChange={() => toggleActive(ad.id, ad.active)}
+                    checked={ad.active ?? false}
+                    onCheckedChange={() => toggleActive(ad.id, ad.active ?? false)}
                   />
                   <span className="text-sm">{ad.active ? "Actif" : "Inactif"}</span>
                 </div>

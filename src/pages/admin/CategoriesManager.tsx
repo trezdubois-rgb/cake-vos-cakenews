@@ -15,10 +15,10 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  color: string;
-  icon?: string;
-  display_order: number;
+  description: string | null;
+  color: string | null;
+  icon: string | null;
+  display_order: number | null;
   created_at: string;
 }
 
@@ -112,7 +112,7 @@ export default function CategoriesManager() {
       name: category.name,
       slug: category.slug,
       description: category.description || "",
-      color: category.color,
+      color: category.color || "#3B82F6",
       icon: category.icon || "",
     });
     setEditingId(category.id);
@@ -281,7 +281,7 @@ export default function CategoriesManager() {
                   )}
                   <div
                     className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: category.color }}
+                    style={{ backgroundColor: category.color || '#3B82F6' }}
                   />
                   <div>
                     <h3 className="text-lg font-semibold">{category.name}</h3>
