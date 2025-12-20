@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default function DesignManager() {
   const { user, loading: authLoading, isAdmin } = useAuth();
-  const { theme, updateTheme, loading: themeLoading, error } = useTheme();
+  const { theme, updateTheme, loading: themeLoading } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("colors");
   const [isSaving, setIsSaving] = useState(false);
@@ -89,16 +89,6 @@ export default function DesignManager() {
 
   return (
     <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto pb-24 md:pb-8 bg-slate-50 min-h-full">
-      {/* Error Banner */}
-      {error && (
-        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4 flex items-start gap-3">
-          <div className="text-warning">⚠️</div>
-          <div className="flex-1">
-            <p className="font-medium text-warning">Avertissement</p>
-            <p className="text-sm text-muted-foreground mt-1">{error}</p>
-          </div>
-        </div>
-      )}
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
