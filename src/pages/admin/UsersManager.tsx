@@ -105,40 +105,50 @@ export default function UsersManager() {
     try {
       setLoading(true);
       
-      // Simple fetch of user_roles only
-      console.log("📊 Fetching user roles...");
+      // Fetch all profiles first
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, created_at")
+        .order("created_at", { ascending: false });
+
+      if (profilesError) {
+        console.error("❌ Error fetching profiles:", profilesError);
+        throw new Error(`Error fetching profiles: ${profilesError.message}`);
+      }
+
+      // Fetch all user roles
       const { data: userRoles, error: rolesError } = await supabase
         .from("user_roles")
         .select("*");
 
-      console.log("📋 User roles response:", { userRoles, rolesError });
-
       if (rolesError) {
         console.error("❌ Error fetching roles:", rolesError);
-        throw new Error(`RLS Error: ${rolesError.message}`);
       }
 
-      if (!userRoles || userRoles.length === 0) {
-        console.warn("⚠️ No user roles found");
-        setUsers([]);
-        toast.info("Aucun rôle d'utilisateur trouvé");
-        return;
+      // Create a map of roles by user_id
+      const rolesMap = new Map<string, { role: string; role_id: string }>();
+      if (userRoles) {
+        userRoles.forEach((role) => {
+          rolesMap.set(role.user_id, { role: role.role, role_id: role.id });
+        });
       }
 
-      // Create simple user list from roles
-      const simpleUsers: UserProfile[] = userRoles.map((role) => ({
-        id: role.user_id,
-        email: `user-${role.user_id.substring(0, 8)}`,
-        display_name: "Utilisateur",
-        avatar_url: undefined,
-        created_at: role.created_at || new Date().toISOString(),
-        role: role.role,
-        role_id: role.id,
-      }));
+      // Combine profiles with roles
+      const combinedUsers: UserProfile[] = (profilesData || []).map((profile) => {
+        const roleInfo = rolesMap.get(profile.id);
+        return {
+          id: profile.id,
+          email: `ID: ${profile.id.substring(0, 8)}...`,
+          display_name: profile.display_name || "Utilisateur",
+          avatar_url: profile.avatar_url || undefined,
+          created_at: profile.created_at,
+          role: roleInfo?.role,
+          role_id: roleInfo?.role_id,
+        };
+      });
 
-      console.log("✅ Successfully created user list:", simpleUsers.length);
-      setUsers(simpleUsers);
-      toast.success(`${simpleUsers.length} utilisateur(s) chargé(s)`);
+      console.log("✅ Successfully loaded users:", combinedUsers.length);
+      setUsers(combinedUsers);
       
     } catch (error: any) {
       console.error("💥 Fatal error fetching users:", error);
