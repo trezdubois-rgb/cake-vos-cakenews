@@ -12,12 +12,18 @@ import { User, Settings, Palette, LogOut, Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+interface ProfilePreferences {
+  tags?: string[];
+  categories?: string[];
+  authors?: string[];
+  formats?: string[];
+}
+
 const Profile = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
-  const [preferences, setPreferences] = useState<any>(null);
   const [followedTags, setFollowedTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
 
@@ -29,7 +35,7 @@ const Profile = () => {
       }
 
       try {
-        // Fetch profile
+        // Fetch profile with preferences
         const { data: profileData } = await supabase
           .from("profiles")
           .select("*")
@@ -37,18 +43,10 @@ const Profile = () => {
           .single();
 
         setProfile(profileData);
-
-        // Fetch preferences
-        const { data: prefsData } = await supabase
-          .from("user_preferences")
-          .select("*")
-          .eq("user_id", user.id)
-          .single();
-
-        if (prefsData) {
-          setPreferences(prefsData);
-          setFollowedTags(prefsData.followed_tags || []);
-        }
+        
+        // Extract followed tags from preferences JSON
+        const prefs = profileData?.preferences as ProfilePreferences | null;
+        setFollowedTags(prefs?.tags || []);
       } catch (error) {
         console.error("Error fetching profile:", error);
       } finally {
@@ -59,6 +57,27 @@ const Profile = () => {
     fetchData();
   }, [user]);
 
+  const updatePreferences = async (newTags: string[]) => {
+    if (!user) return;
+
+    try {
+      const currentPrefs = (profile?.preferences as ProfilePreferences) || {};
+      const updatedPrefs = { ...currentPrefs, tags: newTags };
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ preferences: updatedPrefs })
+        .eq("id", user.id);
+
+      if (error) throw error;
+      
+      setProfile({ ...profile, preferences: updatedPrefs });
+    } catch (error) {
+      console.error("Error updating preferences:", error);
+      throw error;
+    }
+  };
+
   const handleAddTag = async () => {
     if (!newTag.trim() || !user) return;
 
@@ -67,18 +86,12 @@ const Profile = () => {
     setNewTag("");
 
     try {
-      const { error } = await supabase
-        .from("user_preferences")
-        .upsert({
-          user_id: user.id,
-          followed_tags: updatedTags,
-        });
-
-      if (error) throw error;
+      await updatePreferences(updatedTags);
       toast.success("Préférence ajoutée !");
     } catch (error) {
-      console.error("Error updating preferences:", error);
       toast.error("Erreur lors de la mise à jour");
+      // Rollback
+      setFollowedTags(followedTags);
     }
   };
 
@@ -89,18 +102,12 @@ const Profile = () => {
     setFollowedTags(updatedTags);
 
     try {
-      const { error } = await supabase
-        .from("user_preferences")
-        .upsert({
-          user_id: user.id,
-          followed_tags: updatedTags,
-        });
-
-      if (error) throw error;
+      await updatePreferences(updatedTags);
       toast.success("Préférence retirée");
     } catch (error) {
-      console.error("Error updating preferences:", error);
       toast.error("Erreur lors de la mise à jour");
+      // Rollback
+      setFollowedTags(followedTags);
     }
   };
 
@@ -241,7 +248,7 @@ const Profile = () => {
 
               <div className="pt-4 border-t">
                 <p className="text-sm text-muted-foreground">
-                  🎨 <strong>Bientôt disponible :</strong> Skins premium, icônes personnalisées, badges exclusifs...
+                  Bientôt disponible : Skins premium, icônes personnalisées, badges exclusifs...
                 </p>
               </div>
             </CardContent>

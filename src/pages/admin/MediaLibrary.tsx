@@ -20,12 +20,12 @@ interface Media {
   mime_type: string;
   file_size: number;
   url: string;
-  thumbnail_url?: string;
-  width?: number;
-  height?: number;
-  duration?: number;
-  alt_text?: string;
-  caption?: string;
+  thumbnail_url: string | null;
+  width: number | null;
+  height: number | null;
+  duration: number | null;
+  alt_text: string | null;
+  caption: string | null;
   created_at: string;
 }
 
@@ -130,7 +130,7 @@ export default function MediaLibrary() {
         // Create media entry
         const { data: mediaData, error: mediaError } = await supabase
           .from('media_library')
-          .insert({
+          .insert([{
             user_id: user?.id,
             filename: fileName,
             original_filename: file.name,
@@ -138,8 +138,8 @@ export default function MediaLibrary() {
             mime_type: file.type,
             file_size: file.size,
             url: urlData.publicUrl,
-            thumbnail_url: isImage ? urlData.publicUrl : undefined,
-          })
+            thumbnail_url: isImage ? urlData.publicUrl : null,
+          }])
           .select()
           .single();
 

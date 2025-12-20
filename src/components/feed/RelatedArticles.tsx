@@ -5,22 +5,41 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-interface RelatedArticlesProps {
-  currentArticleId: string;
+interface RelatedArticle {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  hero_image_url: string | null;
+  category: string;
 }
 
-export const RelatedArticles = ({ currentArticleId }: RelatedArticlesProps) => {
-  const [articles, setArticles] = useState<any[]>([]);
+interface RelatedArticlesProps {
+  currentArticleId: string;
+  category?: string;
+  tags?: string[];
+}
+
+export const RelatedArticles = ({ currentArticleId, category, tags }: RelatedArticlesProps) => {
+  const [articles, setArticles] = useState<RelatedArticle[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRelated = async () => {
       try {
-        const { data, error } = await supabase
-          .rpc('get_related_articles', { 
-            p_article_id: currentArticleId,
-            p_limit: 3 
-          });
+        // Simple approach: get articles from same category, excluding current
+        let query = supabase
+          .from('articles')
+          .select('id, title, excerpt, hero_image_url, category')
+          .eq('published', true)
+          .neq('id', currentArticleId)
+          .limit(3);
+
+        // Filter by category if provided
+        if (category) {
+          query = query.eq('category', category);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
         setArticles(data || []);
@@ -34,7 +53,7 @@ export const RelatedArticles = ({ currentArticleId }: RelatedArticlesProps) => {
     if (currentArticleId) {
       fetchRelated();
     }
-  }, [currentArticleId]);
+  }, [currentArticleId, category]);
 
   if (loading) {
     return (

@@ -56,7 +56,7 @@ export const SearchDialog = () => {
             id: article.id,
             type: "article",
             title: article.title,
-            subtitle: article.excerpt,
+            subtitle: article.excerpt || undefined,
           });
 
           // Also search in tags

@@ -62,16 +62,18 @@ export const useArticleForm = (articleId?: string, userId?: string) => {
             if (error) throw error;
 
             setFormData({
-                ...data,
+                title: data.title,
                 category_id: data.category_id || "",
+                content_html: data.content_html,
                 tags: data.tags || [],
+                status: data.status || "draft",
+                excerpt: data.excerpt || "",
+                featured: data.featured ?? false,
                 hero_image_url: data.hero_image_url || "",
                 hero_video_url: data.hero_video_url || "",
                 seo_title: data.seo_title || "",
                 seo_description: data.seo_description || "",
-                excerpt: data.excerpt || "",
-                status: data.status || "draft",
-                featured: data.featured || false,
+                published: data.published ?? false,
                 scheduled_publish_at: data.scheduled_publish_at ? new Date(data.scheduled_publish_at).toISOString().slice(0, 16) : "",
             });
         } catch (error: any) {

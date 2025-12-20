@@ -15,9 +15,9 @@ interface Article {
   id: string;
   title: string;
   category: string;
-  published: boolean;
-  view_count: number;
-  like_count: number;
+  published: boolean | null;
+  view_count: number | null;
+  like_count: number | null;
   created_at: string;
 }
 
@@ -29,8 +29,8 @@ export default function ArticlesList() {
 
   // Stats for the header
   const totalArticles = articles.length;
-  const publishedCount = articles.filter((a) => a.published).length;
-  const draftCount = articles.filter((a) => a.published === false).length;
+  const publishedCount = articles.filter((a) => a.published === true).length;
+  const draftCount = articles.filter((a) => a.published !== true).length;
   const totalViews = articles.reduce((sum, a) => sum + (a.view_count || 0), 0);
 
   useEffect(() => {
@@ -180,11 +180,11 @@ export default function ArticlesList() {
                   <div className="flex gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Eye className="h-4 w-4" />
-                      {article.view_count} vues
+                      {article.view_count ?? 0} vues
                     </span>
                     <span className="flex items-center gap-1">
                       <Heart className="h-4 w-4" />
-                      {article.like_count} j'aime
+                      {article.like_count ?? 0} j'aime
                     </span>
                     <span>
                       {new Date(article.created_at).toLocaleDateString("fr-FR")}
