@@ -62,41 +62,44 @@ export const ArticleActions = ({
   const fetchComments = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { data, error } = await supabase
+    // Fetch comments without join
+    const { data: commentsData, error: commentsError } = await supabase
       .from('comments')
-      .select(`
-        id,
-        content,
-        created_at,
-        like_count,
-        user_id,
-        parent_id,
-        profiles!user_id (
-          id,
-          display_name,
-          avatar_url
-        )
-      `)
+      .select('id, content, created_at, like_count, user_id, parent_id')
       .eq('article_id', articleId)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching comments:', error);
+    if (commentsError) {
+      console.error('Error fetching comments:', commentsError);
       return;
     }
+
+    if (!commentsData || commentsData.length === 0) {
+      setComments([]);
+      return;
+    }
+
+    // Fetch profiles for all user_ids
+    const userIds = [...new Set(commentsData.map(c => c.user_id))];
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('id, display_name, avatar_url')
+      .in('id', userIds);
+
+    const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
 
     // Fetch reactions for all comments
     const { data: reactionsData } = await supabase
       .from('comment_reactions')
       .select('comment_id, emoji, user_id')
-      .in('comment_id', data?.map(c => c.id) || []);
+      .in('comment_id', commentsData.map(c => c.id));
 
     // Fetch hidden comments for current user
     const { data: hiddenData } = user ? await supabase
       .from('hidden_comments')
       .select('comment_id')
       .eq('user_id', user.id)
-      .in('comment_id', data?.map(c => c.id) || []) : { data: [] };
+      .in('comment_id', commentsData.map(c => c.id)) : { data: [] };
 
     const hiddenCommentIds = new Set(hiddenData?.map(h => h.comment_id) || []);
 
@@ -121,22 +124,23 @@ export const ArticleActions = ({
     const formattedComments: Comment[] = [];
     const commentMap = new Map<string, Comment>();
 
-    data?.forEach((comment: any) => {
+    commentsData.forEach((comment) => {
+      const profile = profilesMap.get(comment.user_id);
       const reactions = reactionsByComment.get(comment.id);
       const formattedComment: Comment = {
         id: comment.id,
         content: comment.content,
         author: {
-          id: comment.profiles.id,
-          name: comment.profiles.display_name || 'Utilisateur',
-          avatar: comment.profiles.avatar_url,
+          id: comment.user_id,
+          name: profile?.display_name || 'Utilisateur',
+          avatar: profile?.avatar_url || undefined,
         },
         created_at: comment.created_at,
         like_count: comment.like_count || 0,
-        reactions: reactions ? Array.from(reactions.entries()).map(([emoji, data]) => ({
+        reactions: reactions ? Array.from(reactions.entries()).map(([emoji, reactionData]) => ({
           emoji,
-          count: data.count,
-          userReacted: data.userReacted,
+          count: reactionData.count,
+          userReacted: reactionData.userReacted,
         })) : [],
         isHidden: hiddenCommentIds.has(comment.id),
         replies: [],
@@ -149,7 +153,7 @@ export const ArticleActions = ({
     });
 
     // Link replies to parents
-    data?.forEach((comment: any) => {
+    commentsData.forEach((comment) => {
       if (comment.parent_id) {
         const parent = commentMap.get(comment.parent_id);
         const child = commentMap.get(comment.id);

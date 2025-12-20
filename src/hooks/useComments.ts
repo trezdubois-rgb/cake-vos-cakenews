@@ -62,21 +62,29 @@ export const useComments = (articleId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Fetch all comments for the article
+      // Fetch all comments for the article (without join)
       const { data: commentsData, error: commentsError } = await supabase
         .from("comments")
-        .select(`
-          *,
-          user:profiles!user_id (
-            id,
-            display_name,
-            avatar_url
-          )
-        `)
+        .select("id, article_id, user_id, parent_id, content, created_at, like_count")
         .eq("article_id", articleId)
         .order("created_at", { ascending: true });
 
       if (commentsError) throw commentsError;
+
+      if (!commentsData || commentsData.length === 0) {
+        setComments([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch profiles for all user_ids
+      const userIds = [...new Set(commentsData.map(c => c.user_id))];
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", userIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
 
       // Fetch user's likes if authenticated
       let userLikes: Set<string> = new Set();
@@ -85,7 +93,7 @@ export const useComments = (articleId: string) => {
           .from("comment_likes")
           .select("comment_id")
           .eq("user_id", user.id)
-          .in("comment_id", commentsData?.map(c => c.id) || []);
+          .in("comment_id", commentsData.map(c => c.id));
 
         userLikes = new Set(likesData?.map(l => l.comment_id) || []);
       }
@@ -94,10 +102,22 @@ export const useComments = (articleId: string) => {
       const commentMap = new Map<string, Comment>();
       const rootComments: Comment[] = [];
 
-      commentsData?.forEach((comment: any) => {
+      commentsData.forEach((comment) => {
+        const profile = profilesMap.get(comment.user_id);
         const formattedComment: Comment = {
-          ...comment,
-          user: comment.user || { id: comment.user_id, display_name: "Utilisateur", avatar_url: null },
+          id: comment.id,
+          article_id: comment.article_id,
+          user_id: comment.user_id,
+          parent_id: comment.parent_id,
+          content: comment.content,
+          created_at: comment.created_at,
+          updated_at: comment.created_at,
+          like_count: comment.like_count || 0,
+          user: {
+            id: comment.user_id,
+            display_name: profile?.display_name || "Utilisateur",
+            avatar_url: profile?.avatar_url || null,
+          },
           replies: [],
           is_liked: userLikes.has(comment.id),
         };
@@ -109,7 +129,7 @@ export const useComments = (articleId: string) => {
       });
 
       // Attach replies to parents
-      commentsData?.forEach((comment: any) => {
+      commentsData.forEach((comment) => {
         if (comment.parent_id) {
           const parent = commentMap.get(comment.parent_id);
           const child = commentMap.get(comment.id);
