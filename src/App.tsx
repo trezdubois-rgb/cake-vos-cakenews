@@ -53,6 +53,7 @@ const AppContent = () => {
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tags" element={<TagSearchPage />} />
           <Route path="/auth" element={<AuthNew />} />
+          <Route path="/auth/new" element={<AuthNew />} />
           <Route path="/my-feed" element={<MyFeed />} />
           <Route path="/messages" element={<Messaging />} />
           <Route path="/profile" element={<Profile />} />
