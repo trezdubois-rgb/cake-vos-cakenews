@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ interface Media {
 
 export default function MediaLibrary() {
   const { user, loading: authLoading } = useAuth();
+  const { isAdmin } = useRole();
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [media, setMedia] = useState<Media[]>([]);
