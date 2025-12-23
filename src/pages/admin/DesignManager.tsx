@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useRole } from "@/hooks/useRole";
 import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 export default function DesignManager() {
   const { user, loading: authLoading } = useAuth();
+  const { isAdmin } = useRole();
   const { theme, updateTheme, loading: themeLoading } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("colors");
