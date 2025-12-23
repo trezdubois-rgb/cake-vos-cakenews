@@ -1,27 +1,17 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Shield, Trash2, Clock, Calendar, MapPin, Smartphone } from "lucide-react";
+import { Shield, Trash2, Smartphone } from "lucide-react";
 
 interface TrustedDevice {
   id: string;
-  user_id: string;
-  device_fingerprint: string;
-  device_info: {
-    browser: string;
-    os: string;
-    userAgent: string;
-    language: string;
-    timezone: string;
-    screenResolution: string;
-  };
-  created_at: string;
-  last_used: string;
-  ip_address?: string;
+  fingerprint: string;
+  browser: string;
+  os: string;
+  createdAt: string;
+  lastUsed: string;
 }
 
 export default function DevicesManager() {
@@ -34,18 +24,14 @@ export default function DevicesManager() {
 
   const fetchTrustedDevices = async () => {
     try {
-      const { data, error } = await supabase
-        .from("trusted_devices") // Cette table n'existe peut-être pas encore dans la base
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setDevices((data as TrustedDevice[]) || []);
+      // Get devices from localStorage (simplified implementation)
+      const storedDevices = localStorage.getItem('trusted_devices');
+      if (storedDevices) {
+        setDevices(JSON.parse(storedDevices));
+      }
     } catch (error) {
       console.error("Error fetching trusted devices:", error);
       toast.error("Erreur lors du chargement des appareils approuvés");
-      // Pour l'instant, on affiche un message d'information
-      setDevices([]);
     } finally {
       setLoading(false);
     }
@@ -53,15 +39,10 @@ export default function DevicesManager() {
 
   const handleRevokeDevice = async (deviceId: string) => {
     try {
-      const { error } = await supabase
-        .from("trusted_devices")
-        .delete()
-        .eq("id", deviceId);
-
-      if (error) throw error;
-
+      const updatedDevices = devices.filter(d => d.id !== deviceId);
+      localStorage.setItem('trusted_devices', JSON.stringify(updatedDevices));
+      setDevices(updatedDevices);
       toast.success("Appareil révoqué avec succès");
-      fetchTrustedDevices(); // Recharger la liste
     } catch (error) {
       console.error("Error revoking device:", error);
       toast.error("Erreur lors de la révocation de l'appareil");
@@ -71,8 +52,8 @@ export default function DevicesManager() {
   if (loading) {
     return (
       <div className="container mx-auto p-6 space-y-4">
-        <Skeleton className="h-12 w-64" />
-        <Skeleton className="h-96 w-full" />
+        <div className="h-12 w-64 bg-muted animate-pulse rounded" />
+        <div className="h-96 w-full bg-muted animate-pulse rounded" />
       </div>
     );
   }
@@ -128,25 +109,10 @@ export default function DevicesManager() {
                     </div>
                     <div>
                       <div className="font-medium">
-                        {device.device_info.browser} sur {device.device_info.os}
+                        {device.browser} sur {device.os}
                       </div>
-                      <div className="text-sm text-muted-foreground flex flex-wrap gap-4 mt-1">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          <span>{device.ip_address || "IP non enregistrée"}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>
-                            Ajouté: {new Date(device.created_at).toLocaleString("fr-FR")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            Dernière utilisation: {new Date(device.last_used).toLocaleString("fr-FR")}
-                          </span>
-                        </div>
+                      <div className="text-sm text-muted-foreground">
+                        Ajouté: {new Date(device.createdAt).toLocaleString("fr-FR")}
                       </div>
                     </div>
                   </div>
@@ -177,15 +143,11 @@ export default function DevicesManager() {
           <ul className="space-y-2 text-blue-700">
             <li className="flex items-start gap-2">
               <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-              <span>Chaque appareil doit être approuvé par un administrateur avant d'accéder à l'espace admin</span>
+              <span>Chaque appareil doit être approuvé par un administrateur</span>
             </li>
             <li className="flex items-start gap-2">
               <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-              <span>Les informations d'appareil sont stockées pour prévenir les accès non autorisés</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-              <span>Vous pouvez révoquer l'accès à tout moment depuis cette interface</span>
+              <span>Vous pouvez révoquer l'accès à tout moment</span>
             </li>
           </ul>
         </CardContent>

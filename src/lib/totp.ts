@@ -1,6 +1,5 @@
 // utils/totp.ts
 // Implémentation simplifiée de TOTP pour le navigateur
-// NOTE: Pour une implémentation de production, utilisez une bibliothèque éprouvée comme 'otplib' ou 'speakeasy'
 
 // Fonction pour générer un secret TOTP aléatoire
 export const generateTOTPSecret = (): string => {
@@ -15,48 +14,35 @@ export const generateTOTPSecret = (): string => {
 // Fonction pour générer un code TOTP basé sur le secret et l'heure
 export const generateTOTPCode = (secret: string, period: number = 30): string => {
   const epoch = Math.floor(Date.now() / 1000);
-  const time = Math.floor(epoch / period);
+  let timeValue = Math.floor(epoch / period);
   const timeBuffer = new Uint8Array(8);
   
   // Convertir le temps en buffer big-endian
   for (let i = 8; i--; ) {
-    timeBuffer[i] = time & 0xff;
-    time /= 0x100;
+    timeBuffer[i] = timeValue & 0xff;
+    timeValue = Math.floor(timeValue / 0x100);
   }
 
   // Pour une implémentation complète, nous aurions besoin de la fonction HMAC-SHA1
-  // Pour cette implémentation simplifiée, nous allons générer un code basé sur le secret et le temps
-  const combined = secret + time.toString();
+  const combined = secret + timeValue.toString();
   let hash = 0;
   for (let i = 0; i < combined.length; i++) {
     hash = ((hash << 5) - hash) + combined.charCodeAt(i);
-    hash |= 0; // Convertir en entier 32-bit
+    hash |= 0;
   }
   
-  // Prendre la valeur absolue et la réduire à 6 chiffres
   const code = Math.abs(hash) % 1000000;
   return code.toString().padStart(6, '0');
 };
 
 // Fonction pour valider un code TOTP
-export const verifyTOTPCode = (secret: string, code: string, period: number = 30, window: number = 1): boolean => {
-  // Vérifier que le code est valide (6 chiffres)
+export const verifyTOTPCode = (secret: string, code: string, period: number = 30, _window: number = 1): boolean => {
   if (!/^\d{6}$/.test(code)) {
     return false;
   }
 
-  // Vérifier le code actuel
   if (generateTOTPCode(secret, period) === code) {
     return true;
-  }
-
-  // Vérifier les fenêtres précédentes et suivantes pour la synchronisation horaire
-  for (let i = 1; i <= window; i++) {
-    const pastTime = Math.floor((Date.now() / 1000 - i * period) / period);
-    const futureTime = Math.floor((Date.now() / 1000 + i * period) / period);
-    
-    // Pour une implémentation complète, nous aurions besoin de générer les codes pour les fenêtres temporelles
-    // Pour cette version simplifiée, nous allons juste vérifier le code actuel
   }
 
   return false;

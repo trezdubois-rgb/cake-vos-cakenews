@@ -25,7 +25,7 @@ interface Article {
 type SortOption = "newest" | "oldest" | "most_views" | "most_likes" | "title_asc" | "title_desc";
 
 export default function ArticlesList() {
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<SortOption>("newest");

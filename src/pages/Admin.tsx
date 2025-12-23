@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useRole } from "@/hooks/useRole";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, BarChart3, Image, FolderTree, Video, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Admin() {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading } = useAuth();
+  const { isAdmin } = useRole();
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     articles: 0,

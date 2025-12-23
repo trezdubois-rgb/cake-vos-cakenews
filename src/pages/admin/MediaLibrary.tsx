@@ -30,7 +30,7 @@ interface Media {
 }
 
 export default function MediaLibrary() {
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [media, setMedia] = useState<Media[]>([]);

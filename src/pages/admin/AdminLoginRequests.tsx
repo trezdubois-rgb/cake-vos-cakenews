@@ -20,7 +20,7 @@ interface LoginRequest {
 }
 
 export default function AdminLoginRequests() {
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [requests, setRequests] = useState<LoginRequest[]>([]);
   const [loading, setLoading] = useState(true);
