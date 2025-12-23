@@ -12,7 +12,7 @@ import { Palette, Type, Layout, Smartphone, Monitor, Moon, Sun, Check } from "lu
 import { cn } from "@/lib/utils";
 
 export default function DesignManager() {
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { theme, updateTheme, loading: themeLoading } = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("colors");

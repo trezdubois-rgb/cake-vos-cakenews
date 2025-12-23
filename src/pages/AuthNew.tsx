@@ -22,14 +22,14 @@ export default function AuthNew() {
   const [rateLimitInfo, setRateLimitInfo] = useState<{message?: string, resetTime?: Date} | null>(null);
   const [blockedInfo, setBlockedInfo] = useState<{message: string, resetTime?: Date} | null>(null);
   const navigate = useNavigate();
-  const { user, roleChecked } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (user && roleChecked) {
+    if (user && isAuthenticated) {
       // Rediriger vers la bonne page en fonction du rôle de l'utilisateur
       checkUserRoleAndRedirect();
     }
-  }, [user, roleChecked]);
+  }, [user, isAuthenticated]);
 
   const checkUserRoleAndRedirect = async () => {
     if (!user) return;

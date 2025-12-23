@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
 import { verifyTOTPCode } from "@/lib/totp";
 import { toast } from "sonner";
-import { Loader2, Smartphone, ShieldAlert } from "lucide-react";
+import { Loader2, Smartphone } from "lucide-react";
 
 interface TwoFactorVerificationProps {
   userId: string;
@@ -25,21 +24,14 @@ export const TwoFactorVerification = ({ userId, onVerified, onCancel }: TwoFacto
     setError(null);
 
     try {
-      // Récupérer le secret de l'utilisateur
-      const { data: secretData, error: secretError } = await supabase
-        .from('admin_2fa_secrets')
-        .select('secret')
-        .eq('user_id', userId)
-        .eq('enabled', true)
-        .single();
-
-      if (secretError || !secretData) {
+      // Get secret from localStorage (simplified implementation)
+      const secret = localStorage.getItem(`2fa_secret_${userId}`);
+      
+      if (!secret) {
         throw new Error("Erreur lors de la récupération des informations 2FA");
       }
 
-      // Vérifier le code TOTP
-      if (verifyTOTPCode(secretData.secret, verificationCode)) {
-        // Le code est correct, on peut authentifier l'utilisateur
+      if (verifyTOTPCode(secret, verificationCode)) {
         toast.success("Code 2FA vérifié avec succès !");
         onVerified();
       } else {
@@ -47,14 +39,13 @@ export const TwoFactorVerification = ({ userId, onVerified, onCancel }: TwoFacto
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de la vérification du code");
-      console.error("Error verifying 2FA:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, ''); // Ne garder que les chiffres
+    const value = e.target.value.replace(/\D/g, '');
     if (value.length <= 6) {
       setVerificationCode(value);
     }

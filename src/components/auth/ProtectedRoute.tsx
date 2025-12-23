@@ -53,7 +53,7 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
 
   // Si l'utilisateur est authentifié et que les conditions sont remplies, afficher les enfants
   if (isAuthenticated && (!requireAdmin || isAdmin)) {
-    return <>{children};
+    return <>{children}</>;
   }
 
   // Sinon, afficher un indicateur de chargement ou rien

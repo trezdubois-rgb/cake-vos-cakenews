@@ -23,7 +23,7 @@ export const generateFingerprint = async (): Promise<string> => {
     language: navigator.language,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     screenResolution: `${screen.width}x${screen.height}`,
-    deviceMemory: (navigator as any).deviceMemory,
+    deviceMemory: (navigator as unknown as { deviceMemory?: number }).deviceMemory,
     hardwareConcurrency: navigator.hardwareConcurrency,
     platform: navigator.platform,
     cookieEnabled: navigator.cookieEnabled,
@@ -40,7 +40,7 @@ export const generateFingerprint = async (): Promise<string> => {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 };
 
-const getBrowser = (): string => {
+export const getBrowser = (): string => {
   const userAgent = navigator.userAgent;
   if (userAgent.includes('Firefox')) return 'Firefox';
   if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
@@ -50,7 +50,7 @@ const getBrowser = (): string => {
   return 'Unknown';
 };
 
-const getOS = (): string => {
+export const getOS = (): string => {
   const userAgent = navigator.userAgent;
   if (userAgent.includes('Win')) return 'Windows';
   if (userAgent.includes('Mac')) return 'MacOS';
@@ -63,12 +63,12 @@ const getOS = (): string => {
 const getWebGLVendor = (): string => {
   try {
     const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const gl = canvas.getContext('webgl') as WebGLRenderingContext | null;
     if (!gl) return 'Unknown';
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     if (!debugInfo) return 'Unknown';
     return gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || 'Unknown';
-  } catch (e) {
+  } catch {
     return 'Unknown';
   }
 };
@@ -76,22 +76,23 @@ const getWebGLVendor = (): string => {
 const getWebGLRenderer = (): string => {
   try {
     const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const gl = canvas.getContext('webgl') as WebGLRenderingContext | null;
     if (!gl) return 'Unknown';
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     if (!debugInfo) return 'Unknown';
     return gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || 'Unknown';
-  } catch (e) {
+  } catch {
     return 'Unknown';
   }
 };
 
 const getAudioContextFingerprint = (): string => {
   try {
-    // This is a simplified version - a real implementation would extract more detailed audio fingerprinting
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return 'Unknown';
+    const audioContext = new AudioContextClass();
     return `${audioContext.sampleRate}`;
-  } catch (e) {
+  } catch {
     return 'Unknown';
   }
 };

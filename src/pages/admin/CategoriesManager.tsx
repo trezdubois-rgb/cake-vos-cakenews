@@ -23,7 +23,7 @@ interface Category {
 }
 
 export default function CategoriesManager() {
-  const { user, loading: authLoading, isAdmin } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isEditing, setIsEditing] = useState(false);
