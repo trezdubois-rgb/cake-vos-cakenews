@@ -408,6 +408,7 @@ export const ArticleActionsBar = ({
         comments={comments}
         onAddComment={handleAddComment}
         onLikeComment={handleLikeComment}
+        onRefreshComments={fetchComments}
       />
     </>
   );

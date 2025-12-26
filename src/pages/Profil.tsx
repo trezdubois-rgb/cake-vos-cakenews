@@ -23,16 +23,20 @@ const Profil = () => {
   const [preferences, setPreferences] = useState<UserPreference[]>([]);
   const [newPreference, setNewPreference] = useState({ type: 'tag', value: '' });
   const [isLoading, setIsLoading] = useState(true);
-  const { user, signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
       navigate("/auth");
       return;
     }
+
     loadPreferences();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading, navigate]);
 
   const loadPreferences = async () => {
     if (!user) return;

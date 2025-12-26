@@ -12,16 +12,20 @@ const MonFlux = () => {
   const [feedItems, setFeedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPreferences, setHasPreferences] = useState(false);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
       navigate("/auth");
       return;
     }
+
     fetchPersonalizedArticles();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading, navigate]);
 
   const fetchPersonalizedArticles = async () => {
     if (!user) return;
