@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Eye, EyeOff, Loader2, UserPlus, AlertCircle } from "lucide-react";
 import { loginRateLimitService, signupRateLimitService, loginAttemptLogger } from "@/lib/rateLimitService";
-import { checkAdminRoleSecure } from "@/lib/serverAuth";
 
 export default function AuthNew() {
   const [email, setEmail] = useState("");
@@ -22,22 +21,27 @@ export default function AuthNew() {
   const [rateLimitInfo, setRateLimitInfo] = useState<{message?: string, resetTime?: Date} | null>(null);
   const [blockedInfo, setBlockedInfo] = useState<{message: string, resetTime?: Date} | null>(null);
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, session, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (user && isAuthenticated) {
+    if (user && session && isAuthenticated) {
       // Rediriger vers la bonne page en fonction du rôle de l'utilisateur
       checkUserRoleAndRedirect();
     }
-  }, [user, isAuthenticated]);
+  }, [user, session, isAuthenticated]);
 
   const checkUserRoleAndRedirect = async () => {
-    if (!user) return;
+    if (!user || !session) return;
 
     try {
-      const result = await checkAdminRoleSecure(user.id);
+      // Vérifier le rôle directement via la table user_roles
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
 
-      if (result.isAdmin) {
+      if (roleData?.role === 'admin') {
         navigate("/admin");
       } else {
         navigate("/");
