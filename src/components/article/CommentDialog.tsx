@@ -59,6 +59,7 @@ interface CommentDialogProps {
   comments: Comment[];
   onAddComment: (content: string, parentId?: string) => void;
   onLikeComment: (commentId: string, liked: boolean) => void;
+  onRefreshComments: () => Promise<void>;
 }
 
 export const CommentDialog = ({
@@ -68,6 +69,7 @@ export const CommentDialog = ({
   comments,
   onAddComment,
   onLikeComment,
+  onRefreshComments,
 }: CommentDialogProps) => {
   const [newComment, setNewComment] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
@@ -135,8 +137,7 @@ export const CommentDialog = ({
 
         if (!error) {
           toast.success("Réaction retirée");
-          // Refresh comments
-          window.location.reload();
+          await onRefreshComments();
         }
       } else {
         // Add reaction
@@ -150,7 +151,7 @@ export const CommentDialog = ({
 
         if (!error) {
           toast.success("Réaction ajoutée");
-          window.location.reload();
+          await onRefreshComments();
         } else if (error.code === "23505") {
           toast.info("Vous avez déjà réagi avec cet emoji");
         }
@@ -212,7 +213,7 @@ export const CommentDialog = ({
         }
       } else {
         toast.success("Commentaire masqué");
-        window.location.reload();
+        await onRefreshComments();
       }
     };
 
