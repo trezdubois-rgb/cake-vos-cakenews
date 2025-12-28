@@ -5,34 +5,33 @@ import { Bell, MessageSquare, Info } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationItem } from "@/components/notifications/NotificationItem";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Messaging = () => {
-  const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useRequireAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [activeTab, setActiveTab] = useState("notifications");
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      <div className="container mx-auto px-4 py-6 pb-24 max-w-2xl">
+        <div className="flex items-center justify-center mb-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+        <Skeleton className="h-8 w-40 mb-6" />
+        <Skeleton className="h-10 w-full mb-6" />
+        <div className="space-y-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
       </div>
     );
   }
 
   if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center space-y-4">
-        <MessageSquare className="w-12 h-12 text-primary mb-2" />
-        <h2 className="text-2xl font-bold">Messagerie</h2>
-        <p className="text-muted-foreground max-w-md">
-          Connectez-vous pour voir vos notifications et messages.
-        </p>
-        <Button onClick={() => navigate("/auth")}>Se connecter</Button>
-      </div>
-    );
+    return null; // useRequireAuth handles redirect
   }
 
   return (
@@ -45,7 +44,7 @@ const Messaging = () => {
             <Bell className="w-4 h-4 mr-2" />
             Notifs
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
             )}
           </TabsTrigger>
           <TabsTrigger value="messages">
