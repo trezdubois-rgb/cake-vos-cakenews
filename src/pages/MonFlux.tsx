@@ -2,41 +2,37 @@ import { useEffect, useState } from "react";
 import { FullScreenArticleFeed } from "@/components/feed/FullScreenArticleFeed";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/useAuth";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { Settings, Sparkles } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { toast } from "sonner";
 
 const MonFlux = () => {
   const [feedItems, setFeedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPreferences, setHasPreferences] = useState(false);
-  const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useRequireAuth();
 
   useEffect(() => {
-    if (authLoading) return;
-
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
+    if (authLoading || !user) return;
     fetchPersonalizedArticles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading]);
 
   const fetchPersonalizedArticles = async () => {
     if (!user) return;
 
     try {
-      // Fetch user preferences
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("preferences")
         .eq("id", user.id)
         .single();
+
+      if (profileError && profileError.code !== "PGRST116") {
+        throw profileError;
+      }
 
       const preferences = profile?.preferences as { 
         tags?: string[], 
@@ -52,7 +48,6 @@ const MonFlux = () => {
 
       setHasPreferences(hasSomePreferences);
 
-      // Fetch all published articles with profiles
       const { data, error } = await supabase
         .from("articles")
         .select(`
@@ -73,7 +68,6 @@ const MonFlux = () => {
         return;
       }
 
-      // Filter articles based on preferences
       let filteredData = data;
       
       if (hasSomePreferences) {
@@ -99,7 +93,6 @@ const MonFlux = () => {
         });
       }
 
-      // Format articles for FullScreenArticleFeed (same format as Accueil)
       const formattedItems = filteredData.map((article: any) => ({
         id: article.id,
         type: "article" as const,
@@ -129,14 +122,22 @@ const MonFlux = () => {
       setFeedItems(formattedItems);
     } catch (error) {
       console.error("Error fetching personalized articles:", error);
+      toast.error("Erreur lors du chargement de votre flux");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background p-4">
+        <SEO 
+          title="Mon Flux - Cakenews"
+          description="Votre flux personnalisé d'articles."
+        />
+        <div className="flex items-center justify-center mb-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
         <div className="space-y-4">
           <Skeleton className="h-96 w-full" />
           <Skeleton className="h-96 w-full" />
@@ -145,7 +146,6 @@ const MonFlux = () => {
     );
   }
 
-  // No preferences configured
   if (!hasPreferences) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -162,7 +162,7 @@ const MonFlux = () => {
             Configurez vos préférences pour voir uniquement les articles qui vous intéressent. 
             Choisissez vos sujets, catégories et auteurs favoris.
           </p>
-          <Link to="/profile">
+          <Link to="/profil">
             <Button size="lg" className="gap-2">
               <Settings className="w-5 h-5" />
               Configurer mes préférences
@@ -173,7 +173,6 @@ const MonFlux = () => {
     );
   }
 
-  // Has preferences but no matching articles
   if (feedItems.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -191,7 +190,7 @@ const MonFlux = () => {
             Essayez d'ajouter plus de sujets ou de catégories.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/profile">
+            <Link to="/profil">
               <Button variant="outline" className="gap-2">
                 <Settings className="w-4 h-4" />
                 Modifier mes préférences
