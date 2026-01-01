@@ -111,7 +111,7 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Link to="/admin/dashboard">
+        <Link to="/admin">
           <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer bg-primary text-primary-foreground">
             <div className="flex items-center gap-3 mb-2">
               <BarChart3 className="h-6 w-6" />

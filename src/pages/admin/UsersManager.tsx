@@ -77,7 +77,7 @@ type Suspension = {
 
 export default function UsersManager() {
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = useRole();
+  const { isAdmin, isCheckingRole } = useRole();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
@@ -119,12 +119,6 @@ export default function UsersManager() {
   const adminCount = users.filter((u) => u.role === "admin").length;
   const suspendedCount = users.filter((u) => u.is_suspended).length;
   const withRestrictionsCount = users.filter((u) => (u.restrictions_count || 0) > 0).length;
-
-  useEffect(() => {
-    if (!authLoading && (!user || !isAdmin)) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, isAdmin, navigate]);
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -399,12 +393,14 @@ export default function UsersManager() {
     }
   };
 
-  if (authLoading || loading) {
+  if (authLoading || isCheckingRole || loading) {
     return (
       <div className="p-4 md:p-8 space-y-8 bg-background min-h-full">
         <Skeleton className="h-20 w-full" />
         <div className="grid gap-6 md:grid-cols-4">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32" />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
         </div>
         <Skeleton className="h-96" />
       </div>
