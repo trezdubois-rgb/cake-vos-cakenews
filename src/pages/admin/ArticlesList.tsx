@@ -40,16 +40,8 @@ export default function ArticlesList() {
   const totalViews = articles.reduce((sum, a) => sum + (a.view_count || 0), 0);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    if (user && isAdmin) {
-      fetchArticles();
-    }
-  }, [user, isAdmin]);
+    fetchArticles();
+  }, []);
 
   const fetchArticles = async () => {
     try {

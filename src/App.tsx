@@ -15,10 +15,10 @@ import { AdminLayout } from "./components/layout/AdminLayout";
 import Accueil from "./pages/Accueil";
 import Article from "./pages/Article";
 
-// Admin pages - lazy loaded to reduce initial bundle
+// Auth pages - lazy loaded
 const AuthNew = lazy(() => import("./pages/AuthNew"));
-const AdminAuthPage = lazy(() => import("./pages/AdminAuthPage"));
-const Admin = lazy(() => import("./pages/Admin"));
+
+// Admin pages - lazy loaded to reduce initial bundle
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const ArticleEditor = lazy(() => import("./pages/admin/ArticleEditor"));
 const ArticlesList = lazy(() => import("./pages/admin/ArticlesList"));
@@ -57,8 +57,6 @@ const AppContent = () => {
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tags" element={<TagSearchPage />} />
           <Route path="/auth" element={<AuthNew />} />
-          <Route path="/auth/new" element={<AuthNew />} />
-          <Route path="/admin/auth" element={<AdminAuthPage />} />
           <Route path="/my-feed" element={<MonFlux />} />
           <Route path="/mon-flux" element={<MonFlux />} />
           <Route path="/messages" element={<Messaging />} />
@@ -76,7 +74,6 @@ const AppContent = () => {
           }
         >
           <Route index element={<Dashboard />} />
-          <Route path="menu" element={<Admin />} />
           <Route path="articles" element={<ArticlesList />} />
           <Route path="articles/new" element={<ArticleEditor />} />
           <Route path="articles/:id" element={<ArticleEditor />} />

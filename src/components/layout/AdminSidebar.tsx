@@ -22,6 +22,7 @@ const navItems = [
   { id: "ads", label: "Publicités", icon: Video, path: "/admin/ads" },
   { id: "categories", label: "Catégories", icon: FolderTree, path: "/admin/categories" },
   { id: "users", label: "Utilisateurs", icon: Users, path: "/admin/users" },
+  { id: "devices", label: "Appareils", icon: Settings, path: "/admin/devices" },
   { id: "design", label: "Design", icon: Palette, path: "/admin/design" },
   { id: "settings", label: "Réglages", icon: Settings, path: "/admin/settings" },
 ];

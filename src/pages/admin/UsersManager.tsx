@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -76,9 +74,7 @@ type Suspension = {
 };
 
 export default function UsersManager() {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isCheckingRole } = useRole();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,10 +117,8 @@ export default function UsersManager() {
   const withRestrictionsCount = users.filter((u) => (u.restrictions_count || 0) > 0).length;
 
   useEffect(() => {
-    if (user && isAdmin) {
-      fetchUsers();
-    }
-  }, [user, isAdmin]);
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     let filtered = users;
@@ -393,7 +387,7 @@ export default function UsersManager() {
     }
   };
 
-  if (authLoading || isCheckingRole || loading) {
+  if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-8 bg-background min-h-full">
         <Skeleton className="h-20 w-full" />
@@ -406,8 +400,6 @@ export default function UsersManager() {
       </div>
     );
   }
-
-  if (!user || !isAdmin) return null;
 
   return (
     <div className="p-4 md:p-8 space-y-8 bg-background min-h-full">
