@@ -1,13 +1,13 @@
-import { Home, FileText, Image, Palette, Settings, Users } from "lucide-react";
+import { Home, FileText, Image, Settings, Users, Video, FolderTree } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { id: "dashboard", label: "Accueil", icon: Home, path: "/admin" },
   { id: "articles", label: "Articles", icon: FileText, path: "/admin/articles" },
-  { id: "users", label: "Utilisateurs", icon: Users, path: "/admin/users" },
-  { id: "design", label: "Design", icon: Palette, path: "/admin/design" },
-  { id: "settings", label: "Réglages", icon: Settings, path: "/admin/settings" },
+  { id: "media", label: "Médias", icon: Image, path: "/admin/media" },
+  { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+  { id: "settings", label: "Plus", icon: Settings, path: "/admin/settings" },
 ];
 
 export const AdminBottomNav = () => {
