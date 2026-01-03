@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Ad {
@@ -31,13 +30,11 @@ interface Ad {
 }
 
 export default function AdsManager() {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = useRole();
+  const { user } = useAuth();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,16 +45,8 @@ export default function AdsManager() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    if (user && isAdmin) {
-      fetchAds();
-    }
-  }, [user, isAdmin]);
+    fetchAds();
+  }, []);
 
   const fetchAds = async () => {
     try {
@@ -180,7 +169,7 @@ export default function AdsManager() {
     }
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background p-8">
         <Skeleton className="h-12 w-64 mb-8" />
@@ -188,30 +177,6 @@ export default function AdsManager() {
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-64" />
           ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    navigate("/auth");
-    return null;
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-6 border-orange-500">
-            <p className="text-center text-muted-foreground">
-              ⚠️ Vous n'avez pas les droits administrateur.
-            </p>
-            <div className="mt-4 text-center">
-              <Button onClick={() => navigate("/admin")}>
-                Retour au tableau de bord
-              </Button>
-            </div>
-          </Card>
         </div>
       </div>
     );

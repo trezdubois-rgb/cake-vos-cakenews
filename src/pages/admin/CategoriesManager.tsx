@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +21,6 @@ interface Category {
 }
 
 export default function CategoriesManager() {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = useRole();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -37,19 +32,10 @@ export default function CategoriesManager() {
     color: "#3B82F6",
     icon: "",
   });
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    if (user && isAdmin) {
-      fetchCategories();
-    }
-  }, [user, isAdmin]);
+    fetchCategories();
+  }, []);
 
   const fetchCategories = async () => {
     try {
@@ -150,7 +136,7 @@ export default function CategoriesManager() {
     setIsEditing(false);
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background p-8 pb-20">
         <Skeleton className="h-12 w-64 mb-8" />
@@ -158,30 +144,6 @@ export default function CategoriesManager() {
           {[...Array(5)].map((_, i) => (
             <Skeleton key={i} className="h-24" />
           ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    navigate("/admin/auth");
-    return null;
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-6 border-orange-500">
-            <p className="text-center text-muted-foreground">
-              ⚠️ Vous n'avez pas les droits administrateur.
-            </p>
-            <div className="mt-4 text-center">
-              <Button onClick={() => navigate("/admin")}>
-                Retour au tableau de bord
-              </Button>
-            </div>
-          </Card>
         </div>
       </div>
     );
