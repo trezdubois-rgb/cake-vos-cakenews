@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,8 +14,13 @@ export const useAuth = (): AuthState & { signOut: () => Promise<void> } => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    // Éviter les doubles initialisations
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     // Récupérer la session initiale
     const getInitialSession = async () => {
       try {
@@ -38,6 +43,11 @@ export const useAuth = (): AuthState & { signOut: () => Promise<void> } => {
         setSession(session);
         setUser(session?.user || null);
         setIsAuthenticated(!!session?.user);
+        
+        // S'assurer que loading est false après un changement d'état
+        if (loading) {
+          setLoading(false);
+        }
       }
     );
 
@@ -47,6 +57,13 @@ export const useAuth = (): AuthState & { signOut: () => Promise<void> } => {
   }, []);
 
   const signOut = async () => {
+    // Nettoyer le cache du rôle lors de la déconnexion
+    try {
+      sessionStorage.removeItem('admin_role_cache');
+    } catch {
+      // Silently fail
+    }
+    
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Error signing out:', error);

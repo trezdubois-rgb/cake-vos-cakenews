@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useRole } from "@/hooks/useRole";
 import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,10 +10,7 @@ import { Palette, Type, Layout, Smartphone, Monitor, Moon, Sun, Check } from "lu
 import { cn } from "@/lib/utils";
 
 export default function DesignManager() {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = useRole();
   const { theme, updateTheme, loading: themeLoading } = useTheme();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("colors");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -29,12 +23,6 @@ export default function DesignManager() {
     border_radius: theme.border_radius,
     theme_mode: theme.theme_mode,
   });
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     // Sync form data when theme changes from context
@@ -72,7 +60,7 @@ export default function DesignManager() {
     setIsSaving(false);
   };
 
-  if (authLoading || themeLoading) {
+  if (themeLoading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-12 w-64" />
@@ -86,8 +74,6 @@ export default function DesignManager() {
       </div>
     );
   }
-
-  if (!isAdmin) return null;
 
   return (
     <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto pb-24 md:pb-8 bg-slate-50 min-h-full">

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,27 +29,17 @@ interface Media {
 }
 
 export default function MediaLibrary() {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = useRole();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [media, setMedia] = useState<Media[]>([]);
   const [filteredMedia, setFilteredMedia] = useState<Media[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    if (user && isAdmin) {
-      fetchMedia();
-    }
-  }, [user, isAdmin]);
+    fetchMedia();
+  }, []);
 
   useEffect(() => {
     filterMedia();
@@ -190,7 +178,7 @@ export default function MediaLibrary() {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background p-8 pb-20">
         <Skeleton className="h-12 w-64 mb-8" />
@@ -198,30 +186,6 @@ export default function MediaLibrary() {
           {[...Array(8)].map((_, i) => (
             <Skeleton key={i} className="h-48" />
           ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    navigate("/auth");
-    return null;
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-6 border-orange-500">
-            <p className="text-center text-muted-foreground">
-              ⚠️ Vous n'avez pas les droits administrateur.
-            </p>
-            <div className="mt-4 text-center">
-              <Button onClick={() => navigate("/admin")}>
-                Retour au tableau de bord
-              </Button>
-            </div>
-          </Card>
         </div>
       </div>
     );
