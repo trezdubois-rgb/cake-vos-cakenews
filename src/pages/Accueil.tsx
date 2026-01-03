@@ -2,21 +2,11 @@ import { useEffect, useState } from "react";
 import { FullScreenArticleFeed } from "@/components/feed/FullScreenArticleFeed";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/useAuth";
-import { useGuestMode } from "@/hooks/useGuestMode";
-import { GuestTimer } from "@/components/auth/GuestTimer";
-import { GuestPromptDialog } from "@/components/auth/GuestPromptDialog";
 import { SEO } from "@/components/SEO";
 
 const Accueil = () => {
   const [feedItems, setFeedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
-  const guestMode = useGuestMode();
-  
-  // Activer le mode invité seulement si l'utilisateur n'est pas connecté
-  const isGuest = !user;
-  const shouldShowGuestTimer = isGuest && guestMode.timeRemaining > 0 && !guestMode.isBlocked;
 
   useEffect(() => {
     fetchArticles();
@@ -106,21 +96,6 @@ const Accueil = () => {
         title="Cakenews - L'actualité en temps réel"
         description="Découvrez toute l'actualité en direct sur Cakenews. Politique, Tech, Culture et plus encore."
       />
-      {shouldShowGuestTimer && (
-        <GuestTimer
-          timeRemaining={guestMode.timeRemaining}
-          formatTime={guestMode.formatTime}
-        />
-      )}
-      
-      {isGuest && (
-        <GuestPromptDialog
-          open={guestMode.showAuthPrompt}
-          onOpenChange={guestMode.setShowAuthPrompt}
-          isBlocked={guestMode.isBlocked}
-        />
-      )}
-      
       <FullScreenArticleFeed items={feedItems} />
     </div>
   );

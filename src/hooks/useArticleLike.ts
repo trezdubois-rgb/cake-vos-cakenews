@@ -2,21 +2,31 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useHaptic } from "./useHaptic";
+import { useAuth } from "./useAuth";
 
-export const useArticleLike = (articleId: string, initialLikeCount: number) => {
+interface UseArticleLikeResult {
+  liked: boolean;
+  likeCount: number;
+  handleLike: () => Promise<boolean>; // Returns true if action was performed, false if auth required
+  loading: boolean;
+  requiresAuth: boolean;
+}
+
+export const useArticleLike = (articleId: string, initialLikeCount: number): UseArticleLikeResult => {
+  const { user, isAuthenticated } = useAuth();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [loading, setLoading] = useState(false);
+  const [requiresAuth, setRequiresAuth] = useState(false);
   const { trigger } = useHaptic();
 
   useEffect(() => {
-    if (articleId) {
+    if (articleId && isAuthenticated && user) {
       checkIfLiked();
     }
-  }, [articleId]);
+  }, [articleId, isAuthenticated, user]);
 
   const checkIfLiked = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     try {
@@ -35,14 +45,14 @@ export const useArticleLike = (articleId: string, initialLikeCount: number) => {
     }
   };
 
-  const handleLike = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
+  const handleLike = async (): Promise<boolean> => {
+    if (!isAuthenticated || !user) {
       trigger('error');
-      toast.error("Connectez-vous pour interagir avec les articles");
-      return;
+      setRequiresAuth(true);
+      return false;
     }
+
+    setRequiresAuth(false);
 
     // Optimistic update
     const newLiked = !liked;
@@ -85,17 +95,19 @@ export const useArticleLike = (articleId: string, initialLikeCount: number) => {
         .update({ like_count: newLikeCount })
         .eq("id", articleId);
 
+      return true;
     } catch (error: any) {
       // Revert on error
       setLiked(!newLiked);
-      setLikeCount(liked ? likeCount : likeCount); // Revert count
+      setLikeCount(liked ? likeCount : likeCount);
       toast.error("Erreur lors du like");
       console.error("Error liking:", error);
       trigger('error');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  return { liked, likeCount, handleLike, loading };
+  return { liked, likeCount, handleLike, loading, requiresAuth };
 };
