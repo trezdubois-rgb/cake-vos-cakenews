@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ReportMenu } from "@/components/article/ReportMenu";
 import { CommentDialog } from "@/components/article/CommentDialog";
+import { AuthRequiredDialog } from "@/components/auth/AuthRequiredDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CommentReaction {
   emoji: string;
@@ -43,16 +45,21 @@ export const ArticleActionsBar = ({
   tags,
   initialLikeCount,
 }: ArticleActionsBarProps) => {
+  const { user, isAuthenticated } = useAuth();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [loading, setLoading] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authFeature, setAuthFeature] = useState("");
 
   useEffect(() => {
-    checkIfLiked();
+    if (isAuthenticated) {
+      checkIfLiked();
+    }
     fetchComments();
-  }, [articleId]);
+  }, [articleId, isAuthenticated]);
 
   const fetchComments = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -160,9 +167,6 @@ export const ArticleActionsBar = ({
   };
 
   const checkIfLiked = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
     if (!user) return;
 
     try {
@@ -182,12 +186,9 @@ export const ArticleActionsBar = ({
   };
 
   const handleLike = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      toast.error("Connectez-vous pour interagir avec les articles");
+    if (!isAuthenticated || !user) {
+      setAuthFeature("liker cet article");
+      setShowAuthDialog(true);
       return;
     }
 
@@ -232,13 +233,7 @@ export const ArticleActionsBar = ({
   };
 
   const handleShare = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour partager des articles");
-      return;
-    }
-    
+    // Le partage est autorisé pour tous
     const url = `${window.location.origin}/article/${articleId}`;
 
     if (navigator.share) {
@@ -257,13 +252,11 @@ export const ArticleActionsBar = ({
   };
 
   const handleReportContent = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour signaler du contenu");
+    if (!isAuthenticated) {
+      setAuthFeature("signaler du contenu");
+      setShowAuthDialog(true);
       return;
     }
-    
     toast.info("Contenu signalé. Merci pour votre vigilance.");
   };
 
@@ -288,10 +281,9 @@ export const ArticleActionsBar = ({
   };
 
   const handleOpenComments = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour voir et ajouter des commentaires");
+    if (!isAuthenticated) {
+      setAuthFeature("les commentaires");
+      setShowAuthDialog(true);
       return;
     }
     
@@ -300,11 +292,9 @@ export const ArticleActionsBar = ({
   };
 
   const handleAddComment = async (content: string, parentId?: string) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("Connectez-vous pour commenter");
+    if (!isAuthenticated || !user) {
+      setAuthFeature("commenter");
+      setShowAuthDialog(true);
       return;
     }
 
@@ -324,12 +314,9 @@ export const ArticleActionsBar = ({
   };
 
   const handleLikeComment = async (commentId: string, isLiked: boolean) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Connectez-vous pour liker");
+    if (!isAuthenticated || !user) {
+      setAuthFeature("liker les commentaires");
+      setShowAuthDialog(true);
       return;
     }
 
@@ -357,6 +344,12 @@ export const ArticleActionsBar = ({
 
   return (
     <>
+      <AuthRequiredDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog}
+        feature={authFeature}
+      />
+      
       {/* Barre d'actions rouge - fixe au-dessus de la navigation */}
       <div className="fixed bottom-16 left-0 right-0 z-40 h-16 bg-destructive/95 backdrop-blur border-t border-destructive-foreground/20">
         <div className="h-full flex items-center justify-around px-2">
