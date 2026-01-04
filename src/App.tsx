@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import { GuestBlocker } from "./components/auth/GuestBlocker";
 import { UserLayout } from "./components/layout/UserLayout";
 import { AdminLayout } from "./components/layout/AdminLayout";
 
@@ -15,8 +14,8 @@ import { AdminLayout } from "./components/layout/AdminLayout";
 import Accueil from "./pages/Accueil";
 import Article from "./pages/Article";
 
-// Auth pages - lazy loaded
-const AuthNew = lazy(() => import("./pages/AuthNew"));
+// Auth page - lazy loaded
+const Auth = lazy(() => import("./pages/Auth"));
 
 // Admin pages - lazy loaded to reduce initial bundle
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -56,7 +55,7 @@ const AppContent = () => {
           <Route path="/article/:id" element={<Article />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tags" element={<TagSearchPage />} />
-          <Route path="/auth" element={<AuthNew />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/my-feed" element={<MonFlux />} />
           <Route path="/mon-flux" element={<MonFlux />} />
           <Route path="/messages" element={<Messaging />} />
