@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
+import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -15,44 +16,43 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
   const location = useLocation();
   const hasRedirected = useRef(false);
 
-  // Afficher un indicateur de chargement pendant la vérification
   const isLoading = authLoading || (requireAdmin && isCheckingRole);
 
+  // Reset redirect flag when location changes
   useEffect(() => {
-    // Reset redirect flag when location changes
     hasRedirected.current = false;
   }, [location.pathname]);
 
   useEffect(() => {
-    // Ne pas rediriger tant que le chargement n'est pas terminé
     if (isLoading || hasRedirected.current) return;
 
-    // Rediriger si l'utilisateur n'est pas authentifié
+    // Not authenticated → redirect to auth
     if (!isAuthenticated) {
       hasRedirected.current = true;
       navigate("/auth", { replace: true });
       return;
     }
 
-    // Si admin requis mais l'utilisateur n'est pas admin
+    // Admin required but user is not admin → redirect to home
     if (requireAdmin && !isAdmin) {
       hasRedirected.current = true;
       navigate("/", { replace: true });
     }
   }, [isAuthenticated, isLoading, isAdmin, requireAdmin, navigate]);
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
           <p className="text-muted-foreground text-sm">Vérification des accès...</p>
         </div>
       </div>
     );
   }
 
-  // Afficher une erreur si la vérification du rôle a échoué (erreur réseau, etc.)
+  // Role error state
   if (roleError) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -61,7 +61,7 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
           <p className="text-muted-foreground mb-4">{roleError}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >
             Réessayer
           </button>
@@ -70,15 +70,15 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
     );
   }
 
-  // Si l'utilisateur est authentifié et les conditions sont remplies
+  // Authorized
   if (isAuthenticated && (!requireAdmin || isAdmin)) {
     return <>{children}</>;
   }
 
-  // Pendant la redirection, afficher le loader
+  // Fallback loading while redirect happens
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 };
