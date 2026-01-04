@@ -1,128 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Merriweather:wght@300;400;700;900&family=Lora:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* MIMO Flux Design System - Mobile-first, TikTok-inspired */
+/* Dark theme inspired by SWA screenshot - deep navy with purple accents */
 
 @layer base {
   :root {
-    /* Core colors - Deep blue theme inspired by modern social apps */
-    --background: 0 0% 100%;
-    --foreground: 220 13% 18%;
+    /* Dark theme by default - matching screenshot */
+    --background: 228 20% 10%;
+    --foreground: 210 20% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 18%;
+    --card: 228 22% 14%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 18%;
+    --popover: 228 22% 12%;
+    --popover-foreground: 210 20% 95%;
 
-    /* Primary - Modern blue gradient */
-    --primary: 217 91% 60%;
+    /* Primary - Vivid purple like screenshot */
+    --primary: 252 85% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 70%;
 
-    /* Secondary - Soft gray */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 13% 18%;
+    --secondary: 228 20% 18%;
+    --secondary-foreground: 210 20% 90%;
 
-    /* Muted - Light grays */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --muted: 228 18% 22%;
+    --muted-foreground: 215 15% 60%;
 
-    /* Accent - Vibrant interactions */
-    --accent: 217 91% 60%;
+    --accent: 252 85% 65%;
     --accent-foreground: 0 0% 100%;
 
-    /* Social interaction colors */
-    --like: 0 84% 60%;
-    --like-foreground: 0 0% 100%;
-    --favorite: 45 93% 58%;
-    --favorite-foreground: 0 0% 100%; 
-    --seen: 220 8.9% 46.1%;
-
     /* Status colors */
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 76% 36%;
+
+    --success: 142 70% 45%;
     --success-foreground: 0 0% 100%;
+
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 0 0% 0%;
+
+    /* Social colors */
+    --like: 350 89% 60%;
+    --like-foreground: 0 0% 100%;
+    --favorite: 38 92% 50%;
+    --favorite-foreground: 0 0% 100%;
+    --seen: 215 15% 50%;
 
     /* UI elements */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
-
-    /* Modern gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-hero: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-    
-    /* Shadows for depth */
-    --shadow-soft: 0 2px 8px rgba(0,0,0,0.08);
-    --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
-    --shadow-strong: 0 8px 32px rgba(0,0,0,0.16);
-    --shadow-glow: 0 0 24px hsl(var(--primary) / 0.3);
-
-    /* Animation timing */
-    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --border: 228 15% 20%;
+    --input: 228 18% 18%;
+    --ring: 252 85% 60%;
 
     --radius: 0.75rem;
 
-    /* Safe area support */
+    /* Sidebar */
+    --sidebar-background: 228 22% 12%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 252 85% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 252 80% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 228 15% 18%;
+    --sidebar-ring: 252 85% 60%;
+
+    /* Safe areas */
     --safe-area-top: env(safe-area-inset-top);
     --safe-area-bottom: env(safe-area-inset-bottom);
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+  /* Light theme alternative */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 228 20% 10%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 228 20% 10%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 20% 10%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 252 85% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 228 15% 96%;
+    --secondary-foreground: 228 20% 20%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 228 10% 94%;
+    --muted-foreground: 228 15% 45%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 252 85% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 228 15% 90%;
+    --input: 228 15% 92%;
+    --ring: 252 85% 55%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 228 15% 20%;
+    --sidebar-primary: 252 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 252 80% 95%;
+    --sidebar-accent-foreground: 252 85% 40%;
+    --sidebar-border: 228 15% 90%;
+    --sidebar-ring: 252 85% 55%;
   }
 }
 
@@ -133,110 +118,42 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Merriweather', 'Lora', Georgia, serif;
-    font-size: 18px;
-    line-height: 1.8;
-    overscroll-behavior: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Mobile-first typography - Magazine style */
-  h1 { 
-    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight; 
+  h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', Georgia, serif;
-  }
-  h2 { 
-    @apply text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight; 
-    font-family: 'Playfair Display', Georgia, serif;
-  }
-  h3 { 
-    @apply text-2xl md:text-3xl lg:text-4xl font-medium leading-tight; 
-    font-family: 'Playfair Display', Georgia, serif;
-  }
-  
-  p {
-    @apply text-lg md:text-xl;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Smooth scrolling for articles */
-  .article-content {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    font-family: 'Lora', Georgia, serif;
-    font-size: 1.125rem;
-    line-height: 1.8;
-  }
-  
-  .article-content h2 {
-    margin-top: 3rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .article-content h3 {
-    margin-top: 2.5rem;
-    margin-bottom: 1.25rem;
-  }
-  
-  .article-content p {
-    margin-bottom: 1.75rem;
-  }
-  
-  /* Safe area padding utilities */
-  .pb-safe-bottom {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
-  }
-  
-  .pb-safe-bottom-actions {
-    padding-bottom: calc(8rem + env(safe-area-inset-bottom));
   }
 }
 
 @layer components {
-  /* TikTok-style full screen container */
+  /* Feed container - TikTok style */
   .feed-container {
-    @apply h-screen w-screen relative overflow-hidden;
+    @apply h-screen w-full overflow-hidden relative;
   }
 
-  /* Swipe gesture area */
-  .swipe-area {
-    @apply absolute inset-0 touch-pan-y;
-    touch-action: pan-y;
-  }
-
-  /* Item containers - NO animations as per requirements */
   .feed-item {
-    @apply absolute inset-0 flex flex-col;
+    @apply h-screen w-full;
   }
 
-  /* Hero image with gradient overlay */
-  .hero-container {
-    @apply relative w-full h-64 overflow-hidden rounded-t-lg;
-    background: var(--gradient-hero);
+  /* Safe area for mobile */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 
-  .hero-image {
-    @apply w-full h-full object-cover;
-    filter: brightness(0.9);
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Social action buttons - NO animations */
-  .social-button {
-    @apply inline-flex items-center justify-center rounded-full p-2;
-    @apply bg-black/10 hover:bg-black/20;
-    backdrop-filter: blur(8px);
+  .pb-safe-bottom {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 
-  .social-button.liked {
-    @apply bg-like text-like-foreground;
-    box-shadow: 0 0 16px hsl(var(--like) / 0.4);
-  }
-
-  .social-button.favorited {
-    @apply bg-favorite text-favorite-foreground;
-    box-shadow: 0 0 16px hsl(var(--favorite) / 0.4);
+  /* Glass effect */
+  .glass {
+    @apply backdrop-blur-xl bg-background/60 border border-border/50;
   }
 
   /* Bottom navigation */
@@ -246,25 +163,104 @@
     padding-bottom: max(env(safe-area-inset-bottom), 16px);
   }
 
-  /* Safe area utilities */
-  .top-safe-area {
-    top: max(env(safe-area-inset-top), 16px);
+  /* Social button */
+  .social-button {
+    @apply inline-flex items-center justify-center rounded-full p-2 transition-all duration-200;
   }
 
-  .bottom-safe-area {
-    bottom: max(calc(env(safe-area-inset-bottom) + 80px), 96px);
+  .social-button:active {
+    transform: scale(0.9);
   }
 
-  /* Skeleton loading - NO animation as per requirements */
+  .social-button.liked {
+    color: hsl(var(--like));
+  }
+
+  .social-button.favorited {
+    color: hsl(var(--favorite));
+  }
+
+  /* Skeleton loading */
   .skeleton {
-    @apply bg-muted rounded;
+    @apply animate-pulse bg-muted rounded;
   }
 
-  /* Glass morphism effect */
-  .glass {
-    background: var(--gradient-glass);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Article content styling */
+  .article-content {
+    @apply leading-relaxed;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .article-content h1,
+  .article-content h2,
+  .article-content h3 {
+    @apply font-bold mt-6 mb-3;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .article-content p {
+    @apply mb-4;
+  }
+
+  .article-content a {
+    @apply text-primary underline;
+  }
+
+  .article-content img {
+    @apply rounded-lg my-4 w-full;
+  }
+
+  .article-content blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-4 text-muted-foreground;
+  }
+
+  .article-content code {
+    @apply bg-muted px-2 py-1 rounded text-sm;
+  }
+
+  .article-content pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto my-4;
+  }
+
+  /* Prose styling for rich content */
+  .prose {
+    @apply text-foreground;
+  }
+
+  .prose h1 {
+    @apply text-2xl font-bold mb-4;
+  }
+
+  .prose h2 {
+    @apply text-xl font-semibold mb-3;
+  }
+
+  .prose h3 {
+    @apply text-lg font-medium mb-2;
+  }
+
+  .prose p {
+    @apply mb-4 leading-relaxed;
+  }
+
+  .prose a {
+    @apply text-primary hover:underline;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-4 text-muted-foreground;
+  }
+
+  .prose code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
+  }
+
+  .prose pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto;
+  }
+
+  .prose img {
+    @apply rounded-lg my-4;
   }
 
   /* Seen indicator */
@@ -272,57 +268,20 @@
     @apply opacity-75 relative;
   }
 
-  .seen-indicator::after {
-    content: '';
-    @apply absolute inset-0 bg-seen/10 rounded pointer-events-none;
+  /* Heart animation */
+  @keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.15); }
   }
 
-  /* Prose styling for rich text editor */
-  .prose {
-    @apply text-foreground;
+  .heart-beat {
+    animation: heartBeat 0.6s ease-in-out;
   }
 
-  .prose h1, .prose h2, .prose h3, .prose h4 {
-    @apply text-foreground;
-  }
-
-  .prose a {
-    @apply text-primary no-underline hover:underline;
-  }
-
-  .prose strong {
-    @apply text-foreground font-semibold;
-  }
-
-  .prose code {
-    @apply bg-muted text-foreground px-1 py-0.5 rounded text-sm;
-  }
-
-  .prose pre {
-    @apply bg-muted text-foreground p-4 rounded-lg overflow-x-auto;
-  }
-
-  .prose pre code {
-    @apply bg-transparent p-0;
-  }
-
-  .prose blockquote {
-    @apply border-l-4 border-primary pl-4 py-2 my-4 italic text-muted-foreground bg-muted/30 rounded-r;
-  }
-
-  .prose img {
-    @apply rounded-lg my-4;
-  }
-
-  .prose .video-wrapper {
-    @apply my-4;
-  }
-
-  .prose .video-wrapper iframe {
-    @apply w-full rounded-lg;
-  }
-
-  .ProseMirror-selectednode {
-    @apply outline outline-2 outline-primary;
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-muted border-t-primary;
   }
 }

@@ -49,13 +49,17 @@ const AppContent = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        {/* USER INTERFACE - Public & Authenticated User Routes */}
+        {/* USER INTERFACE - Public Routes */}
         <Route element={<UserLayout />}>
           <Route path="/" element={<Accueil />} />
           <Route path="/article/:id" element={<Article />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tags" element={<TagSearchPage />} />
           <Route path="/auth" element={<Auth />} />
+        </Route>
+
+        {/* USER INTERFACE - Protected Routes (require auth) */}
+        <Route element={<ProtectedRoute><UserLayout /></ProtectedRoute>}>
           <Route path="/my-feed" element={<MonFlux />} />
           <Route path="/mon-flux" element={<MonFlux />} />
           <Route path="/messages" element={<Messaging />} />
