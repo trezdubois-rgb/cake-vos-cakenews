@@ -12,22 +12,18 @@ export interface AuthResponse {
 // Fonction pour vérifier le rôle admin via une Edge Function Supabase
 export const checkAdminRoleSecure = async (token: string): Promise<AuthResponse> => {
   try {
-    // Appeler l'Edge Function pour la validation côté serveur
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-guard`, {
-      method: 'POST',
+    const { data, error } = await supabase.functions.invoke('auth-guard', {
+      body: {},
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Erreur serveur: ${response.status}`);
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const data = await response.json();
-    return data;
+    return data as AuthResponse;
   } catch (error) {
     console.error('Erreur lors de la vérification sécurisée du rôle admin:', error);
     return {
@@ -37,34 +33,30 @@ export const checkAdminRoleSecure = async (token: string): Promise<AuthResponse>
   }
 };
 
-// Fonction pour vérifier le rôle via Edge Function
-export const verifyUserRole = async (token: string, requiredRole: 'admin' | 'user' = 'user'): Promise<AuthResponse> => {
+// Fonction pour vérifier le rôle via fonction backend
+export const verifyUserRole = async (
+  token: string,
+  requiredRole: 'admin' | 'user' = 'user'
+): Promise<AuthResponse> => {
   try {
-    // Appeler l'Edge Function pour la validation côté serveur
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-guard`, {
-      method: 'POST',
+    const { data, error } = await supabase.functions.invoke('auth-guard', {
+      body: {},
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Erreur serveur: ${response.status}`);
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const data = await response.json();
+    const payload = data as AuthResponse;
 
-    // Vérifier si le rôle requis est respecté
-    if (requiredRole === 'admin' && !data.isAdmin) {
-      return {
-        ...data,
-        isValid: false,
-      };
+    if (requiredRole === 'admin' && !payload.isAdmin) {
+      return { ...payload, isValid: false };
     }
 
-    return data;
+    return payload;
   } catch (error) {
     console.error('Erreur lors de la vérification du rôle:', error);
     return {
