@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Edit, Eye, Trash2, Plus, Heart, TrendingUp, ArrowUpDown } from "lucide-react";
+import { FileText, Edit, Eye, Trash2, Plus, Heart, TrendingUp, ArrowUpDown, Clock, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { StatCard } from "@/components/admin/StatCard";
@@ -18,12 +18,15 @@ interface Article {
   title: string;
   category: string;
   published: boolean | null;
+  status: string | null;
+  scheduled_publish_at: string | null;
   view_count: number | null;
   like_count: number | null;
   created_at: string;
 }
 
 type SortOption = "newest" | "oldest" | "most_views" | "most_likes" | "title_asc" | "title_desc";
+type StatusFilter = "all" | "published" | "draft" | "scheduled";
 
 export default function ArticlesList() {
   const { user, loading: authLoading } = useAuth();
@@ -31,12 +34,14 @@ export default function ArticlesList() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const navigate = useNavigate();
 
   // Stats for the header
   const totalArticles = articles.length;
-  const publishedCount = articles.filter((a) => a.published === true).length;
-  const draftCount = articles.filter((a) => a.published !== true).length;
+  const publishedCount = articles.filter((a) => a.status === "published" || a.published === true).length;
+  const draftCount = articles.filter((a) => a.status === "draft" || (!a.published && a.status !== "scheduled")).length;
+  const scheduledCount = articles.filter((a) => a.status === "scheduled").length;
   const totalViews = articles.reduce((sum, a) => sum + (a.view_count || 0), 0);
 
   useEffect(() => {
@@ -47,7 +52,7 @@ export default function ArticlesList() {
     try {
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, category, published, view_count, like_count, created_at");
+        .select("id, title, category, published, status, scheduled_publish_at, view_count, like_count, created_at");
 
       if (error) throw error;
       setArticles(data || []);
@@ -58,8 +63,17 @@ export default function ArticlesList() {
     }
   };
 
+  // Filter articles by status
+  const filteredArticles = articles.filter((a) => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "published") return a.status === "published" || a.published === true;
+    if (statusFilter === "draft") return a.status === "draft" || (!a.published && a.status !== "scheduled");
+    if (statusFilter === "scheduled") return a.status === "scheduled";
+    return true;
+  });
+
   // Sort articles based on selected option
-  const sortedArticles = [...articles].sort((a, b) => {
+  const sortedArticles = [...filteredArticles].sort((a, b) => {
     switch (sortBy) {
       case "newest":
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -97,7 +111,7 @@ export default function ArticlesList() {
 
   if (authLoading || loading) {
     return (
-      <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+      <div className="p-4 md:p-8 space-y-8 bg-background min-h-full">
         <Skeleton className="h-20 w-full" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Skeleton className="h-32" />
@@ -119,7 +133,7 @@ export default function ArticlesList() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-8 bg-slate-50 min-h-full">
+    <div className="p-4 md:p-8 space-y-8 bg-background min-h-full">
       <AdminPageHeader
         title="Articles"
         description="Gérer tous les articles publiés et brouillons"
@@ -162,6 +176,13 @@ export default function ArticlesList() {
           subtitle="En attente"
         />
         <StatCard
+          title="Programmés"
+          value={scheduledCount}
+          icon={Clock}
+          color="purple"
+          subtitle="À venir"
+        />
+        <StatCard
           title="Vues Totales"
           value={totalViews}
           icon={Eye}
@@ -173,46 +194,69 @@ export default function ArticlesList() {
       {/* Articles List */}
       <Card className="border-none shadow-md">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-slate-800">
-              Liste des articles
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+            <h2 className="text-xl font-bold text-foreground">
+              Liste des articles ({sortedArticles.length})
             </h2>
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-              <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Trier par..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Plus récents</SelectItem>
-                  <SelectItem value="oldest">Plus anciens</SelectItem>
-                  <SelectItem value="most_views">Plus vus</SelectItem>
-                  <SelectItem value="most_likes">Plus aimés</SelectItem>
-                  <SelectItem value="title_asc">Titre A-Z</SelectItem>
-                  <SelectItem value="title_desc">Titre Z-A</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder="Statut..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="published">Publiés</SelectItem>
+                    <SelectItem value="draft">Brouillons</SelectItem>
+                    <SelectItem value="scheduled">Programmés</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+                <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder="Trier par..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Plus récents</SelectItem>
+                    <SelectItem value="oldest">Plus anciens</SelectItem>
+                    <SelectItem value="most_views">Plus vus</SelectItem>
+                    <SelectItem value="most_likes">Plus aimés</SelectItem>
+                    <SelectItem value="title_asc">Titre A-Z</SelectItem>
+                    <SelectItem value="title_desc">Titre Z-A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <div className="space-y-4">
             {sortedArticles.map((article) => (
               <div
                 key={article.id}
-                className="flex items-start justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                className="flex items-start justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
               >
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-bold text-slate-700">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <h3 className="text-lg font-bold text-foreground">
                       {article.title}
                     </h3>
-                    <Badge variant={article.published ? "default" : "secondary"}>
-                      {article.published ? "Publié" : "Brouillon"}
-                    </Badge>
+                    {article.status === "scheduled" ? (
+                      <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Programmé
+                      </Badge>
+                    ) : article.status === "published" || article.published ? (
+                      <Badge variant="default">Publié</Badge>
+                    ) : (
+                      <Badge variant="secondary">Brouillon</Badge>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">
                     {article.category}
                   </p>
-                  <div className="flex gap-4 text-sm text-muted-foreground">
+                  <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1">
                       <Eye className="h-4 w-4" />
                       {article.view_count ?? 0} vues
@@ -224,6 +268,17 @@ export default function ArticlesList() {
                     <span>
                       {new Date(article.created_at).toLocaleDateString("fr-FR")}
                     </span>
+                    {article.scheduled_publish_at && (
+                      <span className="text-purple-600 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Prévu: {new Date(article.scheduled_publish_at).toLocaleString("fr-FR", { 
+                          day: "2-digit", 
+                          month: "short", 
+                          hour: "2-digit", 
+                          minute: "2-digit" 
+                        })}
+                      </span>
+                    )}
                   </div>
                 </div>
 
