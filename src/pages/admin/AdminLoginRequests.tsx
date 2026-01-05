@@ -22,19 +22,24 @@ interface LoginRequest {
 
 export default function AdminLoginRequests() {
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = useRole();
+  const { isAdmin, isCheckingRole } = useRole();
   const navigate = useNavigate();
   const [requests, setRequests] = useState<LoginRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Attendre la résolution auth + rôle avant de rediriger (évite les faux négatifs)
+    if (authLoading || isCheckingRole) return;
+
+    if (!user) {
       navigate("/auth");
+      return;
     }
-    if (!authLoading && user && !isAdmin) {
+
+    if (!isAdmin) {
       navigate("/");
     }
-  }, [user, authLoading, isAdmin, navigate]);
+  }, [user, authLoading, isCheckingRole, isAdmin, navigate]);
 
   useEffect(() => {
     if (isAdmin) {
