@@ -1,28 +1,32 @@
 import { useState, useEffect } from "react";
-import { User, Settings, Heart, Bookmark, Clock, Download, Trash2, Plus, X, LogOut } from "lucide-react";
+import { User, Settings, Heart, Bookmark, Clock, Download, Trash2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { PreferencesSelector } from "@/components/profile/PreferencesSelector";
 
-interface UserPreference {
-  id: string;
-  type: 'tag' | 'author' | 'category' | 'format';
-  value: string;
-  weight: number;
+interface Preferences {
+  tags: string[];
+  authors: string[];
+  categories: string[];
+  formats: string[];
 }
 
 const Profil = () => {
-  const [preferences, setPreferences] = useState<UserPreference[]>([]);
-  const [newPreference, setNewPreference] = useState({ type: 'tag', value: '' });
+  const [preferences, setPreferences] = useState<Preferences>({
+    tags: [],
+    authors: [],
+    categories: [],
+    formats: [],
+  });
   const [isDataLoading, setIsDataLoading] = useState(true);
   const { user, isLoading: authLoading, error: authError } = useRequireAuth();
   const navigate = useNavigate();
@@ -52,13 +56,12 @@ const Profil = () => {
 
       if (data?.preferences) {
         const prefs = data.preferences as any;
-        const allPrefs: UserPreference[] = [
-          ...(prefs.tags || []).map((t: string, i: number) => ({ id: `tag-${i}`, type: 'tag' as const, value: t, weight: 0.8 })),
-          ...(prefs.authors || []).map((a: string, i: number) => ({ id: `author-${i}`, type: 'author' as const, value: a, weight: 0.7 })),
-          ...(prefs.categories || []).map((c: string, i: number) => ({ id: `category-${i}`, type: 'category' as const, value: c, weight: 0.9 })),
-          ...(prefs.formats || []).map((f: string, i: number) => ({ id: `format-${i}`, type: 'format' as const, value: f, weight: 0.6 })),
-        ];
-        setPreferences(allPrefs);
+        setPreferences({
+          tags: prefs.tags || [],
+          authors: prefs.authors || [],
+          categories: prefs.categories || [],
+          formats: prefs.formats || [],
+        });
       }
     } catch (error) {
       console.error("Error loading preferences:", error);
@@ -68,48 +71,23 @@ const Profil = () => {
     }
   };
 
-  const savePreferences = async (updatedPrefs: UserPreference[]) => {
+  const handlePreferencesChange = async (newPreferences: Preferences) => {
     if (!user) return;
 
-    const formatted = {
-      tags: updatedPrefs.filter(p => p.type === 'tag').map(p => p.value),
-      authors: updatedPrefs.filter(p => p.type === 'author').map(p => p.value),
-      categories: updatedPrefs.filter(p => p.type === 'category').map(p => p.value),
-      formats: updatedPrefs.filter(p => p.type === 'format').map(p => p.value),
-    };
+    setPreferences(newPreferences);
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ preferences: formatted })
-      .eq("id", user.id);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ preferences: JSON.parse(JSON.stringify(newPreferences)) })
+        .eq("id", user.id);
 
-    if (error) {
+      if (error) throw error;
+      toast.success("Préférences sauvegardées");
+    } catch (error) {
+      console.error("Error saving preferences:", error);
       toast.error("Erreur lors de la sauvegarde");
-      throw error;
     }
-
-    toast.success("Préférences sauvegardées");
-  };
-
-  const addPreference = async () => {
-    if (newPreference.value.trim()) {
-      const preference: UserPreference = {
-        id: Date.now().toString(),
-        type: newPreference.type as any,
-        value: newPreference.value.trim(),
-        weight: 0.7
-      };
-      const updated = [...preferences, preference];
-      setPreferences(updated);
-      await savePreferences(updated);
-      setNewPreference({ type: 'tag', value: '' });
-    }
-  };
-
-  const removePreference = async (id: string) => {
-    const updated = preferences.filter(p => p.id !== id);
-    setPreferences(updated);
-    await savePreferences(updated);
   };
 
   const handleSignOut = async () => {
@@ -118,26 +96,6 @@ const Profil = () => {
       toast.error("Erreur lors de la déconnexion");
     } else {
       navigate("/auth");
-    }
-  };
-
-  const getPreferenceTypeLabel = (type: string) => {
-    switch (type) {
-      case 'tag': return 'Sujet';
-      case 'author': return 'Auteur';
-      case 'category': return 'Catégorie';
-      case 'format': return 'Format';
-      default: return type;
-    }
-  };
-
-  const getPreferenceTypeColor = (type: string) => {
-    switch (type) {
-      case 'tag': return 'default';
-      case 'author': return 'secondary';
-      case 'category': return 'outline';
-      case 'format': return 'destructive';
-      default: return 'secondary';
     }
   };
 
@@ -188,78 +146,23 @@ const Profil = () => {
                   Mes Préférences de Contenu
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Personnalisez votre flux en sélectionnant vos sujets et auteurs favoris.
+                  Sélectionnez vos catégories, sujets et auteurs favoris pour personnaliser "Mon Flux".
                 </p>
               </CardHeader>
               <CardContent>
                 {isDataLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                        <div className="flex items-center gap-3 flex-1">
-                          <Skeleton className="w-16 h-6 rounded-full" />
-                          <Skeleton className="h-5 w-32" />
-                        </div>
-                        <Skeleton className="w-8 h-8 rounded" />
-                      </div>
+                      <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />
                     ))}
                   </div>
-                ) : (
-                  <>
-                    {/* Add new preference */}
-                    <div className="flex gap-2 mb-4">
-                      <select
-                        value={newPreference.type}
-                        onChange={(e) => setNewPreference({ ...newPreference, type: e.target.value })}
-                        className="px-3 py-2 border border-border rounded-md text-sm bg-background"
-                      >
-                        <option value="tag">Sujet</option>
-                        <option value="author">Auteur</option>
-                        <option value="category">Catégorie</option>
-                        <option value="format">Format</option>
-                      </select>
-                      <Input
-                        placeholder="Ajouter une préférence..."
-                        value={newPreference.value}
-                        onChange={(e) => setNewPreference({ ...newPreference, value: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && addPreference()}
-                      />
-                      <Button onClick={addPreference} size="sm">
-                        <Plus size={16} />
-                      </Button>
-                    </div>
-
-                    {/* Preferences list */}
-                    <div className="space-y-2">
-                      {preferences.map(preference => (
-                        <div key={preference.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Badge variant={getPreferenceTypeColor(preference.type) as any} className="text-xs">
-                              {getPreferenceTypeLabel(preference.type)}
-                            </Badge>
-                            <span className="font-medium">{preference.value}</span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removePreference(preference.id)}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <X size={16} />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-
-                    {preferences.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Settings size={48} className="mx-auto mb-4 opacity-50" />
-                        <p>Aucune préférence configurée.</p>
-                        <p className="text-sm">Ajoutez vos sujets favoris pour personnaliser votre flux.</p>
-                      </div>
-                    )}
-                  </>
-                )}
+                ) : user ? (
+                  <PreferencesSelector
+                    userId={user.id}
+                    preferences={preferences}
+                    onPreferencesChange={handlePreferencesChange}
+                  />
+                ) : null}
               </CardContent>
             </Card>
           </TabsContent>
